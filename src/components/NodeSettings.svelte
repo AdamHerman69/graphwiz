@@ -2,6 +2,7 @@
 	import { nodeSettings } from '../utils/graphSettings.svelte';
 	import RuleSettings from './RuleSettings.svelte';
 	import SettingsHeader from './SettingsHeader.svelte';
+	import SettingsSlider from './SettingsSlider.svelte';
 
 	let collapsed = $state(false);
 
@@ -14,7 +15,7 @@
 			<SettingsHeader title="node" {collapsed} />
 			<!-- Settings -->
 			{#if !collapsed}
-				settings here
+				<SettingsSlider numSettings={setting.size} />
 			{/if}
 		{:else}
 			<RuleSettings />
