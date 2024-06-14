@@ -1,2 +1,15 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+	import GraphSettingsPanel from '../components/GraphSettingsPanel.svelte';
+</script>
+
+<div class="h-full w-full flex justify-center items-center">
+	<!-- <div class="absolute inset-0 z-0"><NodeLinkCanvas /></div> -->
+	<div class="h-full w-full flex flex-col mx-2">
+		<div class="grow flex justify-between">
+			<div class="w-1/5 z-10 p-8 overflow-y-auto h-screen">guidelinesPanel</div>
+			<div class="settingsPanel z-10 text-sm h-screen">
+				<GraphSettingsPanel />
+			</div>
+		</div>
+	</div>
+</div>
