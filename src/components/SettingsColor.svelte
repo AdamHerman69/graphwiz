@@ -5,6 +5,7 @@
 	import { colord, type RgbaColor } from 'colord';
 	import ColorPicker from '$lib/colorPicker/components/ColorPicker.svelte';
 	import RangeSliderGradient from '$lib/RangeSlider/RangeSliderGradient.svelte';
+	import ColorPickerWrapper from '$lib/RangeSlider/ColorPickerWrapper.svelte';
 
 	let { colorSetting }: { colorSetting: ColorSetting } = $props();
 
@@ -103,6 +104,7 @@
 		bind:rgb={colorSetting.value[pickerColorIndex][0] as RgbaColor}
 		label="tadyy"
 		isDialog={false}
+		components={{ wrapper: ColorPickerWrapper }}
 		closeFunction={() => console.log('close color picker')}
 	/>
 {/if}

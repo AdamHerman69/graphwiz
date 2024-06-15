@@ -5,6 +5,7 @@
 	import SettingsSliderMultiple from './SettingsSliderMultiple.svelte';
 	import SettingsSlider from './SettingsSlider.svelte';
 	import SettingsColor from './SettingsColor.svelte';
+	import SettingsEdgeLabel from './SettingsEdgeLabel.svelte';
 
 	let collapsed = $state(false);
 
@@ -17,12 +18,15 @@
 			<SettingsHeader title="edge" {collapsed} />
 			<!-- Settings -->
 			{#if !collapsed}
+				<!-- TODO Edge Type -->
 				<SettingsSlider numSettings={setting.width!} />
 				<SettingsSliderMultiple
 					name="Partial Edge"
 					numSettings={[edgeSettings[0].partialStart!, edgeSettings[0].partialEnd!]}
 				/>
 				<SettingsColor colorSetting={setting.color!} />
+				<!-- TODO Decorators -->
+				<SettingsEdgeLabel labels={setting.labels!} />
 			{/if}
 		{:else}
 			<RuleSettings />

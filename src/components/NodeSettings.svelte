@@ -4,6 +4,7 @@
 	import SettingsHeader from './SettingsHeader.svelte';
 	import SettingsSlider from './SettingsSlider.svelte';
 	import SettingsColor from './SettingsColor.svelte';
+	import SettingsNodeLabel from './SettingsNodeLabel.svelte';
 
 	let collapsed = $state(false);
 
@@ -20,6 +21,7 @@
 				<SettingsColor colorSetting={setting.color!} />
 				<SettingsSlider numSettings={setting.strokeWidth!} />
 				<SettingsColor colorSetting={setting.strokeColor!} />
+				<SettingsNodeLabel labels={setting.labels!} />
 			{/if}
 		{:else}
 			<RuleSettings />

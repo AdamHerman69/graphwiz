@@ -1,4 +1,4 @@
-import { type RangeAttribute } from './graph.svelte';
+import { type Attribute, type RangeAttribute } from './graph.svelte';
 import type { Guideline } from './guidelines.svelte';
 import type { Rule } from './rules.svelte';
 import type { RgbaColor } from 'colord';
@@ -44,9 +44,9 @@ export type ColorSetting = Setting<Gradient> & {
 
 type LabelStyle = {
 	text: string;
-	color: string;
+	color: RgbaColor;
 	size: number;
-	attributeName?: string; // can be a property as well
+	attribute?: Attribute;
 };
 
 export type NodeLabel = LabelStyle & {
