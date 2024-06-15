@@ -1,28 +1,26 @@
 import { type RangeAttribute } from './graph.svelte';
 import type { Guideline } from './guidelines.svelte';
 import type { Rule } from './rules.svelte';
+import type { RgbaColor } from 'colord';
 
 export type Setting<T> = {
 	name: string;
-	value: any;
-	attribute?: RangeAttribute | GraphPropertyGetter;
+	value: T;
+	attribute?: RangeAttribute;
 	source: null | Guideline;
 };
 
 export type SelectSetting<T> = Setting<T> & {
 	readonly values: T[];
-	value: T;
 };
 
 export type NumericalSetting = Setting<number> & {
-	value: number;
 	min: number;
 	max: number;
-	//scale?: ScaleFunction;
+	increment?: number;
+
 	domainRange?: [number, number]; // min to max of the attribute/propertygetter
 	selectedRange?: [number, number]; //selected range to map onto
-
-	increment?: number;
 };
 
 export type DecoratorData = {
@@ -39,11 +37,9 @@ export type DecoratorSetting = Setting<DecoratorData[]> & {
 	value: DecoratorData[];
 };
 
-export type Gradient = [string, number][];
-export type ColorSetting = Setting<string | Gradient> & {
-	value: string | Gradient;
-	domainRange?: [number, number]; // min to max of the attribute/propertygetter
-	//scale?: ScaleFunction;
+export type Gradient = [RgbaColor, number][];
+export type ColorSetting = Setting<Gradient> & {
+	domainRange?: [number, number];
 };
 
 type LabelStyle = {
@@ -114,14 +110,14 @@ export type EdgeProperties = {
 };
 
 // todo decorator and label source
-export const edgeSettingsDefaults: EdgeSettings = {
+export const edgeSettingsDefaults: EdgeProperties = {
 	type: { name: 'type', values: Array.from(edgeTypes), value: 'straight', source: null },
 	width: { name: 'width', value: 1, min: 0, max: 5, increment: 0.5, source: null },
 	color: {
 		name: 'color',
 		value: [
-			['purple', 0],
-			['lime', 1]
+			[{ r: 115, g: 80, b: 214, a: 1 }, 0],
+			[{ r: 80, g: 220, b: 180, a: 1 }, 1]
 		],
 		source: null
 	},
@@ -133,9 +129,9 @@ export const edgeSettingsDefaults: EdgeSettings = {
 
 export const nodeSettingsDefaults: NodeProperties = {
 	size: { name: 'size', value: 5, min: 1, max: 10, source: null },
-	color: { name: 'color', value: 'purple', source: null },
+	color: { name: 'color', value: [[{ r: 80, g: 220, b: 180, a: 1 }, 1]], source: null },
 	strokeWidth: { name: 'strokeWidth', value: 1, min: 0, max: 10, source: null },
-	strokeColor: { name: 'strokeColor', value: 'purple', source: null },
+	strokeColor: { name: 'strokeColor', value: [[{ r: 80, g: 220, b: 180, a: 1 }, 1]], source: null },
 	labels: []
 };
 
@@ -149,7 +145,8 @@ export const ruleSettingsDefaults: RuleSettings = {
 export let layoutSettings: SelectSetting<LayoutType> = $state({
 	name: 'layout',
 	values: Array.from(layoutTypes),
-	value: 'force-graph'
+	value: 'force-graph',
+	source: null
 });
 export let nodeSettings: NodeSettings[] = $state([
 	{

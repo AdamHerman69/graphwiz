@@ -1,6 +1,8 @@
 <script lang="ts">
 	import RangeSlider from '$lib/RangeSlider/RangeSlider.svelte';
+	import type { RangeAttribute, Attribute } from '../utils/graph.svelte';
 	import { type NumericalSetting } from '../utils/graphSettings.svelte';
+	import AttributePicker from './AttributePicker.svelte';
 
 	let { numSettings }: { numSettings: NumericalSetting } = $props();
 
@@ -13,6 +15,24 @@
 			numSettings.value = val[0];
 		}
 	};
+
+	// Binding attrubutes
+	let selectedAttribute: RangeAttribute | undefined = $state(undefined);
+	let bound: boolean = $state(false);
+	let selectedRange: [number, number] = $state([numSettings.min, numSettings.max]);
+
+	function toggleAttributeBinding() {
+		bound = !bound;
+		if (numSettings.attribute) numSettings.attribute = undefined;
+	}
+
+	$effect(() => {
+		if (selectedAttribute) {
+			numSettings.domainRange = selectedAttribute.range;
+			numSettings.attribute = selectedAttribute;
+			numSettings.selectedRange = selectedRange;
+		}
+	});
 </script>
 
 <div class="flex justify-between items-center">
@@ -22,31 +42,21 @@
 
 		<!-- {numSettings.source} -->
 	</div>
-	<!-- <div class="flex justify-end items-center">
-		{#if numSettings.attribute}
-			<PropertyPicker bind:property={selectedAttribute} {attributes} {propertyGetters} />
+	<div class="flex justify-end items-center">
+		{#if bound}
+			<!-- TODO: actual filter -->
+			<AttributePicker
+				bind:selectedAttribute
+				filter={(attribute: Attribute) => (attribute.owner === 'node' && attribute.type === 'number')}
+			/>
 		{/if}
-		<button
-			class="h-6"
-			bind:this={bindButton}
-			on:click={bindAttributeHandler}
-			on:mouseenter={() => bindAnimationInstance.play()}
-			on:mouseleave={() => bindAnimationInstance.stop()}
-			disabled={attributes.length === 0}
-		/>
-	</div> -->
+		<button onclick={toggleAttributeBinding}>
+			<span class="material-symbols-outlined"> add_link </span>
+		</button>
+	</div>
 </div>
 
-<RangeSlider
-	bind:values={valueArray.value}
-	max={numSettings.max}
-	min={numSettings.min}
-	step={numSettings.increment || 1}
-	range={false}
-	float
-/>
-
-<!-- {#if numSettings.attribute}
+{#if bound}
 	<RangeSlider
 		bind:values={selectedRange}
 		max={numSettings.max}
@@ -57,11 +67,11 @@
 	/>
 {:else}
 	<RangeSlider
-		bind:values={numSettings.value}
+		bind:values={valueArray.value}
 		max={numSettings.max}
 		min={numSettings.min}
 		step={numSettings.increment || 1}
-		range={secondNumSettings !== undefined}
+		range={false}
 		float
 	/>
-{/if} -->
+{/if}
