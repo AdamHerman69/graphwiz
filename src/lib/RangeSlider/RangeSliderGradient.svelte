@@ -9,6 +9,7 @@
 	import ColorPicker from '$lib/colorPicker/components/ColorPicker.svelte';
 	import ColorPickerWrapper from './ColorPickerWrapper.svelte';
 	import { blur } from 'svelte/transition';
+	import { colord } from 'colord';
 
 	// dom references
 	export let slider = undefined;
@@ -46,9 +47,9 @@
 	export let precision = 2;
 	export let springValues = { stiffness: 0.15, damping: 0.4 };
 
-	// colors
-	export let colors;
-	export let colorPickerOpen;
+	export let onRangeNubDubClick; // (index) => void
+	export let gradient; // [RgbaColor, position][]
+	export let removeColor; // (index) => void
 
 	export function closeColorPicker() {
 		colorPickerOpen = false;
@@ -620,18 +621,6 @@
 				values: values.map((v) => alignValueToStep(v))
 			});
 	}
-
-	function removeColor(index) {
-		colors.splice(index, 1);
-		values.splice(index, 1);
-		console.log(colors);
-		colors = colors;
-		values = values;
-
-		// if (length(colors) === 1) {
-		// 	dispatch('singleColor');
-		// }
-	}
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -677,7 +666,11 @@
 			{disabled}
 			tabindex={disabled ? -1 : 0}
 		>
-			<span class="rangeNub" on:dblclick={toggleColorPicker} />
+			<span
+				class="rangeNub"
+				on:dblclick={() => onRangeNubDubClick(index)}
+				style="background-color: {colord(gradient[index][0]).toRgbString()};"
+			/>
 			{#if float}
 				<span class="rangeFloat">
 					{#if prefix}<span class="rangeFloat-prefix">{prefix}</span>{/if}{handleFormatter(
@@ -686,7 +679,7 @@
 						percentOf(value)
 					)}{#if suffix}<span class="rangeFloat-suffix">{suffix}</span>{/if}
 				</span>
-				{#if activeHandle === index && focus && !colorPickerOpen}
+				{#if activeHandle === index && focus}
 					<button class="pickerButton h-6 w-6" on:click={() => removeColor(index)}> - </button>
 				{/if}
 			{/if}
@@ -727,7 +720,7 @@
 		/>
 	{/if}
 </div>
-{#each colors as colorTuple, index}
+<!-- {#each colors as colorTuple, index}
 	{#if activeHandle === index && colorPickerOpen}
 		<div in:blur={{ delay: 100 }} out:blur={{ duration: 200 }}>
 			<ColorPicker
@@ -738,7 +731,7 @@
 			/>
 		</div>
 	{/if}
-{/each}
+{/each} -->
 
 <svelte:window
 	on:mousedown={bodyInteractStart}

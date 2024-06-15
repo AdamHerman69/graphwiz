@@ -3,12 +3,33 @@
 	import type { RangeAttribute, Attribute } from '../utils/graph.svelte';
 	import AttributePicker from './AttributePicker.svelte';
 	import { colord, type RgbaColor } from 'colord';
+	import ColorPicker from '$lib/colorPicker/components/ColorPicker.svelte';
+	import RangeSliderGradient from '$lib/RangeSlider/RangeSliderGradient.svelte';
 
 	let { colorSetting }: { colorSetting: ColorSetting } = $props();
+
+	let pickerColorIndex: number = $state(-1); // minus one if picker closed
 
 	function addColor() {
 		colorSetting.value.push([{ r: 255, g: 255, b: 255, a: 1 }, 1]);
 	}
+
+	function removeColor(index: number) {
+		if (pickerColorIndex === index) pickerColorIndex = -1;
+		if (pickerColorIndex > index) pickerColorIndex--;
+		colorSetting.value.splice(index, 1);
+	}
+
+	// For range slider gradient positions
+	let colorPositions = {
+		get value() {
+			return colorSetting.value.map((colorPosTuple) => colorPosTuple[1]);
+		},
+		set value(val: number[]) {
+			colorSetting.value.forEach((colorPosTuple, index) => (colorPosTuple[1] = val[index]));
+		}
+	};
+	// let colors = $derived(colorSetting.value.map((colorPosTuple) => colorPosTuple[0]));
 
 	// Binding attrubutes
 	let selectedAttribute: RangeAttribute | undefined = $state(undefined);
@@ -17,6 +38,10 @@
 	function toggleAttributeBinding() {
 		bound = !bound;
 		if (colorSetting.attribute) colorSetting.attribute = undefined;
+	}
+
+	function toggleColorPicker(index: number) {
+		pickerColorIndex === index ? (pickerColorIndex = -1) : (pickerColorIndex = index);
 	}
 
 	$effect(() => {
@@ -44,7 +69,7 @@
 		<!-- TODO iset shadow variable -->
 		{#if colorSetting.value.length == 1}
 			<button
-				onclick={() => console.log('color picker open TODO')}
+				onclick={() => toggleColorPicker(0)}
 				class="rounded-full w-6 h-6"
 				style="background-color: {colord(
 					colorSetting.value[0][0]
@@ -58,3 +83,26 @@
 		</button>
 	</div>
 </div>
+
+{#if colorSetting.value.length > 1}
+	<!-- TODO remove color -->
+	<RangeSliderGradient
+		bind:values={colorPositions.value}
+		gradient={colorSetting.value}
+		max={1}
+		min={0}
+		step={0.05}
+		float
+		onRangeNubDubClick={(index: number) => toggleColorPicker(index)}
+		{removeColor}
+	/>
+{/if}
+
+{#if pickerColorIndex >= 0}
+	<ColorPicker
+		bind:rgb={colorSetting.value[pickerColorIndex][0] as RgbaColor}
+		label="tadyy"
+		isDialog={false}
+		closeFunction={() => console.log('close color picker')}
+	/>
+{/if}
