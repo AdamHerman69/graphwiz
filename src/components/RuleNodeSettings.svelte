@@ -1,0 +1,104 @@
+<script lang="ts">
+	import { type NodeSettingsName, nodeSettingsDefaults } from '../utils/graphSettings.svelte';
+	import {
+		nodeSettings as globalNodeSettings,
+		type NodeSettings
+	} from '../utils/graphSettings.svelte';
+	import autoAnimate from '@formkit/auto-animate';
+	import Rules from './Rules.svelte';
+	import SettingsSlider from './SettingsSlider.svelte';
+	import SettingsColor from './SettingsColor.svelte';
+	import SettingsNodeLabel from './SettingsNodeLabel.svelte';
+
+	let { nodeSettings }: { nodeSettings: NodeSettings } = $props();
+
+	function toggleSetting(setting: NodeSettingsName) {
+		nodeSettings[setting] = nodeSettings[setting] ? undefined : nodeSettingsDefaults[setting];
+	}
+
+	// delete self
+	function deleteRuleSettings() {
+		const index = globalNodeSettings.findIndex((ns) => ns === nodeSettings);
+		if (index !== -1) {
+			globalNodeSettings.splice(index, 1);
+		}
+	}
+</script>
+
+<div class="relative">
+	<!-- Delete rules button -->
+	<div class="settingsCard p-0 absolute -left-6 m-0 w-6 h-6 flex items-center justify-center">
+		<button onclick={deleteRuleSettings}>
+			<span class="material-symbols-outlined text-base"> close </span>
+		</button>
+	</div>
+
+	<div class="settingsCard p-4 m-2">
+		<Rules rule={nodeSettings.rule} />
+		<div class="ruleToggleSettings">
+			<button onclick={() => toggleSetting('size')} class={nodeSettings['size'] ? 'active' : ''}>
+				<span class="material-symbols-outlined"> open_in_full </span>
+			</button>
+			<button onclick={() => toggleSetting('color')} class={nodeSettings['color'] ? 'active' : ''}>
+				<span class="material-symbols-outlined"> palette </span>
+			</button>
+			<button
+				onclick={() => toggleSetting('strokeWidth')}
+				class={nodeSettings['strokeWidth'] ? 'active' : ''}
+			>
+				<span class="material-symbols-outlined"> line_weight </span>
+			</button>
+			<button
+				onclick={() => toggleSetting('strokeColor')}
+				class={nodeSettings['strokeColor'] ? 'active' : ''}
+			>
+				<span class="material-symbols-outlined"> format_color_fill </span>
+			</button>
+
+			<button
+				onclick={() => toggleSetting('labels')}
+				class={nodeSettings['labels'] ? 'active' : ''}
+			>
+				<span class="material-symbols-outlined"> label </span>
+			</button>
+		</div>
+
+		<div use:autoAnimate={{ duration: 300 }} class="settingsContainer">
+			{#if nodeSettings.size}
+				<div>
+					<SettingsSlider numSettings={nodeSettings.size} />
+				</div>
+			{/if}
+
+			{#if nodeSettings.strokeWidth}
+				<div>
+					<SettingsSlider numSettings={nodeSettings.strokeWidth} />
+				</div>
+			{/if}
+
+			{#if nodeSettings.color}
+				<div>
+					<SettingsColor colorSetting={nodeSettings.color} />
+				</div>
+			{/if}
+
+			{#if nodeSettings.strokeColor}
+				<div>
+					<SettingsColor colorSetting={nodeSettings.strokeColor} />
+				</div>
+			{/if}
+
+			{#if nodeSettings.labels}
+				<div>
+					<SettingsNodeLabel labels={nodeSettings.labels} />
+				</div>
+			{/if}
+		</div>
+	</div>
+</div>
+
+<style>
+	.settingsContainer > * {
+		margin-bottom: 5px;
+	}
+</style>

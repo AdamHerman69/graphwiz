@@ -1,30 +1,57 @@
 <script lang="ts">
 	import { nodeSettings } from '../utils/graphSettings.svelte';
-	import RuleSettings from './RuleSettings.svelte';
+	import RuleNodeSettings from './RuleNodeSettings.svelte';
 	import SettingsHeader from './SettingsHeader.svelte';
 	import SettingsSlider from './SettingsSlider.svelte';
 	import SettingsColor from './SettingsColor.svelte';
 	import SettingsNodeLabel from './SettingsNodeLabel.svelte';
+	import autoAnimate from '@formkit/auto-animate';
+	import { setContext } from 'svelte';
 
 	let collapsed = $state(false);
 
-	function addRule() {}
+	setContext('type', 'node');
+
+	function addRule() {
+		// todo priority and ID
+		nodeSettings.push({
+			priority: nodeSettings.length + 1,
+			rule: {
+				id: 0,
+				operator: 'AND',
+				rules: [
+					{
+						id: 0,
+						operator: '>',
+						type: 'number',
+						target: 'node',
+						value: 0
+					}
+				]
+			},
+			source: null
+		});
+	}
 </script>
 
-<div class="card">
+<div use:autoAnimate={{ duration: 300 }}>
 	{#each nodeSettings as setting, index}
 		{#if index === 0}
-			<SettingsHeader title="node" {collapsed} />
-			<!-- Settings -->
-			{#if !collapsed}
-				<SettingsSlider numSettings={setting.size!} />
-				<SettingsColor colorSetting={setting.color!} />
-				<SettingsSlider numSettings={setting.strokeWidth!} />
-				<SettingsColor colorSetting={setting.strokeColor!} />
-				<SettingsNodeLabel labels={setting.labels!} />
-			{/if}
+			<div class="card">
+				<SettingsHeader title="node" bind:collapsed />
+				<!-- Settings -->
+				{#if !collapsed}
+					<SettingsSlider numSettings={setting.size!} />
+					<SettingsColor colorSetting={setting.color!} />
+					<SettingsSlider numSettings={setting.strokeWidth!} />
+					<SettingsColor colorSetting={setting.strokeColor!} />
+					<SettingsNodeLabel labels={setting.labels!} />
+				{/if}
+			</div>
 		{:else}
-			<RuleSettings />
+			<div class="card">
+				<RuleNodeSettings nodeSettings={setting} />
+			</div>
 		{/if}
 	{/each}
 </div>

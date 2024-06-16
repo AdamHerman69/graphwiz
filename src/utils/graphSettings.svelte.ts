@@ -70,6 +70,20 @@ export type NodeProperties = {
 	// todo shape?
 };
 
+const nodeSettingsTypes = ['size', 'color', 'strokeWidth', 'strokeColor', 'labels'] as const;
+export type NodeSettingsName = (typeof nodeSettingsTypes)[number];
+
+const edgeSettingsTypes = [
+	'type',
+	'width',
+	'color',
+	'partialStart',
+	'partialEnd',
+	'decorators',
+	'labels'
+] as const;
+export type EdgeSettingsName = (typeof edgeSettingsTypes)[number];
+
 type RuleSettings = {
 	priority: number;
 	rule: Rule;

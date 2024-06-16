@@ -6,7 +6,7 @@
 </script>
 
 <div class="card">
-	<SettingsHeader title="layout" {collapsed} />
+	<SettingsHeader title="layout" bind:collapsed />
 	{#if !collapsed}
 		<div class="flex mx-2 my-2">
 			<div>ALGORITHM</div>

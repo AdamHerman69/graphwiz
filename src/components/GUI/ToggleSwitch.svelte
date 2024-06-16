@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { selected }: { selected: string } = $props();
+	let { selected = $bindable() }: { selected: string } = $props();
 
 	let checked = $state(false);
 

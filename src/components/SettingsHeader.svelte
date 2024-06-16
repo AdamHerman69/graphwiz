@@ -3,7 +3,7 @@
 	import lottie, { type AnimationItem } from 'lottie-web';
 	import collapseAnimation from '../assets/animated_icons/alternating_arrow.json';
 
-	let { title, collapsed }: { title: string; collapsed: boolean } = $props();
+	let { title, collapsed = $bindable() }: { title: string; collapsed: boolean } = $props();
 
 	let collapseAnimationInstance: AnimationItem;
 	let collapseButton: HTMLButtonElement;

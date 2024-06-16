@@ -1,3 +1,5 @@
+import type { Attribute } from './graph.svelte';
+
 type RuleOperator = 'AND' | 'OR';
 
 export type AtomicRule = {
@@ -5,7 +7,7 @@ export type AtomicRule = {
 	operator: '>' | '<' | '=' | '≥' | '≤'; // property always on the left side
 	type: 'string' | 'number';
 	target: 'node' | 'edge' | 'source' | 'target';
-	property: string;
+	property?: Attribute;
 	value: number | string;
 };
 

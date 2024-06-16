@@ -1,6 +1,10 @@
 <script lang="ts">
 	import GraphSettingsPanel from '../components/GraphSettingsPanel.svelte';
 	import { nodeSettings, edgeSettings, layoutSettings } from '../utils/graphSettings.svelte';
+	import { loadSampleGraph, computeAttributes } from '../utils/graph.svelte';
+
+	let graph = loadSampleGraph();
+	computeAttributes(graph);
 </script>
 
 <div class="h-full w-full flex justify-center items-center">
@@ -10,7 +14,7 @@
 			<div class="w-1/5 z-10 p-8 overflow-y-auto h-screen">gp</div>
 			<div>
 				<!-- {JSON.stringify(layoutSettings, null, 2)} -->
-				{JSON.stringify(nodeSettings[0])}
+				{JSON.stringify(nodeSettings)}
 				<br />
 				<br />
 				<br />

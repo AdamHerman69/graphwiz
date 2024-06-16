@@ -1,17 +1,19 @@
 <script lang="ts">
 	import type { Rule } from '../utils/rules.svelte';
-	import { isAtomic } from '../utils/rules.svelte';
-	import EdgeRule2 from './EdgeRule2.svelte';
-	import NodeRule2 from './NodeRule2.svelte';
+	import { isAtomic, type AtomicRule } from '../utils/rules.svelte';
+	// import EdgeRule2 from './EdgeRule2.svelte';
+	// import NodeRule2 from './NodeRule2.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import ToggleSwitch from './GUI/ToggleSwitch.svelte';
+	import NodeRule from './NodeRule.svelte';
 
 	let {
 		rule,
 		type,
-		deleteFunction
-	}: { rule: Rule; type: 'node' | 'edge'; deleteFunction: () => void } = $props();
+		deleteFunction = undefined
+	}: { rule: Rule; type: 'node' | 'edge'; deleteFunction: (() => void) | undefined } = $props();
 
+	// todo figure out GUI ids
 	function newGUIID(): number {
 		return Math.random() * 100000000;
 	}
@@ -50,12 +52,13 @@
 		{#each rule.rules as subRule, index (subRule.id)}
 			{#if isAtomic(subRule)}
 				<div class="flex">
+					<!-- TODO: combine node rule and edgeRule to one component, have adjecent edges optional -->
 					{#if type === 'edge'}
 						<!-- <EdgeRule2 bind:rule={rule.rules[index]} /> -->
-						noderule
+						edgerule
 					{:else}
 						<!-- <NodeRule2 bind:rule={rule.rules[index]} /> -->
-						edgerule
+						<NodeRule rule={subRule as AtomicRule} />
 					{/if}
 
 					<!-- Delete button -->
@@ -71,7 +74,7 @@
 				</div>
 			{:else}
 				<svelte:self
-					bind:rule={rule.rules[index]}
+					rule={rule.rules[index]}
 					{type}
 					thisIndex={index}
 					deleteFunction={() => deleteRule(index)}
