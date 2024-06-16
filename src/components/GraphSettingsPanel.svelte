@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { nodeSettings, edgeSettings, layoutSettings } from '../utils/graphSettings.svelte';
-	import autoAnimate from '@formkit/auto-animate';
 	import LayoutSettings from './LayoutSettings.svelte';
 	import NodeSettings from './NodeSettings.svelte';
 	import EdgeSettings from './EdgeSettings.svelte';

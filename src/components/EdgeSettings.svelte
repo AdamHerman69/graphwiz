@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { edgeSettings } from '../utils/graphSettings.svelte';
+	import { graphSettings } from '../utils/graphSettings.svelte';
 	import SettingsHeader from './SettingsHeader.svelte';
 	import RuleSettings from './RuleNodeSettings.svelte';
 	import SettingsSliderMultiple from './SettingsSliderMultiple.svelte';
@@ -12,8 +12,8 @@
 	let collapsed = $state(false);
 
 	function addRule() {
-		edgeSettings.push({
-			priority: edgeSettings.length + 1,
+		graphSettings.edgeSettings.push({
+			priority: graphSettings.edgeSettings.length + 1,
 			rule: {
 				id: 0,
 				operator: 'AND',
@@ -33,7 +33,7 @@
 </script>
 
 <div use:autoAnimate={{ duration: 300 }}>
-	{#each edgeSettings as setting, index}
+	{#each graphSettings.edgeSettings as setting, index}
 		{#if index === 0}
 			<div class="card">
 				<SettingsHeader title="edge" bind:collapsed />
@@ -43,7 +43,7 @@
 					<SettingsSlider numSettings={setting.width!} />
 					<SettingsSliderMultiple
 						name="Partial Edge"
-						numSettings={[edgeSettings[0].partialStart!, edgeSettings[0].partialEnd!]}
+						numSettings={[graphSettings.edgeSettings[0].partialStart!, graphSettings.edgeSettings[0].partialEnd!]}
 					/>
 					<SettingsColor colorSetting={setting.color!} />
 					<!-- TODO Decorators -->

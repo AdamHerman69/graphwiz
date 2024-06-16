@@ -1,7 +1,7 @@
 <script lang="ts">
 	import RangeSlider from '$lib/RangeSlider/RangeSlider.svelte';
 	import type { RangeAttribute, Attribute } from '../utils/graph.svelte';
-	import { nodeSettings, type NumericalSetting } from '../utils/graphSettings.svelte';
+	import { type NumericalSetting } from '../utils/graphSettings.svelte';
 	import AttributePicker from './AttributePicker.svelte';
 
 	let { name, numSettings }: { name: string; numSettings: NumericalSetting[] } = $props();
@@ -17,12 +17,10 @@
 	};
 
 	// Binding attrubutes
-	let selectedAttributes: (RangeAttribute | undefined)[] = $state(
-		nodeSettings.map(() => undefined)
-	);
+	let selectedAttributes: (RangeAttribute | undefined)[] = $state(numSettings.map(() => undefined));
 	let bound: boolean[] = $state(numSettings.map(() => false));
 	let selectedRanges: [number, number][] = $state(
-		nodeSettings.map((setting) => [setting.min, setting.max])
+		numSettings.map((setting) => [setting.min, setting.max])
 	);
 
 	function toggleAttributeBinding(index: number) {

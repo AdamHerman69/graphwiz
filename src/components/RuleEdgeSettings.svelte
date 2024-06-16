@@ -1,9 +1,6 @@
 <script lang="ts">
 	import { type EdgeSettingsName, edgeSettingsDefaults } from '../utils/graphSettings.svelte';
-	import {
-		edgeSettings as globalEdgeSettings,
-		type EdgeSettings
-	} from '../utils/graphSettings.svelte';
+	import { graphSettings, type EdgeSettings } from '../utils/graphSettings.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import Rules from './Rules.svelte';
 	import SettingsSlider from './SettingsSlider.svelte';
@@ -19,9 +16,9 @@
 
 	// delete self
 	function deleteRuleSettings() {
-		const index = globalEdgeSettings.findIndex((es) => es === edgeSettings);
+		const index = graphSettings.edgeSettings.findIndex((es) => es === edgeSettings);
 		if (index !== -1) {
-			globalEdgeSettings.splice(index, 1);
+			graphSettings.edgeSettings.splice(index, 1);
 		}
 	}
 </script>

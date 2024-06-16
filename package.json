@@ -36,7 +36,9 @@
 	"dependencies": {
 		"@formkit/auto-animate": "^0.8.2",
 		"colord": "^2.9.3",
+		"file-selector": "^0.6.0",
 		"graphology": "^0.25.4",
+		"graphology-graphml": "^0.5.2",
 		"lottie-web": "^5.12.2"
 	}
 }

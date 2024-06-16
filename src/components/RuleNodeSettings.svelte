@@ -1,9 +1,6 @@
 <script lang="ts">
 	import { type NodeSettingsName, nodeSettingsDefaults } from '../utils/graphSettings.svelte';
-	import {
-		nodeSettings as globalNodeSettings,
-		type NodeSettings
-	} from '../utils/graphSettings.svelte';
+	import { graphSettings, type NodeSettings } from '../utils/graphSettings.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import Rules from './Rules.svelte';
 	import SettingsSlider from './SettingsSlider.svelte';
@@ -18,9 +15,9 @@
 
 	// delete self
 	function deleteRuleSettings() {
-		const index = globalNodeSettings.findIndex((ns) => ns === nodeSettings);
+		const index = graphSettings.nodeSettings.findIndex((ns) => ns === nodeSettings);
 		if (index !== -1) {
-			globalNodeSettings.splice(index, 1);
+			graphSettings.nodeSettings.splice(index, 1);
 		}
 	}
 </script>

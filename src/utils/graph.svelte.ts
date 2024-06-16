@@ -1,4 +1,5 @@
 import Graph from 'graphology';
+import { parse } from 'graphology-graphml';
 
 export type Attribute = {
 	name: string;
@@ -175,3 +176,32 @@ function classifyAttributes(attributeMap: Map<string, any[]>, owner: 'node' | 'e
 // 	if (attribute.hasOwnProperty('range')) return 'number';
 // 	else return 'string';
 // }
+
+// import/export
+
+export function isValidGraph(object: any): boolean {
+	// todo implement
+	return true;
+}
+
+export function importGraphJSON(graphObject: object): void {
+	let newGraph = new Graph();
+	newGraph.import(graphObject);
+	graph = newGraph;
+
+	// todo unbind attributes
+	// recompute attributes
+	// clear history
+}
+
+export function importGraphOther(graphString: string): void {
+	graph = parse(Graph, graphString); // won't work raessigning probably
+
+	// todo unbind attributes
+	// recompute attributes
+	// clear history
+}
+
+export function exportGraph(): object {
+	return graph.export();
+}

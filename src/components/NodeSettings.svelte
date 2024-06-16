@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { nodeSettings } from '../utils/graphSettings.svelte';
+	import { graphSettings } from '../utils/graphSettings.svelte';
 	import RuleNodeSettings from './RuleNodeSettings.svelte';
 	import SettingsHeader from './SettingsHeader.svelte';
 	import SettingsSlider from './SettingsSlider.svelte';
@@ -14,8 +14,8 @@
 
 	function addRule() {
 		// todo priority and ID
-		nodeSettings.push({
-			priority: nodeSettings.length + 1,
+		graphSettings.nodeSettings.push({
+			priority: graphSettings.nodeSettings.length + 1,
 			rule: {
 				id: 0,
 				operator: 'AND',
@@ -35,7 +35,7 @@
 </script>
 
 <div use:autoAnimate={{ duration: 300 }}>
-	{#each nodeSettings as setting, index}
+	{#each graphSettings.nodeSettings as setting, index}
 		{#if index === 0}
 			<div class="card">
 				<SettingsHeader title="node" bind:collapsed />

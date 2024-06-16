@@ -156,21 +156,59 @@ export const ruleSettingsDefaults: RuleSettings = {
 	source: null
 };
 
-export let layoutSettings: SelectSetting<LayoutType> = $state({
-	name: 'layout',
-	values: Array.from(layoutTypes),
-	value: 'force-graph',
-	source: null
+export type GraphSettings = {
+	layout: SelectSetting<LayoutType>;
+	nodeSettings: NodeSettings[];
+	edgeSettings: EdgeSettings[];
+};
+
+export let graphSettings: GraphSettings = $state({
+	layout: {
+		name: 'layout',
+		values: Array.from(layoutTypes),
+		value: 'force-graph',
+		source: null
+	},
+	nodeSettings: [
+		{
+			...nodeSettingsDefaults,
+			...ruleSettingsDefaults
+		}
+	],
+	edgeSettings: [
+		{
+			...edgeSettingsDefaults,
+			...ruleSettingsDefaults
+		}
+	]
 });
-export let nodeSettings: NodeSettings[] = $state([
-	{
-		...nodeSettingsDefaults,
-		...ruleSettingsDefaults
-	}
-]);
-export let edgeSettings: EdgeSettings[] = $state([
-	{
-		...edgeSettingsDefaults,
-		...ruleSettingsDefaults
-	}
-]);
+
+// export function getLayoutSettings(): SelectSetting<LayoutType> {
+// 	return graphSettings.layout;
+// }
+
+// export function getNodeSettings(): NodeSettings[] {
+// 	return graphSettings.nodeSettings;
+// }
+
+// export function getEdgeSettings(): EdgeSettings[] {
+// 	return graphSettings.edgeSettings;
+// }
+
+// import / export
+
+export function isValidSettings(object: any): boolean {
+	// todo implement
+	return true;
+}
+
+// todo rewrite so we're not reassigning the state
+export function importSettings(settings: GraphSettings): void {
+	graphSettings.layout = settings.layout;
+	graphSettings.nodeSettings = settings.nodeSettings;
+	graphSettings.edgeSettings = settings.edgeSettings;
+}
+
+export function exportSettings(): GraphSettings {
+	return $state.snapshot(graphSettings);
+}
