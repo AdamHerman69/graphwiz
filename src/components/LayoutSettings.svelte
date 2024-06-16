@@ -5,7 +5,7 @@
 	let collapsed = $state(false);
 </script>
 
-<div class="card">
+<div class="card cardSpacing mt-10">
 	<SettingsHeader title="layout" bind:collapsed />
 	{#if !collapsed}
 		<div class="flex mx-2 my-2">

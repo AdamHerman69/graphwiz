@@ -40,7 +40,7 @@
 	}
 </script>
 
-<div class="flex justify-between items-center mx-2">
+<div class="flex justify-between items-center">
 	<div class="text-m uppercase">
 		Labels
 		<!-- {numSettings.source} -->
@@ -49,7 +49,7 @@
 		><span class="material-symbols-outlined"> add </span></button
 	>
 </div>
-<div class="mx-2 mb-4 mt-2">
+<div class="mb-4 mt-2">
 	{#if labelPositions.value.length > 0}
 		<RangeSlider bind:values={labelPositions.value} min={0} max={1} step={0.01} float />
 	{/if}

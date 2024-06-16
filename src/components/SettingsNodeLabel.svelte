@@ -32,7 +32,7 @@
 	}
 </script>
 
-<div class="flex justify-between items-center mx-2">
+<div class="flex justify-between items-center">
 	<div class="text-m uppercase">
 		Labels
 		<!-- {numSettings.source} -->

@@ -37,7 +37,7 @@
 <div use:autoAnimate={{ duration: 300 }}>
 	{#each graphSettings.nodeSettings as setting, index}
 		{#if index === 0}
-			<div class="card">
+			<div class="card cardSpacing">
 				<SettingsHeader title="node" bind:collapsed />
 				<!-- Settings -->
 				{#if !collapsed}
@@ -49,7 +49,7 @@
 				{/if}
 			</div>
 		{:else}
-			<div class="card">
+			<div class="card cardSpacing">
 				<RuleNodeSettings nodeSettings={setting} />
 			</div>
 		{/if}
@@ -58,7 +58,7 @@
 
 <!-- Add rule button -->
 <div class="flex justify-center">
-	<div class="card w-14">
+	<div class="card buttonSpacing w-14">
 		<button onclick={addRule} class="flex items-center justify-center w-full h-full">
 			<span class="material-symbols-outlined">add</span>
 		</button>

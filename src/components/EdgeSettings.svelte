@@ -35,7 +35,7 @@
 <div use:autoAnimate={{ duration: 300 }}>
 	{#each graphSettings.edgeSettings as setting, index}
 		{#if index === 0}
-			<div class="card">
+			<div class="card cardSpacing">
 				<SettingsHeader title="edge" bind:collapsed />
 				<!-- Settings -->
 				{#if !collapsed}
@@ -51,7 +51,7 @@
 				{/if}
 			</div>
 		{:else}
-			<div class="card">
+			<div class="card cardSpacing">
 				<RuleEdgeSettings edgeSettings={setting} />
 			</div>
 		{/if}
@@ -60,7 +60,7 @@
 
 <!-- Add rule button -->
 <div class="flex justify-center">
-	<div class="card w-14">
+	<div class="card buttonSpacing w-14">
 		<button onclick={addRule} class="flex items-center justify-center w-full h-full">
 			<span class="material-symbols-outlined">add</span>
 		</button>

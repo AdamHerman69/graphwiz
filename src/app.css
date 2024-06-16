@@ -56,6 +56,15 @@ body {
 	pointer-events: auto;
 }
 
+.cardSpacing {
+	padding: 16px;
+	margin-bottom: 8px;
+}
+
+.buttonSpacing {
+	margin-bottom: 8px;
+}
+
 .settingsHeader {
 	font-size: 32px;
 	font-weight: 1000;

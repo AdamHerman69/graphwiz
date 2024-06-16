@@ -24,13 +24,13 @@
 
 <div class="relative">
 	<!-- Delete rules button -->
-	<div class="settingsCard p-0 absolute -left-6 m-0 w-6 h-6 flex items-center justify-center">
+	<div class="card deleteRuleButton">
 		<button onclick={deleteRuleSettings}>
 			<span class="material-symbols-outlined text-base"> close </span>
 		</button>
 	</div>
 
-	<div class="settingsCard p-4 m-2">
+	<div>
 		<Rules rule={nodeSettings.rule} />
 		<div class="ruleToggleSettings">
 			<button onclick={() => toggleSetting('size')} class={nodeSettings['size'] ? 'active' : ''}>
@@ -97,5 +97,20 @@
 <style>
 	.settingsContainer > * {
 		margin-bottom: 5px;
+	}
+
+	.deleteRuleButton {
+		position: absolute;
+		padding: 0;
+		margin: 0;
+		width: 24px;
+		height: 24px;
+
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		left: -48px;
+		top: -16px;
 	}
 </style>
