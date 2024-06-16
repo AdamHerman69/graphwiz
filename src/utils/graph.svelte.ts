@@ -1,5 +1,6 @@
 import Graph from 'graphology';
 import { parse } from 'graphology-graphml';
+import { unbindAttributes } from './graphSettings.svelte';
 
 export type Attribute = {
 	name: string;
@@ -16,6 +17,12 @@ export type StringAttribute = Attribute & {
 	values: string[];
 };
 
+const generalAttributes: Attribute[] = [
+	{ name: 'degree', type: 'number', owner: 'node', general: true },
+	{ name: 'inDegree', type: 'number', owner: 'node', general: true },
+	{ name: 'outDegree', type: 'number', owner: 'node', general: true },
+	{ name: 'id', type: 'string', owner: 'node', general: true }
+];
 // export const graphProperties = ['degree, inDegree, outDegree', 'id'] as const;
 // export type GraphProperty = (typeof graphProperties)[number];
 
@@ -106,6 +113,7 @@ export function computeAttributes(graph: Graph) {
 	availableAttributes.length = 0;
 	availableAttributes.push(...findAllNodeAttributes(graph));
 	availableAttributes.push(...findAllEdgeAttributes(graph));
+	availableAttributes.push(...generalAttributes);
 }
 
 // Finding attributes
@@ -185,18 +193,21 @@ export function isValidGraph(object: any): boolean {
 }
 
 export function importGraphJSON(graphObject: object): void {
+	unbindAttributes();
+
 	let newGraph = new Graph();
 	newGraph.import(graphObject);
+	computeAttributes(newGraph);
 	graph = newGraph;
 
-	// todo unbind attributes
-	// recompute attributes
-	// clear history
+	// todo clear history
 }
 
 export function importGraphOther(graphString: string): void {
-	graph = parse(Graph, graphString); // won't work raessigning probably
+	unbindAttributes();
 
+	graph = parse(Graph, graphString); // won't work raessigning probably
+	computeAttributes(graph);
 	// todo unbind attributes
 	// recompute attributes
 	// clear history

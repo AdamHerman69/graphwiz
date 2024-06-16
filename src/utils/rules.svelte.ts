@@ -20,3 +20,22 @@ export type Rule = {
 export function isAtomic(rule: Rule | AtomicRule): boolean {
 	return 'target' in rule;
 }
+
+export function stripAttributeBasedRules(rule: Rule | AtomicRule): void {
+	if (isAtomic(rule)) {
+		// shouldn't happen
+		return;
+	}
+
+	(rule as Rule).rules = (rule as Rule).rules.filter((r) => {
+		if (isAtomic(r)) {
+			let isGeneral = (r as AtomicRule).property?.general;
+			console.log(isGeneral);
+			return (r as AtomicRule).property?.general;
+		} else {
+			console.log(r);
+			stripAttributeBasedRules(r);
+			return true;
+		}
+	});
+}

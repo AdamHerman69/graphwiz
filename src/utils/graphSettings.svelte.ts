@@ -1,6 +1,6 @@
 import { type Attribute, type RangeAttribute } from './graph.svelte';
 import type { Guideline } from './guidelines.svelte';
-import type { Rule } from './rules.svelte';
+import { type Rule, stripAttributeBasedRules } from './rules.svelte';
 import type { RgbaColor } from 'colord';
 
 export type Setting<T> = {
@@ -86,7 +86,7 @@ export type EdgeSettingsName = (typeof edgeSettingsTypes)[number];
 
 type RuleSettings = {
 	priority: number;
-	rule: Rule;
+	rule?: Rule;
 	source: null | Guideline;
 };
 
@@ -152,7 +152,6 @@ export const nodeSettingsDefaults: NodeProperties = {
 // todo change based on actual rule
 export const ruleSettingsDefaults: RuleSettings = {
 	priority: 0,
-	rule: {},
 	source: null
 };
 
@@ -211,4 +210,25 @@ export function importSettings(settings: GraphSettings): void {
 
 export function exportSettings(): GraphSettings {
 	return $state.snapshot(graphSettings);
+}
+
+// called on new graph import to remove all non-general attribute bindings
+export function unbindAttributes() {
+	graphSettings.nodeSettings.forEach((ns) => {
+		if (ns.size?.attribute) ns.size.attribute = undefined;
+		if (ns.color?.attribute) ns.color.attribute = undefined;
+		if (ns.strokeWidth?.attribute) ns.strokeWidth.attribute = undefined;
+		if (ns.strokeColor?.attribute) ns.strokeColor.attribute = undefined;
+
+		if (ns.rule) stripAttributeBasedRules(ns.rule);
+	});
+
+	graphSettings.edgeSettings.forEach((es) => {
+		if (es.width?.attribute) es.width.attribute = undefined;
+		if (es.color?.attribute) es.color.attribute = undefined;
+		if (es.partialStart?.attribute) es.partialStart.attribute = undefined;
+		if (es.partialEnd?.attribute) es.partialEnd.attribute = undefined;
+
+		if (es.rule) stripAttributeBasedRules(es.rule);
+	});
 }
