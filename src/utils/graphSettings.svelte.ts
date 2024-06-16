@@ -232,3 +232,23 @@ export function unbindAttributes() {
 		if (es.rule) stripAttributeBasedRules(es.rule);
 	});
 }
+
+// Types for renderer
+export type NodeStyle = {
+	size: number;
+	color: string | Gradient;
+	strokeWidth: number;
+	strokeColor: string;
+	labels: NodeLabel[];
+	shadow: boolean;
+};
+
+export type EdgeStyle = {
+	type: EdgeType;
+	width: number;
+	color: string | Gradient;
+	partialStart: number;
+	partialEnd: number;
+	decorators: DecoratorData[];
+	labels: EdgeLabel[];
+};

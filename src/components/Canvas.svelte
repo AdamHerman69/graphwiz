@@ -1,5 +1,22 @@
 <script lang="ts">
-	let canvas, width, height;
+	import { onMount } from 'svelte';
+	import { CanvasHandler } from '../utils/canvas.svelte';
+	import type Graph from 'graphology';
+	import { loadSampleGraph, computeAttributes } from '../utils/graph.svelte';
+
+	let canvas: HTMLCanvasElement, width: number, height: number;
+
+	// todo refactor elsewhere
+	let graph = loadSampleGraph();
+	computeAttributes(graph);
+	let canvasHandler: CanvasHandler;
+	console.log('graph: ', graph);
+
+	onMount(() => {
+		console.log('canvas: ', canvas);
+		canvasHandler = new CanvasHandler(canvas, width, height, graph);
+		canvasHandler.startForceSimulation();
+	});
 </script>
 
 <div class="relative h-full w-full">
@@ -22,10 +39,8 @@
 </div>
 
 <style>
-	.canvas {
-		width: 100%;
-		height: 100%;
-		background-color: lightpink;
+	canvas {
+		/* background-color: lightpink; */
 	}
 
 	.nodeInfo {

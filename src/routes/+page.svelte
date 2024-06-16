@@ -4,9 +4,6 @@
 	import { loadSampleGraph, computeAttributes } from '../utils/graph.svelte';
 	import DynamicIsland from '../components/DynamicIsland.svelte';
 	import Canvas from '../components/Canvas.svelte';
-
-	let graph = loadSampleGraph();
-	computeAttributes(graph);
 </script>
 
 <div class="h-full w-full flex justify-center items-center">
