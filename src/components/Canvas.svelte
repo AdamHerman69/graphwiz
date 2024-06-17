@@ -10,10 +10,8 @@
 	let graph = loadSampleGraph();
 	computeAttributes(graph);
 	let canvasHandler: CanvasHandler;
-	console.log('graph: ', graph);
 
 	onMount(() => {
-		console.log('canvas: ', canvas);
 		canvasHandler = new CanvasHandler(canvas, width, height, graph);
 		canvasHandler.startForceSimulation();
 	});

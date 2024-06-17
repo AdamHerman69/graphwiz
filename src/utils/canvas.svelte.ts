@@ -6,7 +6,11 @@ import {
 	type EdgeStyle,
 	type NodeSettings,
 	type EdgeSettings,
-	graphSettings
+	type NodeProperties,
+	type NumericalSetting,
+	graphSettings,
+	getNodeStyle,
+	getEdgeStyle
 } from './graphSettings.svelte';
 import {
 	type Renderer,
@@ -14,6 +18,7 @@ import {
 	type EdgeDatum,
 	PaperRenderer
 } from '../paperJS/PaperRenderer';
+import { evalRule } from './rules.svelte';
 
 const CLICK_RADIUS = 10;
 
@@ -74,12 +79,17 @@ export class CanvasHandler {
 		);
 
 		this.paperRenderer = new PaperRenderer(
-			canvas,
+			this.canvas,
 			this.d3nodes as NodePositionDatum[],
 			this.d3links as EdgeDatum[],
 			this.nodeStyles,
 			this.edgeStyles
 		);
+
+		this.getD3Node = this.getD3Node.bind(this);
+		this.dragStarted = this.dragStarted.bind(this);
+		this.dragged = this.dragged.bind(this);
+		this.dragEnded = this.dragEnded.bind(this);
 	}
 
 	startForceSimulation(): void {
@@ -167,34 +177,4 @@ export class CanvasHandler {
 			draggedNode.fy = null;
 		}
 	}
-}
-
-function getNodeStyle(id: string, nodeSettings: NodeSettings[]): NodeStyle {
-	// todo actually implement
-	let nodeStyle: NodeStyle = {
-		// add random styles that fit the NodeStyle type
-		size: 5,
-		color: 'red',
-		strokeWidth: 1,
-		strokeColor: 'blue',
-		labels: [],
-		shadow: false
-	};
-
-	return nodeStyle;
-}
-
-function getEdgeStyle(id: string, edgeSettings: EdgeSettings[]): EdgeStyle {
-	// todo actually implement
-	let edgeStyle: EdgeStyle = {
-		type: 'straight',
-		width: 1,
-		color: 'black',
-		partialStart: 0,
-		partialEnd: 0,
-		decorators: [],
-		labels: []
-	};
-
-	return edgeStyle;
 }

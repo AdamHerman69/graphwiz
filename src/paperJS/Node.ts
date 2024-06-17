@@ -1,8 +1,7 @@
 import Paper from 'paper';
 import type { NodeLabel, NodeStyle } from '../utils/graphSettings.svelte';
-// TODO don't import stores but just types for the values, that the update styles method is going to consume
+import { toStringGradient } from './Color';
 
-console.log('Paper: ', Paper);
 const labelOffsets = {
 	above: new Paper.Point(0, -4),
 	below: new Paper.Point(0, 4),
@@ -80,12 +79,13 @@ export class PNode implements IPNode {
 
 		// handle color
 		let color: paper.Color;
-		if (typeof style.color === 'string') color = new Paper.Color(style.color);
+		let stringGradient = toStringGradient(style.color);
+		if (stringGradient.length === 1) color = new Paper.Color(stringGradient[0][0]);
 		else {
 			// gradient
 			color = new Paper.Color({
 				gradient: {
-					stops: style.color,
+					stops: toStringGradient(style.color),
 					radial: true
 				},
 				origin: this.position,
@@ -94,9 +94,10 @@ export class PNode implements IPNode {
 		}
 
 		// apply style
+		let strokeColorGradient = toStringGradient(style.strokeColor);
 		this.shape.style = {
 			fillColor: color,
-			strokeColor: new Paper.Color(style.strokeColor),
+			strokeColor: new Paper.Color(strokeColorGradient[0][0]),
 			strokeWidth: style.strokeWidth
 		};
 

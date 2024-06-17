@@ -9,7 +9,7 @@ import {
 	getIsoscelesTrianglePointsEdge,
 	TriangleDecorator
 } from './Triangle';
-import { lab } from 'd3';
+import { toStringGradient } from './Color';
 
 interface EdgeShape {
 	updatePosition(source: paper.Point, target: paper.Point): void;
@@ -22,7 +22,6 @@ class LineShape implements EdgeShape {
 
 	constructor(source: paper.Point, target: paper.Point) {
 		this.line = new Paper.Path.Line(source, target);
-		console.log(this.line);
 	}
 
 	updatePosition(source: paper.Point, target: paper.Point): void {
@@ -310,12 +309,13 @@ export class PEdge {
 		}
 
 		let color: paper.Color;
-		if (typeof style.color === 'string') color = new Paper.Color(style.color);
+		let stringGradient = toStringGradient(style.color);
+		if (stringGradient.length === 1) color = new Paper.Color(stringGradient[0][0]);
 		else {
 			// gradient
 			color = new Paper.Color({
 				gradient: {
-					stops: style.color
+					stops: toStringGradient(style.color)
 				},
 				origin: this.sourceConnectionPoint,
 				destination: this.targetConnectionPoint

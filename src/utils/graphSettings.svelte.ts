@@ -1,7 +1,9 @@
-import { type Attribute, type RangeAttribute } from './graph.svelte';
+import { type Attribute, type RangeAttribute, getAttributeValue } from './graph.svelte';
 import type { Guideline } from './guidelines.svelte';
-import { type Rule, stripAttributeBasedRules } from './rules.svelte';
+import { type Rule, stripAttributeBasedRules, evalRule } from './rules.svelte';
 import type { RgbaColor } from 'colord';
+import { scaleLinear } from './scaleLinear';
+import { getGradientColor } from './gradient';
 
 export type Setting<T> = {
 	name: string;
@@ -236,9 +238,9 @@ export function unbindAttributes() {
 // Types for renderer
 export type NodeStyle = {
 	size: number;
-	color: string | Gradient;
+	color: Gradient;
 	strokeWidth: number;
-	strokeColor: string;
+	strokeColor: Gradient;
 	labels: NodeLabel[];
 	shadow: boolean;
 };
@@ -246,9 +248,146 @@ export type NodeStyle = {
 export type EdgeStyle = {
 	type: EdgeType;
 	width: number;
-	color: string | Gradient;
+	color: Gradient;
 	partialStart: number;
 	partialEnd: number;
 	decorators: DecoratorData[];
 	labels: EdgeLabel[];
 };
+
+export function getNodeStyle(id: string, nodeSettings: NodeSettings[]): NodeStyle {
+	let chosenSettings: NodeProperties = {};
+
+	// iterating in increasing priority order
+
+	nodeSettings.forEach((nodeSettings) => {
+		if (nodeSettings.rule === undefined || evalRule(nodeSettings.rule!, id)) {
+			if (nodeSettings.size) chosenSettings['size'] = nodeSettings.size;
+			if (nodeSettings.color) chosenSettings['color'] = nodeSettings.color;
+			if (nodeSettings.strokeWidth) chosenSettings['strokeWidth'] = nodeSettings.strokeWidth;
+			if (nodeSettings.strokeColor) chosenSettings['strokeColor'] = nodeSettings.strokeColor;
+			if (nodeSettings.labels) chosenSettings['labels'] = nodeSettings.labels;
+		}
+	});
+
+	let nodeStyle: NodeStyle = {};
+
+	// todo handle range with properties
+	// attribute based styles
+	for (let [key, setting] of Object.entries(chosenSettings)) {
+		if (setting.attribute) {
+			if (setting.min != undefined) {
+				setting = setting as NumericalSetting;
+				console.log('getting attribute name: ', setting.attribute?.name);
+				nodeStyle[setting.name] = scaleLinear(
+					setting.domainRange!,
+					setting.selectedRange!,
+					getAttributeValue(id, setting.attribute)
+				);
+			} else {
+				setting = setting as ColorSetting;
+				let gradientPosition = scaleLinear(
+					setting.domainRange!,
+					[0, 1],
+					getAttributeValue(id, setting.attribute)
+				);
+				nodeStyle[setting.name] = getGradientColor(setting.value, gradientPosition);
+			}
+		} else {
+			if (typeof Settings) nodeStyle[setting.name] = setting.value;
+		}
+	}
+
+	// labels
+	// label attributes
+	// node property getters
+
+	// TODO
+	// nodeStyle.labels = structuredClone(chosenSettings.labels);
+	// nodeStyle.labels.forEach((label) => {
+	// 	if (label.attributeName) {
+	// 		if (nodePropertyGetters.has(label.attributeName))
+	// 			label.text = nodePropertyGetters
+	// 				.get(label.attributeName)!
+	// 				.function($graphStore, id)
+	// 				.toString();
+	// 		else {
+	// 			let attributeText = $graphStore.getNodeAttribute(id, label.attributeName);
+	// 			label.text = attributeText ? attributeText : '';
+	// 		}
+	// 	}
+	// });
+
+	// TODO
+	// nodeStyle.shadow = false;
+	// if (hoveredNodeKey === id) {
+	// 	//nodeStyle.size = nodeStyle.size + 2;
+	// 	nodeStyle.shadow = true;
+	// } else if (selectedNode?.id === id) {
+	// 	// nodeStyle.strokeWidth = 5;
+	// 	// nodeStyle.strokeColor = 'rgba(115, 255, 100, 1)';
+	// }
+
+	return nodeStyle;
+}
+
+export function getEdgeStyle(id: string, edgeSettings: EdgeSettings[]): EdgeStyle {
+	let chosenSettings: EdgeProperties = {};
+
+	// iterating in increasing priority order
+	edgeSettings.forEach((edgeSettings) => {
+		if (edgeSettings.rule === undefined || evalRule(edgeSettings.rule, id)) {
+			if (edgeSettings.type) chosenSettings['type'] = edgeSettings.type;
+			if (edgeSettings.width) chosenSettings['width'] = edgeSettings.width;
+			if (edgeSettings.color) chosenSettings['color'] = edgeSettings.color;
+			if (edgeSettings.partialStart) chosenSettings['partialStart'] = edgeSettings.partialStart;
+			if (edgeSettings.partialEnd) chosenSettings['partialEnd'] = edgeSettings.partialEnd;
+			if (edgeSettings.decorators) chosenSettings['decorators'] = edgeSettings.decorators;
+			if (edgeSettings.labels) chosenSettings['labels'] = edgeSettings.labels;
+		}
+	});
+
+	let edgeStyle: EdgeStyle = {};
+
+	// attribute based styles
+	for (let [key, setting] of Object.entries(chosenSettings)) {
+		setting = setting as NumericalSetting;
+		if (setting.attribute) {
+			if (setting.min != undefined) {
+				setting = setting as NumericalSetting;
+				edgeStyle[setting.name] = scaleLinear(
+					setting.domainRange,
+					setting.selectedRange,
+					getAttributeValue(id, setting.attribute)
+				);
+			} else {
+				setting = setting as ColorSetting;
+				let gradientPosition = scaleLinear(
+					setting.domainRange!,
+					[0, 1],
+					getAttributeValue(id, setting.attribute)
+				);
+				edgeStyle[setting.name] = getGradientColor(setting.value, gradientPosition);
+			}
+		} else {
+			edgeStyle[setting.name] = setting.value;
+		}
+	}
+
+	// TODO labels
+	// edgeStyle.labels = structuredClone(chosenSettings.labels);
+	// edgeStyle.labels.forEach((label) => {
+	// 	if (label.attributeName) {
+	// 		if (edgePropertyGetters.has(label.attributeName)) {
+	// 			label.text = edgePropertyGetters
+	// 				.get(label.attributeName)!
+	// 				.function($graphStore, id)
+	// 				.toString();
+	// 		} else {
+	// 			let attributeText = $graphStore.getEdgeAttribute(id, label.attributeName);
+	// 			label.text = attributeText ? attributeText : '';
+	// 		}
+	// 	}
+	// });
+	return edgeStyle;
+}
