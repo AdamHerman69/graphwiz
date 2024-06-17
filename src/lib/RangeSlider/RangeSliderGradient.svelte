@@ -51,6 +51,18 @@
 	export let gradient; // [RgbaColor, position][]
 	export let removeColor; // (index) => void
 
+	let cssGradientString;
+
+	$: {
+		let sortedGradient = [...gradient].sort((a, b) => a[1] - b[1]);
+		cssGradientString = `linear-gradient(to right, ${sortedGradient
+			.map(([color, position]) => {
+				const rgbString = colord(color).toRgbString(); // Convert color to RGB string
+				return `${rgbString} ${position * 100}%`;
+			})
+			.join(', ')})`;
+	}
+
 	export function closeColorPicker() {
 		colorPickerOpen = false;
 	}
@@ -642,6 +654,7 @@
 	on:mouseup={sliderInteractEnd}
 	on:touchstart|preventDefault={sliderInteractStart}
 	on:touchend|preventDefault={sliderInteractEnd}
+	style="background: {cssGradientString};"
 >
 	{#each values as value, index}
 		<span
