@@ -1,24 +1,12 @@
 import * as d3 from 'd3';
 import type Graph from 'graphology';
-import {
-	nodeSettingsDefaults,
-	type NodeStyle,
-	type EdgeStyle,
-	type NodeSettings,
-	type EdgeSettings,
-	type NodeProperties,
-	type NumericalSetting,
-	graphSettings,
-	getNodeStyle,
-	getEdgeStyle
-} from './graphSettings.svelte';
+import { nodeSettingsDefaults, type NodeStyles, type EdgeStyles } from './graphSettings.svelte';
 import {
 	type Renderer,
 	type NodePositionDatum,
 	type EdgeDatum,
 	PaperRenderer
 } from '../paperJS/PaperRenderer';
-import { evalRule } from './rules.svelte';
 
 const CLICK_RADIUS = 10;
 
@@ -37,8 +25,6 @@ export class CanvasHandler {
 	transform: d3.ZoomTransform;
 
 	paperRenderer: Renderer;
-	nodeStyles: Map<string, NodeStyle>; // new Map<string, NodeStyle>()
-	edgeStyles: Map<string, EdgeStyle>;
 
 	sticky: boolean = false;
 	staticPosition: boolean = false;
@@ -68,31 +54,21 @@ export class CanvasHandler {
 			})
 		);
 
-		this.nodeStyles = new Map<string, NodeStyle>();
-		graph.forEachNode((id: string) => {
-			this.nodeStyles.set(id, getNodeStyle(id, graphSettings.nodeSettings)); // todo here's getNodeStyle
-		});
-
-		this.edgeStyles = new Map<string, EdgeStyle>();
-		graph.forEachEdge((id) =>
-			this.edgeStyles.set(id, getEdgeStyle(id, graphSettings.edgeSettings))
-		);
-
-		this.paperRenderer = new PaperRenderer(
-			this.canvas,
-			this.d3nodes as NodePositionDatum[],
-			this.d3links as EdgeDatum[],
-			this.nodeStyles,
-			this.edgeStyles
-		);
-
 		this.getD3Node = this.getD3Node.bind(this);
 		this.dragStarted = this.dragStarted.bind(this);
 		this.dragged = this.dragged.bind(this);
 		this.dragEnded = this.dragEnded.bind(this);
 	}
 
-	startForceSimulation(): void {
+	startForceSimulation(nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void {
+		this.paperRenderer = new PaperRenderer(
+			this.canvas,
+			this.d3nodes as NodePositionDatum[],
+			this.d3links as EdgeDatum[],
+			nodeStyles,
+			edgeStyles
+		);
+
 		// start d3-force
 		this.simulation = d3
 			.forceSimulation(this.d3nodes)
@@ -135,6 +111,14 @@ export class CanvasHandler {
 						this.transform = this.paperRenderer.zoomed(zoomEvent);
 					})
 			);
+	}
+
+	updateNodeStyles(nodeStyles: NodeStyles): void {
+		this.paperRenderer.updateNodeStyles(nodeStyles);
+	}
+
+	updateEdgeStyles(edgeStyles: EdgeStyles): void {
+		this.paperRenderer.updateEdgeStyles(edgeStyles);
 	}
 
 	getD3Node(mouseEvent: MouseEvent) {

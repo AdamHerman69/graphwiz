@@ -2,18 +2,28 @@
 	import { onMount } from 'svelte';
 	import { CanvasHandler } from '../utils/canvas.svelte';
 	import type Graph from 'graphology';
-	import { loadSampleGraph, computeAttributes } from '../utils/graph.svelte';
+	import { loadSampleGraph, computeAttributes, graph } from '../utils/graph.svelte';
+	import { graphSettings, getNodeStyles, getEdgeStyles } from '../utils/graphSettings.svelte';
 
 	let canvas: HTMLCanvasElement, width: number, height: number;
 
-	// todo refactor elsewhere
-	let graph = loadSampleGraph();
-	computeAttributes(graph);
 	let canvasHandler: CanvasHandler;
+
+	// todo refactor elsewhere
+	loadSampleGraph();
+	computeAttributes(graph);
 
 	onMount(() => {
 		canvasHandler = new CanvasHandler(canvas, width, height, graph);
-		canvasHandler.startForceSimulation();
+		canvasHandler.startForceSimulation(getNodeStyles(), getEdgeStyles());
+	});
+
+	$effect(() => {
+		canvasHandler.updateNodeStyles(getNodeStyles());
+	});
+
+	$effect(() => {
+		canvasHandler.updateEdgeStyles(getEdgeStyles());
 	});
 </script>
 

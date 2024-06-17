@@ -30,16 +30,16 @@ export function getAttributeValue(id: string, attribute: Attribute): number | st
 	if (attribute.owner === 'node') {
 		switch (attribute.name) {
 			case 'degree':
-				return graph.degree(id);
+				return graphObject.degree(id);
 			case 'inDegree':
-				return graph.inDegree(id);
+				return graphObject.inDegree(id);
 			case 'outDegree':
-				return graph.outDegree(id);
+				return graphObject.outDegree(id);
 			case 'id':
 				return id;
 			default:
 				try {
-					return graph.getNodeAttribute(id, attribute.name);
+					return graphObject.getNodeAttribute(id, attribute.name);
 				} catch (e) {
 					throw new Error('Property not found');
 				}
@@ -50,7 +50,7 @@ export function getAttributeValue(id: string, attribute: Attribute): number | st
 				return 4;
 			default:
 				try {
-					return graph.getEdgeAttribute(id, attribute.name);
+					return graphObject.getEdgeAttribute(id, attribute.name);
 				} catch (e) {
 					throw new Error('Property not found');
 				}
@@ -70,35 +70,37 @@ export function computeAttributeRange(graph: Graph, attribute: RangeAttribute): 
 }
 
 // TODO refactor into a file and import
-let graph: Graph = $state(new Graph());
-export function loadSampleGraph(): Graph {
-	graph.addNode('a', { volume: 40, neco: 'nejakej string' });
-	graph.addNode('b', { volume: 25 });
-	graph.addNode('c', { volume: 80 });
-	graph.addNode('d', { volume: 35 });
-	graph.addNode('e', { volume: 41, neco: 'random string' });
-	graph.addNode('f', { volume: 40, neco: 55 });
-	graph.addNode('g', { volume: 27 });
-	graph.addNode('h', { volume: 65 });
-	graph.addNode('i', { volume: 58, kk: 2 });
-	graph.addNode('j', { volume: 32, neco: 3 });
-	graph.addEdge('a', 'b', { speed: 1010 });
-	graph.addEdge('a', 'c', { speed: 250 });
-	graph.addEdge('a', 'd', { speed: 555 });
-	graph.addEdge('a', 'e', { speed: 666 });
-	graph.addEdge('b', 'c', { speed: 100 });
-	graph.addEdge('g', 'c', { speed: 889 });
-	graph.addEdge('f', 'd', { speed: 1000 });
-	graph.addEdge('d', 'c', { speed: 666 });
-	graph.addEdge('e', 'f', { speed: 370 });
-	graph.addEdge('e', 'g', { speed: 552 });
-	graph.addEdge('h', 'c', { speed: 345 });
-	graph.addEdge('i', 'd', { speed: 958 });
-	graph.addEdge('j', 'c', { speed: 399 });
-	graph.addEdge('h', 'i', { speed: 1005 });
-	graph.addEdge('j', 'i', { speed: 396 });
+let graphObject: Graph = $state(new Graph());
+export let graph = $state(graphObject);
 
-	return graph;
+export function loadSampleGraph(): Graph {
+	graphObject.addNode('a', { volume: 40, neco: 'nejakej string' });
+	graphObject.addNode('b', { volume: 25 });
+	graphObject.addNode('c', { volume: 80 });
+	graphObject.addNode('d', { volume: 35 });
+	graphObject.addNode('e', { volume: 41, neco: 'random string' });
+	graphObject.addNode('f', { volume: 40, neco: 55 });
+	graphObject.addNode('g', { volume: 27 });
+	graphObject.addNode('h', { volume: 65 });
+	graphObject.addNode('i', { volume: 58, kk: 2 });
+	graphObject.addNode('j', { volume: 32, neco: 3 });
+	graphObject.addEdge('a', 'b', { speed: 1010 });
+	graphObject.addEdge('a', 'c', { speed: 250 });
+	graphObject.addEdge('a', 'd', { speed: 555 });
+	graphObject.addEdge('a', 'e', { speed: 666 });
+	graphObject.addEdge('b', 'c', { speed: 100 });
+	graphObject.addEdge('g', 'c', { speed: 889 });
+	graphObject.addEdge('f', 'd', { speed: 1000 });
+	graphObject.addEdge('d', 'c', { speed: 666 });
+	graphObject.addEdge('e', 'f', { speed: 370 });
+	graphObject.addEdge('e', 'g', { speed: 552 });
+	graphObject.addEdge('h', 'c', { speed: 345 });
+	graphObject.addEdge('i', 'd', { speed: 958 });
+	graphObject.addEdge('j', 'c', { speed: 399 });
+	graphObject.addEdge('h', 'i', { speed: 1005 });
+	graphObject.addEdge('j', 'i', { speed: 396 });
+
+	return graphObject;
 }
 
 export function computeAttributes(graph: Graph) {
@@ -190,7 +192,7 @@ export function importGraphJSON(graphObject: object): void {
 	let newGraph = new Graph();
 	newGraph.import(graphObject);
 	computeAttributes(newGraph);
-	graph = newGraph;
+	graphObject = newGraph;
 
 	// todo clear history
 }
@@ -198,21 +200,21 @@ export function importGraphJSON(graphObject: object): void {
 export function importGraphOther(graphString: string): void {
 	unbindAttributes();
 
-	graph = parse(Graph, graphString); // won't work raessigning probably
-	computeAttributes(graph);
+	graphObject = parse(Graph, graphString); // won't work raessigning probably
+	computeAttributes(graphObject);
 	// todo unbind attributes
 	// recompute attributes
 	// clear history
 }
 
 export function exportGraph(): object {
-	return graph.export();
+	return graphObject.export();
 }
 
 export function getEdgeSource(edge: string): string {
-	return graph.source(edge);
+	return graphObject.source(edge);
 }
 
 export function getEdgeTarget(edge: string): string {
-	return graph.target(edge);
+	return graphObject.target(edge);
 }

@@ -1,4 +1,4 @@
-import { type Attribute, type RangeAttribute, getAttributeValue } from './graph.svelte';
+import { type Attribute, type RangeAttribute, getAttributeValue, graph } from './graph.svelte';
 import type { Guideline } from './guidelines.svelte';
 import { type Rule, stripAttributeBasedRules, evalRule } from './rules.svelte';
 import type { RgbaColor } from 'colord';
@@ -255,6 +255,9 @@ export type EdgeStyle = {
 	labels: EdgeLabel[];
 };
 
+export type NodeStyles = Map<string, NodeStyle>;
+export type EdgeStyles = Map<string, EdgeStyle>;
+
 export function getNodeStyle(id: string, nodeSettings: NodeSettings[]): NodeStyle {
 	let chosenSettings: NodeProperties = {};
 
@@ -390,4 +393,27 @@ export function getEdgeStyle(id: string, edgeSettings: EdgeSettings[]): EdgeStyl
 	// 	}
 	// });
 	return edgeStyle;
+}
+
+let nodeStyles: Map<string, NodeStyle> = $derived.by(() => {
+	let ns = new Map<string, NodeStyle>();
+	graph.forEachNode((id: string) => {
+		ns.set(id, getNodeStyle(id, graphSettings.nodeSettings));
+	});
+	return ns;
+});
+let edgeStyles: Map<string, EdgeStyle> = $derived.by(() => {
+	let es = new Map<string, EdgeStyle>();
+	graph.forEachEdge((id: string) => {
+		es.set(id, getEdgeStyle(id, graphSettings.edgeSettings));
+	});
+	return es;
+});
+
+export function getNodeStyles() {
+	return nodeStyles;
+}
+
+export function getEdgeStyles() {
+	return edgeStyles;
 }
