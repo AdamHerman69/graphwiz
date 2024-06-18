@@ -6,6 +6,7 @@
 	import autoAnimate from '@formkit/auto-animate';
 	import ToggleSwitch from './GUI/ToggleSwitch.svelte';
 	import NodeRule from './NodeRule.svelte';
+	import EdgeRule from './EdgeRule.svelte';
 
 	let {
 		rule,
@@ -25,7 +26,7 @@
 			type: 'number',
 			target: type,
 			value: 0,
-			property: ''
+			property: undefined
 		});
 	}
 
@@ -55,7 +56,7 @@
 					<!-- TODO: combine node rule and edgeRule to one component, have adjecent edges optional -->
 					{#if type === 'edge'}
 						<!-- <EdgeRule2 bind:rule={rule.rules[index]} /> -->
-						edgerule
+						<EdgeRule rule={subRule as AtomicRule} />
 					{:else}
 						<!-- <NodeRule2 bind:rule={rule.rules[index]} /> -->
 						<NodeRule rule={subRule as AtomicRule} />

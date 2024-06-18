@@ -16,6 +16,7 @@
 			</div>
 			<div class="settingsPanel z-10 text-sm h-screen">
 				<GraphSettingsPanel />
+				<button onclick={() => console.log($state.snapshot(graphSettings))}>log</button>
 			</div>
 		</div>
 	</div>

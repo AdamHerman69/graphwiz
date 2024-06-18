@@ -34,7 +34,7 @@
 	</div>
 
 	<div>
-		<Rules rule={edgeSettings.rule} />
+		<Rules rule={edgeSettings.rule} type="edge" />
 		<div class="ruleToggleSettings">
 			<button onclick={() => toggleSetting('width')} class={edgeSettings['width'] ? 'active' : ''}>
 				<span class="material-symbols-outlined"> line_weight </span>

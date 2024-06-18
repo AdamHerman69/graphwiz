@@ -34,7 +34,7 @@
 	</div>
 
 	<div>
-		<Rules rule={nodeSettings.rule} />
+		<Rules rule={nodeSettings.rule} type="node" />
 		<div class="ruleToggleSettings">
 			<button onclick={() => toggleSetting('size')} class={nodeSettings['size'] ? 'active' : ''}>
 				<span class="material-symbols-outlined"> open_in_full </span>

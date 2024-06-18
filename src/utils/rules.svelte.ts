@@ -22,9 +22,9 @@ export function isAtomic(rule: Rule | AtomicRule): boolean {
 	return 'target' in rule;
 }
 
-function evalAtomicRule(rule: AtomicRule, id: string): boolean {
+function evalAtomicRule(rule: AtomicRule, id: string, operator: RuleOperator): boolean {
 	if (rule.property === undefined) {
-		return false;
+		throw new Error('Property not found');
 	}
 
 	if (rule.type === 'string') {
@@ -65,16 +65,26 @@ function evalAtomicRule(rule: AtomicRule, id: string): boolean {
 	}
 }
 
-export function evalRule(rule: Rule | AtomicRule, id: string): boolean {
+// TODO huge bug two atomic rules don't work
+
+export function evalRule(
+	rule: Rule | AtomicRule,
+	id: string,
+	operator: RuleOperator = 'AND'
+): boolean {
 	if (isAtomic(rule)) {
-		return evalAtomicRule(rule as AtomicRule, id);
+		try {
+			return evalAtomicRule(rule as AtomicRule, id, operator);
+		} catch (e) {
+			return operator === 'AND' ? true : false;
+		}
 	}
 
 	switch (rule.operator) {
 		case 'AND':
-			return rule.rules.every((r) => evalRule(r, id));
+			return rule.rules.every((r) => evalRule(r, id, 'AND'));
 		case 'OR':
-			return rule.rules.some((r) => evalRule(r, id));
+			return rule.rules.some((r) => evalRule(r, id, 'OR'));
 		default:
 			throw new Error('Invalid operator');
 	}
