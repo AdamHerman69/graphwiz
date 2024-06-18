@@ -1,4 +1,4 @@
-import { type Attribute, type RangeAttribute, getAttributeValue, graph } from './graph.svelte';
+import { type Attribute, type RangeAttribute, getAttributeValue, getGraph } from './graph.svelte';
 import type { Guideline } from './guidelines.svelte';
 import { type Rule, stripAttributeBasedRules, evalRule } from './rules.svelte';
 import type { RgbaColor } from 'colord';
@@ -371,16 +371,18 @@ export function getEdgeStyle(id: string, edgeSettings: EdgeSettings[]): EdgeStyl
 	return edgeStyle;
 }
 
+// todo maybe don't create a new map every time
 let nodeStyles: Map<string, NodeStyle> = $derived.by(() => {
 	let ns = new Map<string, NodeStyle>();
-	graph.forEachNode((id: string) => {
+	getGraph().forEachNode((id: string) => {
 		ns.set(id, getNodeStyle(id, graphSettings.nodeSettings));
 	});
+	console.log('styles recomputed');
 	return ns;
 });
 let edgeStyles: Map<string, EdgeStyle> = $derived.by(() => {
 	let es = new Map<string, EdgeStyle>();
-	graph.forEachEdge((id: string) => {
+	getGraph().forEachEdge((id: string) => {
 		es.set(id, getEdgeStyle(id, graphSettings.edgeSettings));
 	});
 	return es;

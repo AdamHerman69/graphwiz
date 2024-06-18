@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { CanvasHandler } from '../utils/canvas.svelte';
-	import type Graph from 'graphology';
-	import { loadSampleGraph, computeAttributes, graph } from '../utils/graph.svelte';
+	import { loadSampleGraph, computeAttributes, getGraph } from '../utils/graph.svelte';
 	import { graphSettings, getNodeStyles, getEdgeStyles } from '../utils/graphSettings.svelte';
 	import DynamicIsland from './DynamicIsland.svelte';
 	import ReadabilityMetrics from './ReadabilityMetrics.svelte';
@@ -15,13 +14,14 @@
 
 	// todo refactor elsewhere
 	loadSampleGraph();
-	computeAttributes(graph);
+	computeAttributes(getGraph());
 
 	let canvasHandler = new CanvasHandler();
 
 	onMount(() => {
-		canvasHandler.initialize(canvas, width, height, graph);
-		canvasHandler.startForceSimulation(getNodeStyles(), getEdgeStyles());
+		// happens now in the effect
+		// canvasHandler.initialize(canvas, width, height, getGraph());
+		// canvasHandler.startForceSimulation(getNodeStyles(), getEdgeStyles());
 
 		// initialize spring with the middle of canvas
 		selectedNodeSpring = spring({ x: width / 2, y: height / 2 }, { stiffness: 0.05, damping: 0.2 });
@@ -34,6 +34,14 @@
 		return () => {
 			clearInterval(interval); // Clear the interval when the component is destroyed
 		};
+	});
+
+	$effect(() => {
+		console.log('effect');
+		canvasHandler.initialize(canvas, width, height, getGraph());
+		untrack(() => {
+			canvasHandler.startForceSimulation(getNodeStyles(), getEdgeStyles());
+		});
 	});
 
 	$effect(() => {

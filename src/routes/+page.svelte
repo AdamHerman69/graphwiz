@@ -1,7 +1,6 @@
 <script lang="ts">
 	import GraphSettingsPanel from '../components/GraphSettingsPanel.svelte';
 	import { graphSettings } from '../utils/graphSettings.svelte';
-	import { loadSampleGraph, computeAttributes, graph } from '../utils/graph.svelte';
 	import DynamicIsland from '../components/DynamicIsland.svelte';
 	import Canvas from '../components/Canvas.svelte';
 </script>

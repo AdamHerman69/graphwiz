@@ -29,6 +29,7 @@
 
 	$effect.pre(() => {
 		if (numSettings.attribute) {
+			console.log($state.snapshot(numSettings.attribute));
 			numSettings.domainRange = numSettings.attribute.range;
 			if (!numSettings.selectedRange) {
 				numSettings.selectedRange = [numSettings.min, numSettings.max];

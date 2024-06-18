@@ -71,7 +71,10 @@ export function computeAttributeRange(graph: Graph, attribute: RangeAttribute): 
 
 // TODO refactor into a file and import
 let graphObject: Graph = $state(new Graph());
-export let graph = $state(graphObject);
+// export let graph = $state(graphObject);
+export function getGraph(): Graph {
+	return graphObject;
+}
 
 export function loadSampleGraph(): Graph {
 	graphObject.addNode('a', { volume: 40, neco: 'nejakej string' });
@@ -107,6 +110,7 @@ export function computeAttributes(graph: Graph) {
 	availableAttributes.length = 0;
 	availableAttributes.push(...findAllNodeAttributes(graph));
 	availableAttributes.push(...findAllEdgeAttributes(graph));
+	// TODO: recompute ranges on general attributes
 	availableAttributes.push(...generalAttributes);
 }
 
@@ -186,11 +190,11 @@ export function isValidGraph(object: any): boolean {
 	return true;
 }
 
-export function importGraphJSON(graphObject: object): void {
+export function importGraphJSON(newGraphObject: object): void {
 	unbindAttributes();
 
 	let newGraph = new Graph();
-	newGraph.import(graphObject);
+	newGraph.import(newGraphObject);
 	computeAttributes(newGraph);
 	graphObject = newGraph;
 
@@ -200,11 +204,12 @@ export function importGraphJSON(graphObject: object): void {
 export function importGraphOther(graphString: string): void {
 	unbindAttributes();
 
-	graphObject = parse(Graph, graphString); // won't work raessigning probably
+	graphObject = parse(Graph, graphString);
 	computeAttributes(graphObject);
 	// todo unbind attributes
 	// recompute attributes
 	// clear history
+	console.log('imported graph');
 }
 
 export function exportGraph(): object {
