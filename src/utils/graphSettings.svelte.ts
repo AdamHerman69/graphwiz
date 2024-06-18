@@ -282,7 +282,6 @@ export function getNodeStyle(id: string, nodeSettings: NodeSettings[]): NodeStyl
 		if (setting.attribute) {
 			if (setting.min != undefined) {
 				setting = setting as NumericalSetting;
-				console.log('getting attribute name: ', setting.attribute?.name);
 				nodeStyle[setting.name] = scaleLinear(
 					setting.domainRange!,
 					setting.selectedRange!,

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import RangeSlider from '$lib/RangeSlider/RangeSlider.svelte';
-	import type { RangeAttribute, Attribute } from '../utils/graph.svelte';
+	import { type RangeAttribute, type Attribute, availableAttributes } from '../utils/graph.svelte';
 	import { type NumericalSetting } from '../utils/graphSettings.svelte';
 	import AttributePicker from './AttributePicker.svelte';
 
@@ -18,19 +18,25 @@
 
 	// Binding attrubutes
 	let selectedAttribute: RangeAttribute | undefined = $state(undefined);
-	let bound: boolean = $state(false);
 	let selectedRange: [number, number] = $state([numSettings.min, numSettings.max]);
 
 	function toggleAttributeBinding() {
-		bound = !bound;
+		// bound = !bound;
 		if (numSettings.attribute) numSettings.attribute = undefined;
+		else {
+			numSettings.attribute = availableAttributes.filter(
+				(attribute) => attribute.owner === 'node' && attribute.type === 'number'
+			)[0] as RangeAttribute;
+			console.log($state.snapshot(numSettings.attribute));
+		}
 	}
 
-	$effect(() => {
-		if (selectedAttribute) {
-			numSettings.domainRange = selectedAttribute.range;
-			numSettings.attribute = selectedAttribute;
-			numSettings.selectedRange = selectedRange;
+	$effect.pre(() => {
+		if (numSettings.attribute) {
+			numSettings.domainRange = numSettings.attribute.range;
+			if (!numSettings.selectedRange) {
+				numSettings.selectedRange = [numSettings.min, numSettings.max];
+			}
 		}
 	});
 </script>
@@ -43,10 +49,10 @@
 		<!-- {numSettings.source} -->
 	</div>
 	<div class="flex justify-end items-center">
-		{#if bound}
+		{#if numSettings.attribute}
 			<!-- TODO: actual filter -->
 			<AttributePicker
-				bind:selectedAttribute
+				bind:selectedAttribute={numSettings.attribute}
 				filter={(attribute: Attribute) => (attribute.owner === 'node' && attribute.type === 'number')}
 			/>
 		{/if}
@@ -56,9 +62,9 @@
 	</div>
 </div>
 
-{#if bound}
+{#if numSettings.attribute}
 	<RangeSlider
-		bind:values={selectedRange}
+		bind:values={numSettings.selectedRange}
 		max={numSettings.max}
 		min={numSettings.min}
 		step={numSettings.increment || 1}

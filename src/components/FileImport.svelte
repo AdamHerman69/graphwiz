@@ -48,6 +48,7 @@
 				imported = true;
 			}
 			if (parsed.hasOwnProperty('settings') && isValidSettings(parsed.settings)) {
+				// todo full state import binding gone on import
 				importSettings(parsed.settings);
 				imported = true;
 			}
