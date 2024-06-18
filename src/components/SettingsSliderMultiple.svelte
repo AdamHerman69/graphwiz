@@ -3,8 +3,10 @@
 	import { type RangeAttribute, type Attribute, availableAttributes } from '../utils/graph.svelte';
 	import { type NumericalSetting } from '../utils/graphSettings.svelte';
 	import AttributePicker from './AttributePicker.svelte';
+	import { getContext } from 'svelte';
 
 	let { name, numSettings }: { name: string; numSettings: NumericalSetting[] } = $props();
+	const owner = getContext('type');
 
 	// proxy for Range slider which requires an array - two way binding achieved
 	let valueArray = {
@@ -20,7 +22,7 @@
 		if (numSettings[index].attribute) numSettings[index].attribute = undefined;
 		else {
 			numSettings[index].attribute = availableAttributes.filter(
-				(attribute) => attribute.owner === 'edge' && attribute.type === 'number'
+				(attribute) => attribute.owner === owner && attribute.type === 'number'
 			)[0] as RangeAttribute;
 		}
 	}
@@ -49,7 +51,7 @@
 			{#if numSetting.attribute}
 				<AttributePicker
 					bind:selectedAttribute={numSetting.attribute}
-					filter={(attribute: Attribute) => (attribute.owner === 'edge' && attribute.type === 'number')}
+					filter={(attribute: Attribute) => (attribute.owner === owner && attribute.type === 'number')}
 				/>
 			{:else}
 				<button onclick={() => toggleAttributeBinding(index)}>

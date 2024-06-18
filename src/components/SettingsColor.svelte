@@ -6,8 +6,10 @@
 	import ColorPicker from '$lib/colorPicker/components/ColorPicker.svelte';
 	import RangeSliderGradient from '$lib/RangeSlider/RangeSliderGradient.svelte';
 	import ColorPickerWrapper from '$lib/RangeSlider/ColorPickerWrapper.svelte';
+	import { getContext } from 'svelte';
 
 	let { colorSetting }: { colorSetting: ColorSetting } = $props();
+	const owner = getContext('type');
 
 	let pickerColorIndex: number = $state(-1); // minus one if picker closed
 
@@ -31,12 +33,11 @@
 		}
 	};
 
-	// todo context for node/edge filtering
 	function toggleAttributeBinding() {
 		if (colorSetting.attribute) colorSetting.attribute = undefined;
 		else {
 			colorSetting.attribute = availableAttributes.filter(
-				(attribute) => attribute.owner === 'node' && attribute.type === 'number'
+				(attribute) => attribute.owner === owner && attribute.type === 'number'
 			)[0] as RangeAttribute;
 			if (colorSetting.value.length < 2) addColor(); // has to be a gradient
 		}
@@ -60,10 +61,9 @@
 	</div>
 	<div class="flex justify-end items-center">
 		{#if colorSetting.attribute}
-			<!-- TODO: actual filter -->
 			<AttributePicker
 				bind:selectedAttribute={colorSetting.attribute}
-				filter={(attribute: Attribute) => (attribute.owner === 'node' && attribute.type === 'number')}
+				filter={(attribute: Attribute) => (attribute.owner === owner && attribute.type === 'number')}
 			/>
 		{/if}
 		<button onclick={addColor} class="mx-2">+</button>

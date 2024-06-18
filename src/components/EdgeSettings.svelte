@@ -8,8 +8,11 @@
 	import SettingsEdgeLabel from './SettingsEdgeLabel.svelte';
 	import RuleEdgeSettings from './RuleEdgeSettings.svelte';
 	import autoAnimate from '@formkit/auto-animate';
+	import { setContext } from 'svelte';
 
 	let collapsed = $state(false);
+
+	setContext('type', 'edge');
 
 	function addRule() {
 		graphSettings.edgeSettings.push({
