@@ -1,6 +1,7 @@
 import Paper from 'paper';
 import type { NodeLabel, NodeStyle } from '../utils/graphSettings.svelte';
 import { toStringGradient } from './Color';
+import { colord } from 'colord';
 
 const labelOffsets = {
 	above: new Paper.Point(0, -4),
@@ -193,7 +194,7 @@ export class PNode implements IPNode {
 					pointText: new Paper.PointText({
 						content: label.text,
 						fontSize: label.size,
-						fillColor: label.color
+						fillColor: colord(label.color).toRgbString()
 					}),
 					verticalOffset: verticalOffset,
 					offset: labelOffsets[label.position]
@@ -201,7 +202,7 @@ export class PNode implements IPNode {
 			} else {
 				this.labels[index].pointText.content = label.text;
 				this.labels[index].pointText.fontSize = label.size;
-				this.labels[index].pointText.fillColor = new Paper.Color(label.color);
+				this.labels[index].pointText.fillColor = new Paper.Color(colord(label.color).toRgbString());
 				this.labels[index].offset = labelOffsets[label.position];
 				this.labels[index].verticalOffset = verticalOffset;
 			}

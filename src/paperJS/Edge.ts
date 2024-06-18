@@ -10,6 +10,7 @@ import {
 	TriangleDecorator
 } from './Triangle';
 import { toStringGradient } from './Color';
+import { colord } from 'colord';
 
 interface EdgeShape {
 	updatePosition(source: paper.Point, target: paper.Point): void;
@@ -85,7 +86,7 @@ class Label {
 		this.pointText = new Paper.PointText({
 			content: labelDatum.text,
 			fontSize: labelDatum.size,
-			fillColor: labelDatum.color
+			fillColor: colord(labelDatum.color).toRgbString()
 		});
 	}
 
@@ -93,7 +94,7 @@ class Label {
 		this.pointText.content = labelDatum.text;
 		this.pointText.fontSize = labelDatum.size;
 		if (this.datum.color != labelDatum.color) {
-			this.pointText.fillColor = new Paper.Color(labelDatum.color);
+			this.pointText.fillColor = new Paper.Color(colord(labelDatum.color).toRgbString());
 		}
 
 		this.datum = labelDatum;

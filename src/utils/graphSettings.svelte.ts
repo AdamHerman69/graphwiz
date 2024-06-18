@@ -141,7 +141,7 @@ export const edgeSettingsDefaults: EdgeProperties = {
 	partialEnd: { name: 'partialEnd', value: 1, min: 0, max: 1, increment: 0.05, source: null },
 	decorators: { types: Array.from(decoratorTypes), name: 'decorators', value: [], source: null },
 	labels: []
-};
+} as const;
 
 export const nodeSettingsDefaults: NodeProperties = {
 	size: { name: 'size', value: 5, min: 1, max: 10, source: null },
@@ -149,7 +149,7 @@ export const nodeSettingsDefaults: NodeProperties = {
 	strokeWidth: { name: 'strokeWidth', value: 1, min: 0, max: 10, source: null },
 	strokeColor: { name: 'strokeColor', value: [[{ r: 80, g: 220, b: 180, a: 1 }, 1]], source: null },
 	labels: []
-};
+} as const;
 
 // todo change based on actual rule
 export const ruleSettingsDefaults: RuleSettings = {
@@ -263,13 +263,14 @@ export function getNodeStyle(id: string, nodeSettings: NodeSettings[]): NodeStyl
 
 	// iterating in increasing priority order
 
-	nodeSettings.forEach((nodeSettings) => {
-		if (nodeSettings.rule === undefined || evalRule(nodeSettings.rule!, id)) {
-			if (nodeSettings.size) chosenSettings['size'] = nodeSettings.size;
-			if (nodeSettings.color) chosenSettings['color'] = nodeSettings.color;
-			if (nodeSettings.strokeWidth) chosenSettings['strokeWidth'] = nodeSettings.strokeWidth;
-			if (nodeSettings.strokeColor) chosenSettings['strokeColor'] = nodeSettings.strokeColor;
-			if (nodeSettings.labels) chosenSettings['labels'] = nodeSettings.labels;
+	// TODO BIG BUG says it's undefined while still running evalRule
+	nodeSettings.forEach((ns, index) => {
+		if (ns.rule === undefined || evalRule(ns.rule!, id)) {
+			if (ns.size) chosenSettings['size'] = ns.size;
+			if (ns.color) chosenSettings['color'] = ns.color;
+			if (ns.strokeWidth) chosenSettings['strokeWidth'] = ns.strokeWidth;
+			if (ns.strokeColor) chosenSettings['strokeColor'] = ns.strokeColor;
+			if (ns.labels) chosenSettings['labels'] = ns.labels;
 		}
 	});
 
@@ -297,7 +298,7 @@ export function getNodeStyle(id: string, nodeSettings: NodeSettings[]): NodeStyl
 				nodeStyle[setting.name] = getGradientColor(setting.value, gradientPosition);
 			}
 		} else {
-			if (typeof Settings) nodeStyle[setting.name] = setting.value;
+			nodeStyle[setting.name] = setting.value;
 		}
 	}
 
@@ -306,20 +307,13 @@ export function getNodeStyle(id: string, nodeSettings: NodeSettings[]): NodeStyl
 	// node property getters
 
 	// TODO
-	// nodeStyle.labels = structuredClone(chosenSettings.labels);
-	// nodeStyle.labels.forEach((label) => {
-	// 	if (label.attributeName) {
-	// 		if (nodePropertyGetters.has(label.attributeName))
-	// 			label.text = nodePropertyGetters
-	// 				.get(label.attributeName)!
-	// 				.function($graphStore, id)
-	// 				.toString();
-	// 		else {
-	// 			let attributeText = $graphStore.getNodeAttribute(id, label.attributeName);
-	// 			label.text = attributeText ? attributeText : '';
-	// 		}
-	// 	}
-	// });
+	// console.log('chosenSettings.labels: ', $state.snapshot(chosenSettings.labels));
+	nodeStyle.labels = $state.snapshot(chosenSettings.labels);
+	nodeStyle.labels.forEach((label) => {
+		if (label.attribute) {
+			label.text = getAttributeValue(id, label.attribute).toString();
+		}
+	});
 
 	// TODO
 	// nodeStyle.shadow = false;
@@ -378,20 +372,12 @@ export function getEdgeStyle(id: string, edgeSettings: EdgeSettings[]): EdgeStyl
 	}
 
 	// TODO labels
-	// edgeStyle.labels = structuredClone(chosenSettings.labels);
-	// edgeStyle.labels.forEach((label) => {
-	// 	if (label.attributeName) {
-	// 		if (edgePropertyGetters.has(label.attributeName)) {
-	// 			label.text = edgePropertyGetters
-	// 				.get(label.attributeName)!
-	// 				.function($graphStore, id)
-	// 				.toString();
-	// 		} else {
-	// 			let attributeText = $graphStore.getEdgeAttribute(id, label.attributeName);
-	// 			label.text = attributeText ? attributeText : '';
-	// 		}
-	// 	}
-	// });
+	edgeStyle.labels = $state.snapshot(chosenSettings.labels);
+	edgeStyle.labels.forEach((label) => {
+		if (label.attribute) {
+			label.text = getAttributeValue(id, label.attribute).toString();
+		}
+	});
 	return edgeStyle;
 }
 
