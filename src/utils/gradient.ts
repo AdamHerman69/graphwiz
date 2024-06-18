@@ -43,3 +43,7 @@ export function getGradientColor(gradient: Gradient, position: number): Gradient
 
 	return [[mixedColor.toRgb(), 1]];
 }
+
+export function getGradientColorAsString(gradient: Gradient, position: number): string {
+	return colord(getGradientColor(gradient, position)[0][0]).toRgbString();
+}

@@ -7,11 +7,19 @@ import {
 	type EdgeDatum,
 	PaperRenderer
 } from '../paperJS/PaperRenderer';
+import { greadability } from '$lib/greadability';
 
 const CLICK_RADIUS = 10;
 
 type D3Node = d3.SimulationNodeDatum & {
 	id: string;
+};
+
+export type ReadabilityMetrics = {
+	crossing: number;
+	crossingAngle: number;
+	angularResolutionMin: number;
+	angularResolutionDev: number;
 };
 
 export class CanvasHandler {
@@ -26,10 +34,23 @@ export class CanvasHandler {
 
 	paperRenderer: Renderer;
 
-	sticky: boolean = false;
+	sticky: boolean = $state(false);
 	staticPosition: boolean = false;
 
-	constructor(canvas: HTMLCanvasElement, width: number, height: number, graph: Graph) {
+	readability: ReadabilityMetrics | undefined = $state(undefined);
+
+	constructor(canvas?: HTMLCanvasElement, width?: number, height?: number, graph?: Graph) {
+		this.getD3Node = this.getD3Node.bind(this);
+		this.dragStarted = this.dragStarted.bind(this);
+		this.dragged = this.dragged.bind(this);
+		this.dragEnded = this.dragEnded.bind(this);
+
+		if (canvas && width && height && graph) {
+			this.initialize(canvas, width, height, graph);
+		}
+	}
+
+	initialize(canvas: HTMLCanvasElement, width: number, height: number, graph: Graph): void {
 		this.canvas = canvas;
 		this.width = width;
 		this.height = height;
@@ -53,11 +74,10 @@ export class CanvasHandler {
 				w: target
 			})
 		);
+	}
 
-		this.getD3Node = this.getD3Node.bind(this);
-		this.dragStarted = this.dragStarted.bind(this);
-		this.dragged = this.dragged.bind(this);
-		this.dragEnded = this.dragEnded.bind(this);
+	computeReadability() {
+		this.readability = greadability(this.d3nodes, this.d3links);
 	}
 
 	startForceSimulation(nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void {
@@ -81,7 +101,6 @@ export class CanvasHandler {
 			.on('tick', () => {
 				this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]); // todo if simRunning?
 				// if (tickCount++ > 100) {
-				// 	readability = greadability(d3nodes, d3links);
 				// 	tickCount = 0;
 				// }
 				// updateSelectedNode();
@@ -160,5 +179,9 @@ export class CanvasHandler {
 			draggedNode.fx = null;
 			draggedNode.fy = null;
 		}
+	}
+
+	exportSVG(): string {
+		return this.paperRenderer.exportSVG();
 	}
 }

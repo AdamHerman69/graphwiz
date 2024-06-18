@@ -11,12 +11,10 @@
 	<div class="h-full w-full flex flex-col mx-2">
 		<div class="grow flex justify-between">
 			<div class="w-1/5 z-10 p-8 overflow-y-auto h-screen">gp</div>
-			<div class="absolute top-10 left-1/2 transform -translate-x-1/2 pointer-events-none">
-				<DynamicIsland exportSVG={() => console.log('export svg')} sticky={false} />
-			</div>
 			<div class="settingsPanel z-10 text-sm h-screen">
 				<GraphSettingsPanel />
 				<button onclick={() => console.log($state.snapshot(graphSettings))}>log</button>
+				<!-- todo delete -->
 			</div>
 		</div>
 	</div>
