@@ -11,7 +11,9 @@
 	let { edgeSettings }: { edgeSettings: EdgeSettings } = $props();
 
 	function toggleSetting(setting: EdgeSettingsName) {
-		edgeSettings[setting] = edgeSettings[setting] ? undefined : edgeSettingsDefaults[setting];
+		edgeSettings[setting] = edgeSettings[setting]
+			? undefined
+			: structuredClone(edgeSettingsDefaults[setting]);
 	}
 
 	// delete self

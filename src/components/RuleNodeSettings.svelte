@@ -10,7 +10,10 @@
 	let { nodeSettings }: { nodeSettings: NodeSettings } = $props();
 
 	function toggleSetting(setting: NodeSettingsName) {
-		nodeSettings[setting] = nodeSettings[setting] ? undefined : nodeSettingsDefaults[setting];
+		// todo can't reassign! going to be the same object
+		nodeSettings[setting] = nodeSettings[setting]
+			? undefined
+			: structuredClone(nodeSettingsDefaults[setting]);
 	}
 
 	// delete self
