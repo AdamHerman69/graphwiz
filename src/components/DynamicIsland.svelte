@@ -5,20 +5,22 @@
 	import FileImport from './FileImport.svelte';
 	import { blur } from 'svelte/transition';
 
-	export let exportSVG: () => void;
+	export let exportSVG: () => string;
 	export let sticky: boolean;
 
-	function downloadJSON(json: string, fileName: string) {
-		// Create a Blob from the JSON string
-		const blob = new Blob([json], { type: 'application/json' });
+	function downloadFile(contents: string, fileName: string, fileType: string) {
+		// Create a Blob from the string
+		const blob = new Blob([contents], { type: fileType });
 
 		// Create a URL for the Blob
 		const url = URL.createObjectURL(blob);
 
+		const fileExtension = fileType === 'application/json' ? '.json' : '.svg';
+
 		// Create an anchor element and trigger the download
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = fileName + '.json';
+		a.download = fileName + fileExtension;
 		document.body.appendChild(a);
 		a.click();
 
@@ -281,8 +283,8 @@
 				<div class="heading">svg</div>
 				<div class="description">Export the visualization as a scalable vector graphic file.</div>
 				<button
-					on:click={() => {
-						exportSVG();
+					on:click={async () => {
+						downloadFile(exportSVG(), 'graph', 'image/svg+xml');
 						exportMenuOpen = false;
 					}}
 				>
@@ -297,7 +299,7 @@
 						let objectToExport = { settings: exportSettings() };
 						let json = JSON.stringify(objectToExport, null, 2);
 						console.log(json);
-						downloadJSON(json, 'graphwiz_settings');
+						downloadFile(json, 'graphwiz_settings', 'application/json');
 						exportMenuOpen = false;
 					}}
 				>
@@ -311,7 +313,7 @@
 					on:click={() => {
 						let objectToExport = { settings: exportSettings(), graph: exportGraph() };
 						let json = JSON.stringify(objectToExport, null, 2);
-						downloadJSON(json, 'graphwiz_state');
+						downloadFile(json, 'graphwiz_state', 'application/json');
 						exportMenuOpen = false;
 					}}
 				>

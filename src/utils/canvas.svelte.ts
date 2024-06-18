@@ -70,6 +70,7 @@ export class CanvasHandler {
 		this.dragEnded = this.dragEnded.bind(this);
 		this.detectHover = this.detectHover.bind(this);
 		this.canvasClicked = this.canvasClicked.bind(this);
+		this.exportSVG = this.exportSVG.bind(this);
 
 		if (canvas && width && height && graph) {
 			this.initialize(canvas, width, height, graph);
