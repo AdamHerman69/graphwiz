@@ -86,7 +86,7 @@ class Label {
 		this.pointText = new Paper.PointText({
 			content: labelDatum.text,
 			fontSize: labelDatum.size,
-			fillColor: colord(labelDatum.color).toRgbString()
+			fillColor: new Paper.Color(colord(labelDatum.color).toRgbString())
 		});
 	}
 
