@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ColorSetting } from '../utils/graphSettings.svelte';
-	import type { RangeAttribute, Attribute } from '../utils/graph.svelte';
+	import { type RangeAttribute, type Attribute, availableAttributes } from '../utils/graph.svelte';
 	import AttributePicker from './AttributePicker.svelte';
 	import { colord, type RgbaColor } from 'colord';
 	import ColorPicker from '$lib/colorPicker/components/ColorPicker.svelte';
@@ -12,7 +12,7 @@
 	let pickerColorIndex: number = $state(-1); // minus one if picker closed
 
 	function addColor() {
-		colorSetting.value.push([{ r: 255, g: 255, b: 255, a: 1 }, 1]);
+		colorSetting.value.push([{ r: 255, g: 255, b: 255, a: 1 }, 0]);
 	}
 
 	function removeColor(index: number) {
@@ -30,25 +30,25 @@
 			colorSetting.value.forEach((colorPosTuple, index) => (colorPosTuple[1] = val[index]));
 		}
 	};
-	// let colors = $derived(colorSetting.value.map((colorPosTuple) => colorPosTuple[0]));
 
-	// Binding attrubutes
-	let selectedAttribute: RangeAttribute | undefined = $state(undefined);
-	let bound: boolean = $state(false);
-
+	// todo context for node/edge filtering
 	function toggleAttributeBinding() {
-		bound = !bound;
 		if (colorSetting.attribute) colorSetting.attribute = undefined;
+		else {
+			colorSetting.attribute = availableAttributes.filter(
+				(attribute) => attribute.owner === 'node' && attribute.type === 'number'
+			)[0] as RangeAttribute;
+			if (colorSetting.value.length < 2) addColor(); // has to be a gradient
+		}
 	}
 
 	function toggleColorPicker(index: number) {
 		pickerColorIndex === index ? (pickerColorIndex = -1) : (pickerColorIndex = index);
 	}
 
-	$effect(() => {
-		if (selectedAttribute) {
-			colorSetting.domainRange = selectedAttribute.range;
-			colorSetting.attribute = selectedAttribute;
+	$effect.pre(() => {
+		if (colorSetting.attribute) {
+			colorSetting.domainRange = colorSetting.attribute.range;
 		}
 	});
 </script>
@@ -59,10 +59,10 @@
 		<!-- {colorSettings.source} -->
 	</div>
 	<div class="flex justify-end items-center">
-		{#if bound}
+		{#if colorSetting.attribute}
 			<!-- TODO: actual filter -->
 			<AttributePicker
-				bind:selectedAttribute
+				bind:selectedAttribute={colorSetting.attribute}
 				filter={(attribute: Attribute) => (attribute.owner === 'node' && attribute.type === 'number')}
 			/>
 		{/if}
