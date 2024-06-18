@@ -16,18 +16,12 @@
 		}
 	};
 
-	// Binding attrubutes
-	let selectedAttribute: RangeAttribute | undefined = $state(undefined);
-	let selectedRange: [number, number] = $state([numSettings.min, numSettings.max]);
-
 	function toggleAttributeBinding() {
-		// bound = !bound;
 		if (numSettings.attribute) numSettings.attribute = undefined;
 		else {
 			numSettings.attribute = availableAttributes.filter(
 				(attribute) => attribute.owner === 'node' && attribute.type === 'number'
 			)[0] as RangeAttribute;
-			console.log($state.snapshot(numSettings.attribute));
 		}
 	}
 

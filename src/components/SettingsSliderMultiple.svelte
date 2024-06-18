@@ -1,6 +1,6 @@
 <script lang="ts">
 	import RangeSlider from '$lib/RangeSlider/RangeSlider.svelte';
-	import type { RangeAttribute, Attribute } from '../utils/graph.svelte';
+	import { type RangeAttribute, type Attribute, availableAttributes } from '../utils/graph.svelte';
 	import { type NumericalSetting } from '../utils/graphSettings.svelte';
 	import AttributePicker from './AttributePicker.svelte';
 
@@ -16,24 +16,22 @@
 		}
 	};
 
-	// Binding attrubutes
-	let selectedAttributes: (RangeAttribute | undefined)[] = $state(numSettings.map(() => undefined));
-	let bound: boolean[] = $state(numSettings.map(() => false));
-	let selectedRanges: [number, number][] = $state(
-		numSettings.map((setting) => [setting.min, setting.max])
-	);
-
 	function toggleAttributeBinding(index: number) {
-		bound[index] = !bound[index];
 		if (numSettings[index].attribute) numSettings[index].attribute = undefined;
+		else {
+			numSettings[index].attribute = availableAttributes.filter(
+				(attribute) => attribute.owner === 'edge' && attribute.type === 'number'
+			)[0] as RangeAttribute;
+		}
 	}
 
-	$effect(() => {
-		selectedAttributes.forEach((selectedAttribute, index) => {
-			if (selectedAttribute) {
-				numSettings[index].domainRange = selectedAttributes[index].range;
-				numSettings[index].attribute = selectedAttributes[index];
-				numSettings[index].selectedRange = selectedRanges[index];
+	$effect.pre(() => {
+		numSettings.forEach((numSetting) => {
+			if (numSetting.attribute) {
+				numSetting.domainRange = numSetting.attribute.range;
+				if (!numSetting.selectedRange) {
+					numSetting.selectedRange = [numSetting.min, numSetting.max];
+				}
 			}
 		});
 	});
@@ -48,10 +46,10 @@
 	</div>
 	<div class="flex justify-end items-center">
 		{#each numSettings as numSetting, index}
-			{#if bound[index]}
+			{#if numSetting.attribute}
 				<AttributePicker
-					bind:selectedAttribute={selectedAttributes[index]}
-					filter={(attribute: Attribute) => (attribute.owner === 'node' && attribute.type === 'number')}
+					bind:selectedAttribute={numSetting.attribute}
+					filter={(attribute: Attribute) => (attribute.owner === 'edge' && attribute.type === 'number')}
 				/>
 			{:else}
 				<button onclick={() => toggleAttributeBinding(index)}>
@@ -63,9 +61,9 @@
 </div>
 
 {#each numSettings as numSetting, index}
-	{#if bound[index]}
+	{#if numSetting.attribute}
 		<RangeSlider
-			bind:values={selectedRanges[index]}
+			bind:values={numSetting.selectedRange}
 			max={numSettings[index].max}
 			min={numSettings[index].min}
 			step={numSettings[index].increment || 1}
@@ -75,7 +73,7 @@
 	{/if}
 {/each}
 
-{#if bound.some((b) => b === false)}
+{#if numSettings.some((numSetting) => !numSetting.attribute)}
 	<RangeSlider
 		bind:values={valueArray.value}
 		max={numSettings[0].max}
