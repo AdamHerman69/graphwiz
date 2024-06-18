@@ -1,6 +1,11 @@
 import * as d3 from 'd3';
 import type Graph from 'graphology';
-import { nodeSettingsDefaults, type NodeStyles, type EdgeStyles } from './graphSettings.svelte';
+import {
+	nodeSettingsDefaults,
+	type NodeStyles,
+	type EdgeStyles,
+	getNodeStyle
+} from './graphSettings.svelte';
 import {
 	type Renderer,
 	type NodePositionDatum,
@@ -32,10 +37,16 @@ export class CanvasHandler {
 	simulation: d3.Simulation<D3Node, d3.SimulationLinkDatum<D3Node>> | undefined;
 	transform: d3.ZoomTransform;
 
+	nodeStyles: NodeStyles;
+	edgeStyles: EdgeStyles;
+
 	paperRenderer: Renderer;
 
 	sticky: boolean = $state(false);
 	staticPosition: boolean = false;
+
+	hoveredNodeKey: string | undefined = $state(undefined);
+	selectedNode: D3Node | null = $state(null);
 
 	readability: ReadabilityMetrics | undefined = $state(undefined);
 
@@ -44,6 +55,8 @@ export class CanvasHandler {
 		this.dragStarted = this.dragStarted.bind(this);
 		this.dragged = this.dragged.bind(this);
 		this.dragEnded = this.dragEnded.bind(this);
+		this.detectHover = this.detectHover.bind(this);
+		this.canvasClicked = this.canvasClicked.bind(this);
 
 		if (canvas && width && height && graph) {
 			this.initialize(canvas, width, height, graph);
@@ -134,10 +147,12 @@ export class CanvasHandler {
 
 	updateNodeStyles(nodeStyles: NodeStyles): void {
 		this.paperRenderer.updateNodeStyles(nodeStyles);
+		this.nodeStyles = nodeStyles;
 	}
 
 	updateEdgeStyles(edgeStyles: EdgeStyles): void {
 		this.paperRenderer.updateEdgeStyles(edgeStyles);
+		this.edgeStyles = edgeStyles;
 	}
 
 	getD3Node(mouseEvent: MouseEvent) {
@@ -178,6 +193,40 @@ export class CanvasHandler {
 		if (!this.sticky && !this.staticPosition) {
 			draggedNode.fx = null;
 			draggedNode.fy = null;
+		}
+	}
+
+	detectHover(event: MouseEvent) {
+		let hoveredNode = this.getD3Node(event);
+		this.handleHover(hoveredNode?.id);
+	}
+
+	handleHover(nodeKey: string | undefined) {
+		if (this.hoveredNodeKey && this.hoveredNodeKey != nodeKey) {
+			// cancel old shadow
+			this.nodeStyles.get(this.hoveredNodeKey)!.shadow = false;
+			this.paperRenderer.updateNodeStyle(
+				this.hoveredNodeKey,
+				this.nodeStyles.get(this.hoveredNodeKey)!
+			);
+		}
+
+		if (nodeKey && this.hoveredNodeKey != nodeKey) {
+			// apply shadow
+			let nodeStyle = this.nodeStyles.get(nodeKey);
+			nodeStyle!.shadow = true;
+			this.paperRenderer.updateNodeStyle(nodeKey, nodeStyle!);
+		}
+
+		this.hoveredNodeKey = nodeKey;
+	}
+
+	canvasClicked(event: MouseEvent) {
+		let clickedNode = this.getD3Node(event);
+		if (clickedNode && this.selectedNode?.id != clickedNode.id) {
+			this.selectedNode = clickedNode;
+		} else {
+			this.selectedNode = null;
 		}
 	}
 

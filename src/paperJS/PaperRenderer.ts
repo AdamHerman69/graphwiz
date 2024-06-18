@@ -23,6 +23,8 @@ export interface Renderer {
 	updatePositions(positions: NodePositionDatum[]): void;
 	updateNodeStyles(styles: Map<string, NodeStyle>): void;
 	updateEdgeStyles(styles: Map<string, EdgeStyle>): void;
+	updateNodeStyle(id: string, style: NodeStyle): void;
+	updateEdgeStyle(id: string, style: EdgeStyle): void;
 	restart(
 		inputNodes: NodePositionDatum[],
 		inputEdges: EdgeDatum[],
@@ -77,9 +79,19 @@ export class PaperRenderer implements Renderer {
 		this.edges.forEach((edge) => edge.updatePosition());
 	}
 
+	updateNodeStyle(id: string, style: NodeStyle) {
+		this.paperScope.activate();
+		this.nodes.get(id)?.updateStyle(style);
+	}
+
 	updateEdgeStyles(styles: Map<string, EdgeStyle>) {
 		this.paperScope.activate();
 		this.edges.forEach((edge, key) => edge.updateStyle(styles.get(key)!));
+	}
+
+	updateEdgeStyle(id: string, style: EdgeStyle) {
+		this.paperScope.activate();
+		this.edges.get(id)?.updateStyle(style);
 	}
 
 	restart(
