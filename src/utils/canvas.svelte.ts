@@ -32,10 +32,10 @@ export class CanvasHandler {
 	width: number;
 	height: number;
 
-	d3nodes: D3Node[];
+	d3nodes: D3Node[] = $state([]);
 	d3links: (d3.SimulationLinkDatum<D3Node> & { id: string })[];
 	simulation: d3.Simulation<D3Node, d3.SimulationLinkDatum<D3Node>> | undefined;
-	transform: d3.ZoomTransform;
+	transform: d3.ZoomTransform = $state(d3.zoomIdentity);
 
 	nodeStyles: NodeStyles;
 	edgeStyles: EdgeStyles;
@@ -47,6 +47,19 @@ export class CanvasHandler {
 
 	hoveredNodeKey: string | undefined = $state(undefined);
 	selectedNode: D3Node | null = $state(null);
+	selectedNodePosition: { x: number; y: number } | null = $derived.by(() => {
+		if (this.selectedNode) {
+			return {
+				x: this.selectedNode.fx
+					? this.transform.applyX(this.selectedNode.fx)
+					: this.transform.applyX(this.selectedNode.x!),
+				y: this.selectedNode.fy
+					? this.transform.applyY(this.selectedNode.fy)
+					: this.transform.applyY(this.selectedNode.y!)
+			};
+		}
+		return null;
+	});
 
 	readability: ReadabilityMetrics | undefined = $state(undefined);
 
@@ -67,7 +80,6 @@ export class CanvasHandler {
 		this.canvas = canvas;
 		this.width = width;
 		this.height = height;
-		this.transform = d3.zoomIdentity;
 		this.simulation = undefined;
 
 		this.d3nodes = graph.mapNodes((node: string) => ({

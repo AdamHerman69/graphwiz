@@ -6,6 +6,8 @@
 	import { graphSettings, getNodeStyles, getEdgeStyles } from '../utils/graphSettings.svelte';
 	import DynamicIsland from './DynamicIsland.svelte';
 	import ReadabilityMetrics from './ReadabilityMetrics.svelte';
+	import { spring, type Spring } from 'svelte/motion';
+	import NodeInfo from './NodeInfo.svelte';
 
 	let canvas: HTMLCanvasElement;
 	let width: number;
@@ -21,9 +23,13 @@
 		canvasHandler.initialize(canvas, width, height, graph);
 		canvasHandler.startForceSimulation(getNodeStyles(), getEdgeStyles());
 
+		// initialize spring with the middle of canvas
+		selectedNodeSpring = spring({ x: width / 2, y: height / 2 }, { stiffness: 0.05, damping: 0.2 });
+
+		// Run the readability computation every second
 		const interval = setInterval(() => {
 			canvasHandler.computeReadability();
-		}, 1000); // Run every 1000 milliseconds (1 second)
+		}, 1000);
 
 		return () => {
 			clearInterval(interval); // Clear the interval when the component is destroyed
@@ -36,6 +42,16 @@
 
 	$effect(() => {
 		canvasHandler.updateEdgeStyles(getEdgeStyles());
+	});
+
+	let selectedNodeSpring: Spring<{ x: number; y: number }>;
+	$effect(() => {
+		if (canvasHandler.selectedNode && canvasHandler.selectedNodePosition) {
+			selectedNodeSpring.set({
+				x: canvasHandler.selectedNodePosition.x,
+				y: canvasHandler.selectedNodePosition.y
+			});
+		}
 	});
 </script>
 
@@ -57,18 +73,14 @@
 
 	<ReadabilityMetrics bind:readability={canvasHandler.readability} />
 
-	<!-- {#if selectedNode}
-		<div class="nodeInfo" style="left: {$selectedNodeXspring}px; top: {$selectedNodeYspring}px;">
-			<NodeInfo nodeID={selectedNode.id} />
+	{#if canvasHandler.selectedNode}
+		<div class="nodeInfo" style="left: {$selectedNodeSpring.x}px; top: {$selectedNodeSpring.y}px;">
+			<NodeInfo nodeID={canvasHandler.selectedNode.id} />
 		</div>
-	{/if} -->
+	{/if}
 </div>
 
 <style>
-	canvas {
-		/* background-color: lightpink; */
-	}
-
 	.nodeInfo {
 		position: absolute;
 		transform: translate(-50%, 20px);
