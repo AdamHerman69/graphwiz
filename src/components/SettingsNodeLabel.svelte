@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { NodeLabel } from '../utils/graphSettings.svelte';
+	import { type NodeLabel, newGUIID } from '../utils/graphSettings.svelte';
 	import type { Attribute } from '../utils/graph.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import AttributePicker from './AttributePicker.svelte';
@@ -21,7 +21,7 @@
 			size: 4,
 			position: unusedPositions.length > 0 ? unusedPositions[0] : 'below',
 			color: { r: 0, g: 0, b: 0, a: 1 },
-			id: 0
+			id: newGUIID()
 		});
 	}
 
@@ -45,7 +45,7 @@
 <!-- style={`height: ${height}px;`} -->
 <div class="labelContainer mt-1" use:autoAnimate={{ duration: 250 }}>
 	<!-- todo keyed array -->
-	{#each labels as label, index}
+	{#each labels as label, index (label.id)}
 		<div use:autoAnimate={{ duration: 250 }}>
 			<div class="flex items-center mx-3">
 				<div class="flex-1 my-1 py-1">

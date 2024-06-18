@@ -87,6 +87,7 @@ const edgeSettingsTypes = [
 export type EdgeSettingsName = (typeof edgeSettingsTypes)[number];
 
 type RuleSettings = {
+	id: number; // for keyed each blocks
 	priority: number;
 	rule?: Rule;
 	source: null | Guideline;
@@ -151,19 +152,16 @@ export const nodeSettingsDefaults: NodeProperties = {
 	labels: []
 } as const;
 
-// todo change based on actual rule
-export const ruleSettingsDefaults: RuleSettings = {
-	priority: 0,
-	source: null
-};
-
+let guiID = $state(0);
 export type GraphSettings = {
+	guiID: number;
 	layout: SelectSetting<LayoutType>;
 	nodeSettings: NodeSettings[];
 	edgeSettings: EdgeSettings[];
 };
 
 export let graphSettings: GraphSettings = $state({
+	guiID: guiID,
 	layout: {
 		name: 'layout',
 		values: Array.from(layoutTypes),
@@ -173,28 +171,20 @@ export let graphSettings: GraphSettings = $state({
 	nodeSettings: [
 		{
 			...nodeSettingsDefaults,
-			...ruleSettingsDefaults
+			id: newGUIID(),
+			priority: 0,
+			source: null
 		}
 	],
 	edgeSettings: [
 		{
 			...edgeSettingsDefaults,
-			...ruleSettingsDefaults
+			id: newGUIID(),
+			priority: 0,
+			source: null
 		}
 	]
 });
-
-// export function getLayoutSettings(): SelectSetting<LayoutType> {
-// 	return graphSettings.layout;
-// }
-
-// export function getNodeSettings(): NodeSettings[] {
-// 	return graphSettings.nodeSettings;
-// }
-
-// export function getEdgeSettings(): EdgeSettings[] {
-// 	return graphSettings.edgeSettings;
-// }
 
 // import / export
 
@@ -205,6 +195,7 @@ export function isValidSettings(object: any): boolean {
 
 // todo rewrite so we're not reassigning the state
 export function importSettings(settings: GraphSettings): void {
+	graphSettings.guiID = settings.guiID;
 	graphSettings.layout = settings.layout;
 	graphSettings.nodeSettings = settings.nodeSettings;
 	graphSettings.edgeSettings = settings.edgeSettings;
@@ -401,4 +392,8 @@ export function getNodeStyles() {
 
 export function getEdgeStyles() {
 	return edgeStyles;
+}
+
+export function newGUIID(): number {
+	return guiID++;
 }

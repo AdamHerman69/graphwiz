@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { EdgeLabel } from '../utils/graphSettings.svelte';
+	import { newGUIID, type EdgeLabel } from '../utils/graphSettings.svelte';
 	import type { Attribute } from '../utils/graph.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import AttributePicker from './AttributePicker.svelte';
@@ -23,7 +23,7 @@
 
 	function addLabel() {
 		labels.push({
-			id: 0, // todo ID
+			id: newGUIID(),
 			text: 'mid',
 			color: { r: 0, g: 0, b: 0, a: 1 },
 			size: 3,
@@ -57,7 +57,7 @@
 
 <div class="labelContainer mt-1" use:autoAnimate={{ duration: 250 }}>
 	<!-- todo keyed array -->
-	{#each labels as label, index}
+	{#each labels as label, index (label.id)}
 		<div class="flex items-center mx-3">
 			<div class="flex-1 my-1 py-1">
 				<div class="flex items-center">

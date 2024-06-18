@@ -1,23 +1,17 @@
 <script lang="ts">
 	import type { Rule } from '../utils/rules.svelte';
 	import { isAtomic, type AtomicRule } from '../utils/rules.svelte';
-	// import EdgeRule2 from './EdgeRule2.svelte';
-	// import NodeRule2 from './NodeRule2.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import ToggleSwitch from './GUI/ToggleSwitch.svelte';
 	import NodeRule from './NodeRule.svelte';
 	import EdgeRule from './EdgeRule.svelte';
+	import { newGUIID } from '../utils/graphSettings.svelte';
 
 	let {
 		rule,
 		type,
 		deleteFunction = undefined
 	}: { rule: Rule; type: 'node' | 'edge'; deleteFunction: (() => void) | undefined } = $props();
-
-	// todo figure out GUI ids
-	function newGUIID(): number {
-		return Math.random() * 100000000;
-	}
 
 	function addAtomicRule() {
 		rule.rules.push({

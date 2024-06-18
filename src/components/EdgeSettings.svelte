@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { graphSettings } from '../utils/graphSettings.svelte';
+	import { graphSettings, newGUIID } from '../utils/graphSettings.svelte';
 	import SettingsHeader from './SettingsHeader.svelte';
 	import RuleSettings from './RuleNodeSettings.svelte';
 	import SettingsSliderMultiple from './SettingsSliderMultiple.svelte';
@@ -16,13 +16,14 @@
 
 	function addRule() {
 		graphSettings.edgeSettings.push({
+			id: newGUIID(),
 			priority: graphSettings.edgeSettings.length + 1,
 			rule: {
-				id: 0,
+				id: newGUIID(),
 				operator: 'AND',
 				rules: [
 					{
-						id: 0,
+						id: newGUIID(),
 						operator: '>',
 						type: 'number',
 						target: 'edge',
@@ -36,7 +37,7 @@
 </script>
 
 <div use:autoAnimate={{ duration: 300 }}>
-	{#each graphSettings.edgeSettings as setting, index}
+	{#each graphSettings.edgeSettings as setting, index (setting.id)}
 		{#if index === 0}
 			<div class="card cardSpacing">
 				<SettingsHeader title="edge" bind:collapsed />

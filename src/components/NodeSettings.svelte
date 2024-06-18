@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { graphSettings } from '../utils/graphSettings.svelte';
+	import { graphSettings, newGUIID } from '../utils/graphSettings.svelte';
 	import RuleNodeSettings from './RuleNodeSettings.svelte';
 	import SettingsHeader from './SettingsHeader.svelte';
 	import SettingsSlider from './SettingsSlider.svelte';
@@ -15,13 +15,14 @@
 	function addRule() {
 		// todo priority and ID
 		graphSettings.nodeSettings.push({
+			id: newGUIID(),
 			priority: graphSettings.nodeSettings.length + 1,
 			rule: {
-				id: 0,
+				id: newGUIID(),
 				operator: 'AND',
 				rules: [
 					{
-						id: 0,
+						id: newGUIID(),
 						operator: '>',
 						type: 'number',
 						target: 'node',
@@ -35,7 +36,7 @@
 </script>
 
 <div use:autoAnimate={{ duration: 300 }}>
-	{#each graphSettings.nodeSettings as setting, index}
+	{#each graphSettings.nodeSettings as setting, index (setting.id)}
 		{#if index === 0}
 			<div class="card cardSpacing">
 				<SettingsHeader title="node" bind:collapsed />
