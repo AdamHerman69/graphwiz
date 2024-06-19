@@ -44,8 +44,10 @@
 
 	$effect(() => {
 		console.log('effect', width, height);
-		canvasHandler.initialize(canvas, width, height, getGraph());
+		let g = getGraph();
+
 		untrack(() => {
+			canvasHandler.initialize(canvas, width, height, g);
 			canvasHandler.startForceSimulation(getNodeStyles(), getEdgeStyles());
 		});
 	});
@@ -70,8 +72,6 @@
 </script>
 
 <div class="relative h-full w-full">
-	<!-- on:mousemove={detectHover}
-		on:click={canvasClicked} -->
 	<canvas
 		resize
 		class="h-full w-full"

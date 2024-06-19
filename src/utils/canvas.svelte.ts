@@ -96,6 +96,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	}
 
 	initialize(canvas: HTMLCanvasElement, width: number, height: number, graph: Graph): void {
+		console.log('init transform', this.transform);
 		this.canvas = canvas;
 		this.width = width;
 		this.height = height;
@@ -124,13 +125,23 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	}
 
 	startForceSimulation(nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void {
-		this.paperRenderer = new PaperRenderer(
-			this.canvas,
-			this.d3nodes as NodePositionDatum[],
-			this.d3links as EdgeDatum[],
-			nodeStyles,
-			edgeStyles
-		);
+		console.log('startForce transform', this.transform);
+
+		if (this.paperRenderer)
+			this.paperRenderer.restart(
+				this.d3nodes as NodePositionDatum[],
+				this.d3links as EdgeDatum[],
+				nodeStyles,
+				edgeStyles
+			);
+		else
+			this.paperRenderer = new PaperRenderer(
+				this.canvas,
+				this.d3nodes as NodePositionDatum[],
+				this.d3links as EdgeDatum[],
+				nodeStyles,
+				edgeStyles
+			);
 
 		this.simulationWorker = new Worker();
 		this.simulationWorker.postMessage({
@@ -170,6 +181,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 						this.transform = this.paperRenderer.zoomed(zoomEvent);
 					})
 			);
+		console.log('endForce transform', this.transform);
 	}
 
 	updateNodeStyles(nodeStyles: NodeStyles): void {
@@ -369,13 +381,21 @@ export class CanvasHandler implements ICanvasHandler {
 	}
 
 	startForceSimulation(nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void {
-		this.paperRenderer = new PaperRenderer(
-			this.canvas,
-			this.d3nodes as NodePositionDatum[],
-			this.d3links as EdgeDatum[],
-			nodeStyles,
-			edgeStyles
-		);
+		if (this.paperRenderer)
+			this.paperRenderer.restart(
+				this.d3nodes as NodePositionDatum[],
+				this.d3links as EdgeDatum[],
+				nodeStyles,
+				edgeStyles
+			);
+		else
+			this.paperRenderer = new PaperRenderer(
+				this.canvas,
+				this.d3nodes as NodePositionDatum[],
+				this.d3links as EdgeDatum[],
+				nodeStyles,
+				edgeStyles
+			);
 
 		// start d3-force
 		this.simulation = d3
