@@ -63,6 +63,8 @@ export class CanvasHandler {
 
 	readability: ReadabilityMetrics | undefined = $state(undefined);
 
+	lastTickTimestamp: number | undefined;
+
 	constructor(canvas?: HTMLCanvasElement, width?: number, height?: number, graph?: Graph) {
 		this.getD3Node = this.getD3Node.bind(this);
 		this.dragStarted = this.dragStarted.bind(this);
@@ -125,7 +127,20 @@ export class CanvasHandler {
 			.force('charge', d3.forceManyBody())
 			.force('center', d3.forceCenter(this.width / 2, this.height / 2))
 			.on('tick', () => {
+				// measure tick time
+				const now = performance.now();
+
+				if (this.lastTickTimestamp !== undefined) {
+					const timeSinceLastTick = now - this.lastTickTimestamp;
+					console.log(`Time since last tick: ${timeSinceLastTick} milliseconds`);
+				}
+
+				this.lastTickTimestamp = now;
+
+				// const start = performance.now();
 				this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]); // todo if simRunning?
+				// const end = performance.now();
+				// console.log('updatePositions took', end - start, 'ms');
 				// if (tickCount++ > 100) {
 				// 	tickCount = 0;
 				// }

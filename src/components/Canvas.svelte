@@ -26,14 +26,15 @@
 		// initialize spring with the middle of canvas
 		selectedNodeSpring = spring({ x: width / 2, y: height / 2 }, { stiffness: 0.05, damping: 0.2 });
 
+		// TODO run in a web worker
 		// Run the readability computation every second
-		const interval = setInterval(() => {
-			canvasHandler.computeReadability();
-		}, 1000);
+		// const interval = setInterval(() => {
+		// 	canvasHandler.computeReadability();
+		// }, 1000);
 
-		return () => {
-			clearInterval(interval); // Clear the interval when the component is destroyed
-		};
+		// return () => {
+		// 	clearInterval(interval); // Clear the interval when the component is destroyed
+		// };
 	});
 
 	$effect(() => {
