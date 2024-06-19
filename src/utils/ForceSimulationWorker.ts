@@ -4,7 +4,9 @@ import * as d3 from 'd3';
 // Assuming d3 is available in the worker context. If not, you'll need to import or define the necessary functions.
 // importScripts('https://d3js.org/d3.v6.min.js');
 
-let simulation;
+let simulation: d3.Simulation<D3Node, d3.SimulationLinkDatum<D3Node>>;
+let d3nodes: D3Node[];
+let d3links: (d3.SimulationLinkDatum<D3Node> & { id: string })[];
 
 function log(message: string) {
 	postMessage({
@@ -40,21 +42,44 @@ function startSimulation(
 
 // Message handler for receiving data and commands from the main thread
 onmessage = function (event) {
-	const { type, nodes, links, width, height, nodeId, position } = event.data;
+	const {
+		type,
+		nodes,
+		links,
+		width,
+		height,
+		nodeId,
+		position,
+		zeroAlphaTarget,
+		resetFixedPosition
+	} = event.data;
 	switch (type) {
 		case 'startSimulation':
-			startSimulation(nodes, links, width, height);
+			d3nodes = nodes;
+			d3links = links;
+			startSimulation(d3nodes, d3links, width, height);
 			log('Simulation started');
 			break;
 		case 'dragStarted':
-			// Optional: Implement logic for when dragging starts, such as fixing the position of the node being dragged
+			simulation.alphaTarget(0.3).restart();
 			break;
 		case 'dragged':
-			// Optional: Update the position of the dragged node in the simulation
-			// This might involve finding the node by id and updating its position
+			let draggedNode = d3nodes.find((node) => node.id === nodeId);
+			if (draggedNode) {
+				draggedNode.fx = position.fx;
+				draggedNode.fy = position.fy;
+			}
 			break;
 		case 'dragEnded':
-			// Optional: Implement logic for when dragging ends, such as unfreezing the node
+			if (zeroAlphaTarget) simulation.alphaTarget(0);
+
+			if (resetFixedPosition) {
+				let draggedNode = d3nodes.find((node) => node.id === nodeId);
+				if (draggedNode) {
+					draggedNode.fx = null;
+					draggedNode.fy = null;
+				}
+			}
 			break;
 		default:
 			console.error('Unknown message type:', type);

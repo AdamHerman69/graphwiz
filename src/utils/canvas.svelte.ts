@@ -50,8 +50,8 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 
 	d3nodes: D3Node[] = $state([]);
 	d3links: (d3.SimulationLinkDatum<D3Node> & { id: string })[];
-	simulation: d3.Simulation<D3Node, d3.SimulationLinkDatum<D3Node>> | undefined;
 	transform: d3.ZoomTransform = $state(d3.zoomIdentity);
+	simulationWorker: Worker;
 
 	nodeStyles: NodeStyles;
 	edgeStyles: EdgeStyles;
@@ -133,8 +133,8 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			edgeStyles
 		);
 
-		const simulationWorker = new Worker();
-		simulationWorker.postMessage({
+		this.simulationWorker = new Worker();
+		this.simulationWorker.postMessage({
 			type: 'startSimulation',
 			nodes: $state.snapshot(this.d3nodes),
 			links: this.d3links,
@@ -142,7 +142,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			height: this.height
 		});
 
-		simulationWorker.onmessage = (event) => {
+		this.simulationWorker.onmessage = (event) => {
 			const { type, nodes } = event.data;
 			if (type === 'tick') {
 				this.paperRenderer.updatePositions(nodes as NodePositionDatum[]);
@@ -152,15 +152,25 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			}
 		};
 
-		// Setup zoom behavior
-		d3.select(this.canvas).call(
-			d3
-				.zoom<HTMLCanvasElement, unknown>()
-				.scaleExtent([1 / 10, 8])
-				.on('zoom', (event) => {
-					this.paperRenderer.zoomed(event.transform);
-				})
-		);
+		// drag and zoom
+		d3.select(this.canvas)
+			.call(
+				d3
+					.drag<HTMLCanvasElement, unknown>()
+					.container(this.canvas as d3.DragContainerElement)
+					.subject(this.getD3Node)
+					.on('start', this.dragStarted)
+					.on('drag', this.dragged)
+					.on('end', this.dragEnded)
+			)
+			.call(
+				d3
+					.zoom<HTMLCanvasElement, unknown>()
+					.scaleExtent([1 / 10, 8])
+					.on('zoom', (zoomEvent) => {
+						this.transform = this.paperRenderer.zoomed(zoomEvent);
+					})
+			);
 	}
 
 	updateNodeStyles(nodeStyles: NodeStyles): void {
@@ -174,21 +184,32 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	}
 
 	getD3Node(mouseEvent: MouseEvent) {
-		const node = this.simulation?.find(
-			this.transform.invertX(mouseEvent.x),
-			this.transform.invertY(mouseEvent.y),
-			CLICK_RADIUS
-		);
+		const mouseX = this.transform.invertX(mouseEvent.x);
+		const mouseY = this.transform.invertY(mouseEvent.y);
 
-		return node;
+		let closestNode = null;
+		let minDistanceSquared = CLICK_RADIUS * CLICK_RADIUS; // Use squared CLICK_RADIUS for comparison
+
+		for (const node of this.d3nodes) {
+			const dx = mouseX - node.x;
+			const dy = mouseY - node.y;
+			const distanceSquared = dx * dx + dy * dy; // No need for Math.sqrt
+
+			if (distanceSquared < minDistanceSquared) {
+				closestNode = node;
+				minDistanceSquared = distanceSquared;
+			}
+		}
+
+		return closestNode;
 	}
 
 	dragStarted(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
-		if (!dragEvent.active) this.simulation?.alphaTarget(0.3).restart();
-		let draggedNode = dragEvent.subject;
-
-		// draggedNode.fx = transform.invertX(dragEvent.x!);
-		// draggedNode.fy = transform.invertY(dragEvent.y!);
+		// sets the alpha target to a small value to restart the simulation
+		if (!dragEvent.active)
+			this.simulationWorker.postMessage({
+				type: 'dragStarted'
+			});
 	}
 
 	dragged(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
@@ -200,6 +221,12 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 
 		draggedNode.fx = this.transform.invertX(x);
 		draggedNode.fy = this.transform.invertY(y);
+
+		this.simulationWorker.postMessage({
+			type: 'dragged',
+			nodeId: draggedNode.id,
+			position: { fx: draggedNode.fx, fy: draggedNode.fy }
+		});
 	}
 
 	dragEnded(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
@@ -208,10 +235,18 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			this.simulation?.alphaTarget(0);
 		}
 
+		// clear the fixed position
 		if (!this.sticky && !this.staticPosition) {
 			draggedNode.fx = null;
 			draggedNode.fy = null;
 		}
+
+		this.simulationWorker.postMessage({
+			type: 'dragEnded',
+			nodeId: draggedNode.id,
+			zeroAlphaTarget: !dragEvent.active,
+			resetFixedPosition: !this.sticky && !this.staticPosition
+		});
 	}
 
 	detectHover(event: MouseEvent) {
