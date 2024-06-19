@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
-	import { CanvasHandler } from '../utils/canvas.svelte';
+	import {
+		CanvasHandler,
+		type ICanvasHandler,
+		WebWorkerCanvasHandler
+	} from '../utils/canvas.svelte';
 	import { loadSampleGraph, computeAttributes, getGraph } from '../utils/graph.svelte';
 	import { graphSettings, getNodeStyles, getEdgeStyles } from '../utils/graphSettings.svelte';
 	import DynamicIsland from './DynamicIsland.svelte';
@@ -16,7 +20,7 @@
 	loadSampleGraph();
 	computeAttributes(getGraph());
 
-	let canvasHandler = new CanvasHandler();
+	let canvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
 
 	onMount(() => {
 		// happens now in the effect
@@ -35,10 +39,11 @@
 		// return () => {
 		// 	clearInterval(interval); // Clear the interval when the component is destroyed
 		// };
+		console.log('mounted', width, height);
 	});
 
 	$effect(() => {
-		console.log('effect');
+		console.log('effect', width, height);
 		canvasHandler.initialize(canvas, width, height, getGraph());
 		untrack(() => {
 			canvasHandler.startForceSimulation(getNodeStyles(), getEdgeStyles());
@@ -80,7 +85,7 @@
 		<DynamicIsland exportSVG={canvasHandler.exportSVG} bind:sticky={canvasHandler.sticky} />
 	</div>
 
-	<ReadabilityMetrics bind:readability={canvasHandler.readability} />
+	<!-- <ReadabilityMetrics bind:readability={canvasHandler.readability} /> -->
 
 	{#if canvasHandler.selectedNode}
 		<div class="nodeInfo" style="left: {$selectedNodeSpring.x}px; top: {$selectedNodeSpring.y}px;">
