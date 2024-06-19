@@ -99,7 +99,6 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.canvas = canvas;
 		this.width = width;
 		this.height = height;
-		this.simulation = undefined;
 
 		this.d3nodes = graph.mapNodes((node: string) => ({
 			id: node,
