@@ -7,6 +7,7 @@
 	import ColorPicker from '$lib/colorPicker/components/ColorPicker.svelte';
 	import RangeSlider from '$lib/RangeSlider/RangeSlider.svelte';
 	import ColorPickerWrapper from '$lib/RangeSlider/ColorPickerWrapper.svelte';
+	import { availableAttributes } from '../utils/graph.svelte';
 
 	let { labels }: { labels: EdgeLabel[] } = $props();
 	let colorPickers: boolean[] = $state(Array(labels.length).fill(false));
@@ -29,7 +30,10 @@
 			size: 3,
 			relativePosition: 0.5,
 			position: 'below',
-			rotate: true
+			rotate: true,
+			attribute: availableAttributes.filter(
+				(attribute) => attribute.owner === 'edge'
+			)[0] as Attribute
 		});
 	}
 

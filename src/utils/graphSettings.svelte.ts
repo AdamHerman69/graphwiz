@@ -4,7 +4,6 @@ import { type Rule, stripAttributeBasedRules, evalRule } from './rules.svelte';
 import type { RgbaColor } from 'colord';
 import { scaleLinear } from './scaleLinear';
 import { getGradientColor } from './gradient';
-import { saveState } from './undoStack.svelte';
 
 export type Setting<T> = {
 	name: string;
@@ -154,8 +153,8 @@ export const nodeSettingsDefaults: NodeProperties = {
 } as const;
 
 let guiID = $state(0);
+
 export type GraphSettings = {
-	byUndo?: boolean;
 	guiID: number;
 	layout: SelectSetting<LayoutType>;
 	nodeSettings: NodeSettings[];
@@ -199,8 +198,7 @@ export function exportState(): GraphSettings {
 	return $state.snapshot(graphSettings);
 }
 
-export function importState(state: GraphSettings, byUndo = false): void {
-	if (byUndo) graphSettings.byUndo = true;
+export function importState(state: GraphSettings): void {
 	graphSettings.guiID = state.guiID;
 	graphSettings.layout = state.layout;
 	graphSettings.nodeSettings = state.nodeSettings;

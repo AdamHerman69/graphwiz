@@ -9,6 +9,7 @@
 	import RuleEdgeSettings from './RuleEdgeSettings.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import { setContext } from 'svelte';
+	import { availableAttributes } from '../utils/graph.svelte';
 
 	let collapsed = $state(false);
 
@@ -27,7 +28,8 @@
 						operator: '>',
 						type: 'number',
 						target: 'edge',
-						value: 0
+						value: 0,
+						property: availableAttributes.filter((attribute) => attribute.owner === 'edge')[0]
 					}
 				]
 			},

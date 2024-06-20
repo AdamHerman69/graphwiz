@@ -41,18 +41,22 @@
 	// todo layout effect
 
 	$effect(() => {
+		//console.log('Node styles changed');
 		canvasHandler.updateNodeStyles(getNodeStyles());
-		untrack(() => {
-			if (!graphSettings.byUndo) saveState();
-		});
+		untrack(() => saveState());
 	});
 
 	$effect(() => {
+		//console.log('Edge styles changed');
 		canvasHandler.updateEdgeStyles(getEdgeStyles());
-		untrack(() => {
-			if (!graphSettings.byUndo) saveState();
-		});
+		untrack(() => saveState());
 	});
+
+	// $effect(() => {
+	// 	if (graphSettings.byUndo) {
+	// 		console.log('byundo reactive');
+	// 	}
+	// });
 
 	let selectedNodeSpring: Spring<{ x: number; y: number }>;
 	$effect(() => {
@@ -87,6 +91,20 @@
 		</div>
 	{/if}
 </div>
+
+<!-- State stack debug tool -->
+<!-- <div class="flex">
+			<div>
+				<div>Index</div>
+				<div>Size</div>
+			</div>
+			{#each getUndoStack() as state, index}
+				<div class={index === getStateIndex() ? 'text-red-500 font-bold p-1' : 'p-1'}>
+					<div>{index}</div>
+					<div>{state.nodeSettings[0].size?.value}</div>
+				</div>
+			{/each}
+		</div> -->
 
 <style>
 	.nodeInfo {

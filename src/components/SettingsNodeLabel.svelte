@@ -6,6 +6,7 @@
 	import { colord } from 'colord';
 	import ColorPicker from '$lib/colorPicker/components/ColorPicker.svelte';
 	import ColorPickerWrapper from '$lib/RangeSlider/ColorPickerWrapper.svelte';
+	import { availableAttributes } from '../utils/graph.svelte';
 
 	let { labels }: { labels: NodeLabel[] } = $props();
 	let colorPickers: boolean[] = $state(Array(labels.length).fill(false));
@@ -21,7 +22,10 @@
 			size: 4,
 			position: unusedPositions.length > 0 ? unusedPositions[0] : 'below',
 			color: { r: 0, g: 0, b: 0, a: 1 },
-			id: newGUIID()
+			id: newGUIID(),
+			attribute: availableAttributes.filter(
+				(attribute) => attribute.owner === 'node'
+			)[0] as Attribute
 		});
 	}
 

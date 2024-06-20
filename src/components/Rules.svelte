@@ -6,12 +6,16 @@
 	import NodeRule from './NodeRule.svelte';
 	import EdgeRule from './EdgeRule.svelte';
 	import { newGUIID } from '../utils/graphSettings.svelte';
+	import { availableAttributes } from '../utils/graph.svelte';
+	import { getContext } from 'svelte';
 
 	let {
 		rule,
 		type,
 		deleteFunction = undefined
 	}: { rule: Rule; type: 'node' | 'edge'; deleteFunction: (() => void) | undefined } = $props();
+
+	let owner = getContext('type');
 
 	function addAtomicRule() {
 		rule.rules.push({
@@ -20,7 +24,7 @@
 			type: 'number',
 			target: type,
 			value: 0,
-			property: undefined
+			property: availableAttributes.filter((attribute) => attribute.owner === owner)[0]
 		});
 	}
 

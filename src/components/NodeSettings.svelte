@@ -7,6 +7,7 @@
 	import SettingsNodeLabel from './SettingsNodeLabel.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import { setContext } from 'svelte';
+	import { availableAttributes } from '../utils/graph.svelte';
 
 	let collapsed = $state(false);
 
@@ -26,7 +27,8 @@
 						operator: '>',
 						type: 'number',
 						target: 'node',
-						value: 0
+						value: 0,
+						property: availableAttributes.filter((attribute) => attribute.owner === 'node')[0]
 					}
 				]
 			},
