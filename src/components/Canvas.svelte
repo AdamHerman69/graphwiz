@@ -11,6 +11,7 @@
 	import ReadabilityMetrics from './ReadabilityMetrics.svelte';
 	import { spring, type Spring } from 'svelte/motion';
 	import NodeInfo from './NodeInfo.svelte';
+	import { saveState } from '../utils/undoStack.svelte';
 
 	let canvas: HTMLCanvasElement;
 	let width: number;
@@ -37,12 +38,20 @@
 		});
 	});
 
+	// todo layout effect
+
 	$effect(() => {
 		canvasHandler.updateNodeStyles(getNodeStyles());
+		untrack(() => {
+			if (!graphSettings.byUndo) saveState();
+		});
 	});
 
 	$effect(() => {
 		canvasHandler.updateEdgeStyles(getEdgeStyles());
+		untrack(() => {
+			if (!graphSettings.byUndo) saveState();
+		});
 	});
 
 	let selectedNodeSpring: Spring<{ x: number; y: number }>;

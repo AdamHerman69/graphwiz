@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Dropzone from '$lib/fileDropZone/src/lib/components/Dropzone.svelte';
-	import { isValidSettings, importSettings } from '../utils/graphSettings.svelte';
+	import { isValidSettings, importState } from '../utils/graphSettings.svelte';
 	import { isValidGraph, importGraphJSON, importGraphOther } from '../utils/graph.svelte';
 	import { parse } from 'svelte/compiler';
 
@@ -49,7 +49,7 @@
 			}
 			if (parsed.hasOwnProperty('settings') && isValidSettings(parsed.settings)) {
 				// todo full state import binding gone on import
-				importSettings(parsed.settings);
+				importState(parsed.settings);
 				imported = true;
 			}
 

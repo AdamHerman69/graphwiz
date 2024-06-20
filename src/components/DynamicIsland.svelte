@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { spring } from 'svelte/motion';
-	import { exportSettings } from '../utils/graphSettings.svelte';
+	import { exportState } from '../utils/graphSettings.svelte';
 	import { exportGraph } from '../utils/graph.svelte';
 	import FileImport from './FileImport.svelte';
 	import { blur } from 'svelte/transition';
+	import { undo, redo } from '../utils/undoStack.svelte';
 
 	export let exportSVG: () => string;
 	export let sticky: boolean;
@@ -223,7 +224,7 @@
 			<button
 				out:blur
 				in:blur={blurParamsIn}
-				on:click={() => console.log('undo')}
+				on:click={undo}
 				style={`left: ${menuBarX + menuBarSideMargin + 2 * buttonWidth + 2 * buttonSpacing}px`}
 			>
 				<span class="material-symbols-outlined">undo</span>
@@ -233,7 +234,7 @@
 			<button
 				out:blur
 				in:blur={blurParamsIn}
-				on:click={() => console.log('redo')}
+				on:click={redo}
 				style={`left: ${menuBarX + menuBarSideMargin + 3 * buttonWidth + 3 * buttonSpacing}px`}
 			>
 				<span class="material-symbols-outlined">redo</span>
@@ -296,7 +297,7 @@
 				<div class="description">Export the visualization settings alone.</div>
 				<button
 					on:click={() => {
-						let objectToExport = { settings: exportSettings() };
+						let objectToExport = { settings: exportState() };
 						let json = JSON.stringify(objectToExport, null, 2);
 						console.log(json);
 						downloadFile(json, 'graphwiz_settings', 'application/json');
@@ -311,7 +312,7 @@
 				<div class="description">Export the complete state of your session.</div>
 				<button
 					on:click={() => {
-						let objectToExport = { settings: exportSettings(), graph: exportGraph() };
+						let objectToExport = { settings: exportState(), graph: exportGraph() };
 						let json = JSON.stringify(objectToExport, null, 2);
 						downloadFile(json, 'graphwiz_state', 'application/json');
 						exportMenuOpen = false;

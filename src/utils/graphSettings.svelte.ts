@@ -4,6 +4,7 @@ import { type Rule, stripAttributeBasedRules, evalRule } from './rules.svelte';
 import type { RgbaColor } from 'colord';
 import { scaleLinear } from './scaleLinear';
 import { getGradientColor } from './gradient';
+import { saveState } from './undoStack.svelte';
 
 export type Setting<T> = {
 	name: string;
@@ -154,6 +155,7 @@ export const nodeSettingsDefaults: NodeProperties = {
 
 let guiID = $state(0);
 export type GraphSettings = {
+	byUndo?: boolean;
 	guiID: number;
 	layout: SelectSetting<LayoutType>;
 	nodeSettings: NodeSettings[];
@@ -193,16 +195,16 @@ export function isValidSettings(object: any): boolean {
 	return true;
 }
 
-// todo rewrite so we're not reassigning the state
-export function importSettings(settings: GraphSettings): void {
-	graphSettings.guiID = settings.guiID;
-	graphSettings.layout = settings.layout;
-	graphSettings.nodeSettings = settings.nodeSettings;
-	graphSettings.edgeSettings = settings.edgeSettings;
+export function exportState(): GraphSettings {
+	return $state.snapshot(graphSettings);
 }
 
-export function exportSettings(): GraphSettings {
-	return $state.snapshot(graphSettings);
+export function importState(state: GraphSettings, byUndo = false): void {
+	if (byUndo) graphSettings.byUndo = true;
+	graphSettings.guiID = state.guiID;
+	graphSettings.layout = state.layout;
+	graphSettings.nodeSettings = state.nodeSettings;
+	graphSettings.edgeSettings = state.edgeSettings;
 }
 
 // called on new graph import to remove all non-general attribute bindings
