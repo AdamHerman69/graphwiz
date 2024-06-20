@@ -23,27 +23,12 @@
 	let canvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
 
 	onMount(() => {
-		// happens now in the effect
-		// canvasHandler.initialize(canvas, width, height, getGraph());
-		// canvasHandler.startForceSimulation(getNodeStyles(), getEdgeStyles());
-
 		// initialize spring with the middle of canvas
 		selectedNodeSpring = spring({ x: width / 2, y: height / 2 }, { stiffness: 0.05, damping: 0.2 });
-
-		// TODO run in a web worker
-		// Run the readability computation every second
-		// const interval = setInterval(() => {
-		// 	canvasHandler.computeReadability();
-		// }, 1000);
-
-		// return () => {
-		// 	clearInterval(interval); // Clear the interval when the component is destroyed
-		// };
-		console.log('mounted', width, height);
 	});
 
 	$effect(() => {
-		console.log('effect', width, height);
+		console.log('Graph changed');
 		let g = getGraph();
 
 		untrack(() => {
@@ -85,7 +70,7 @@
 		<DynamicIsland exportSVG={canvasHandler.exportSVG} bind:sticky={canvasHandler.sticky} />
 	</div>
 
-	<!-- <ReadabilityMetrics bind:readability={canvasHandler.readability} /> -->
+	<ReadabilityMetrics bind:readability={canvasHandler.readability} />
 
 	{#if canvasHandler.selectedNode}
 		<div class="nodeInfo" style="left: {$selectedNodeSpring.x}px; top: {$selectedNodeSpring.y}px;">

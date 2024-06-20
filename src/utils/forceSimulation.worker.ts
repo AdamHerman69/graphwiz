@@ -1,9 +1,6 @@
 import type { D3Node } from './canvas.svelte';
 import * as d3 from 'd3';
 
-// Assuming d3 is available in the worker context. If not, you'll need to import or define the necessary functions.
-// importScripts('https://d3js.org/d3.v6.min.js');
-
 let simulation: d3.Simulation<D3Node, d3.SimulationLinkDatum<D3Node>>;
 let d3nodes: D3Node[];
 let d3links: (d3.SimulationLinkDatum<D3Node> & { id: string })[];
@@ -35,7 +32,8 @@ function startSimulation(
 			// On each tick, post the updated nodes back to the main thread
 			postMessage({
 				type: 'tick',
-				nodes: d3nodes
+				nodes: d3nodes,
+				links: d3links
 			});
 		});
 }
@@ -58,7 +56,6 @@ onmessage = function (event) {
 			d3nodes = nodes;
 			d3links = links;
 			startSimulation(d3nodes, d3links, width, height);
-			log('Simulation started');
 			break;
 		case 'dragStarted':
 			simulation.alphaTarget(0.3).restart();

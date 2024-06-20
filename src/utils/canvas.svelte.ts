@@ -12,10 +12,9 @@ import {
 	type EdgeDatum,
 	PaperRenderer
 } from '../paperJS/PaperRenderer';
-import { greadability } from '$lib/greadability';
-import Worker from './ForceSimulationWorker.ts?worker';
-
-const CLICK_RADIUS = 10;
+import Worker from './forceSimulation.worker.ts?worker';
+import ReadabilityWorker from '$lib/greadability/greadability.worker.ts?worker';
+import { greadability } from '$lib/greadability/greadability';
 
 export type D3Node = d3.SimulationNodeDatum & {
 	id: string;
@@ -28,6 +27,8 @@ export type ReadabilityMetrics = {
 	angularResolutionDev: number;
 };
 
+const CLICK_RADIUS = 10;
+
 export interface ICanvasHandler {
 	startForceSimulation(nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void;
 	updateNodeStyles(nodeStyles: NodeStyles): void;
@@ -38,6 +39,7 @@ export interface ICanvasHandler {
 	canvasClicked(event: MouseEvent): void;
 	exportSVG(): string;
 
+	readablity: ReadabilityMetrics | undefined;
 	selectedNode: D3Node | null;
 	selectedNodePosition: { x: number; y: number } | null;
 	sticky: boolean;
@@ -78,6 +80,8 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	});
 
 	readability: ReadabilityMetrics | undefined = $state(undefined);
+	readabilityWorker: ReadabilityWorker;
+	computeNextReadability: boolean = false;
 
 	lastTickTimestamp: number | undefined;
 
@@ -96,7 +100,6 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	}
 
 	initialize(canvas: HTMLCanvasElement, width: number, height: number, graph: Graph): void {
-		console.log('init transform', this.transform);
 		this.canvas = canvas;
 		this.width = width;
 		this.height = height;
@@ -120,13 +123,24 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		);
 	}
 
-	computeReadability() {
-		this.readability = greadability(this.d3nodes, this.d3links);
+	initReadabilityWorker() {
+		this.readabilityWorker = new ReadabilityWorker();
+		this.readabilityWorker.postMessage({
+			nodes: $state.snapshot(this.d3nodes),
+			links: this.d3links
+		});
+		this.readabilityWorker.onmessage = (event) => {
+			const { type, readability, message } = event.data;
+			if (type === 'readability') {
+				this.readability = readability;
+				this.computeNextReadability = true;
+			} else if (type === 'log') {
+				console.log('readability worker log:', message);
+			}
+		};
 	}
 
 	startForceSimulation(nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void {
-		console.log('startForce transform', this.transform);
-
 		if (this.paperRenderer)
 			this.paperRenderer.restart(
 				this.d3nodes as NodePositionDatum[],
@@ -153,12 +167,21 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		});
 
 		this.simulationWorker.onmessage = (event) => {
-			const { type, nodes } = event.data;
+			const { type, nodes, links, message } = event.data;
 			if (type === 'tick') {
 				this.paperRenderer.updatePositions(nodes as NodePositionDatum[]);
 				this.d3nodes = nodes as D3Node[];
+				if (links) this.d3links = links; // only there on first tick, needed by greadability
+				if (!this.readabilityWorker) this.initReadabilityWorker();
+				else if (this.computeNextReadability) {
+					this.readabilityWorker.postMessage({
+						nodes: $state.snapshot(this.d3nodes),
+						links: this.d3links
+					});
+					this.computeNextReadability = false;
+				}
 			} else if (type === 'log') {
-				console.log('worker log:', event.data.message);
+				console.log('worker log:', message);
 			}
 		};
 
@@ -181,7 +204,6 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 						this.transform = this.paperRenderer.zoomed(zoomEvent);
 					})
 			);
-		console.log('endForce transform', this.transform);
 	}
 
 	updateNodeStyles(nodeStyles: NodeStyles): void {
@@ -377,6 +399,8 @@ export class CanvasHandler implements ICanvasHandler {
 	}
 
 	computeReadability() {
+		console.log('nodes before:', this.d3nodes);
+		console.log('links before:', this.d3links);
 		this.readability = greadability(this.d3nodes, this.d3links);
 	}
 
@@ -408,14 +432,14 @@ export class CanvasHandler implements ICanvasHandler {
 			.force('center', d3.forceCenter(this.width / 2, this.height / 2))
 			.on('tick', () => {
 				// measure tick time
-				const now = performance.now();
+				// const now = performance.now();
 
-				if (this.lastTickTimestamp !== undefined) {
-					const timeSinceLastTick = now - this.lastTickTimestamp;
-					console.log(`Time since last tick: ${timeSinceLastTick} milliseconds`);
-				}
+				// if (this.lastTickTimestamp !== undefined) {
+				// 	const timeSinceLastTick = now - this.lastTickTimestamp;
+				// 	console.log(`Time since last tick: ${timeSinceLastTick} milliseconds`);
+				// }
 
-				this.lastTickTimestamp = now;
+				// this.lastTickTimestamp = now;
 
 				// const start = performance.now();
 				this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]); // todo if simRunning?
