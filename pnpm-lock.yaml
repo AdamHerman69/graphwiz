@@ -17,6 +17,9 @@ importers:
       d3:
         specifier: ^7.9.0
         version: 7.9.0
+      elkjs:
+        specifier: ^0.9.3
+        version: 0.9.3
       file-selector:
         specifier: ^0.6.0
         version: 0.6.0
@@ -916,6 +919,9 @@ packages:
 
   electron-to-chromium@1.4.802:
     resolution: {integrity: sha512-TnTMUATbgNdPXVSHsxvNVSG0uEd6cSZsANjm8c9HbvflZVVn1yTRcmVXYT1Ma95/ssB/Dcd30AHweH2TE+dNpA==}
+
+  elkjs@0.9.3:
+    resolution: {integrity: sha512-f/ZeWvW/BCXbhGEf1Ujp29EASo/lk1FDnETgNKwJrsVvGZhUWCZyg3xLJjAsxfOmt8KjswHmI5EwCQcPMpOYhQ==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -2602,6 +2608,8 @@ snapshots:
   eastasianwidth@0.2.0: {}
 
   electron-to-chromium@1.4.802: {}
+
+  elkjs@0.9.3: {}
 
   emoji-regex@8.0.0: {}
 

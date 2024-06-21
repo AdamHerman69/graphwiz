@@ -37,6 +37,14 @@
 	// React to graph settings changes
 	// todo layout effect
 	$effect(() => {
+		console.log('Layout changed', graphSettings.layout.value);
+		// ;
+		untrack(() => {
+			saveState();
+			canvasHandler.changeLayout(graphSettings.layout.value);
+		});
+	});
+	$effect(() => {
 		//console.log('Node styles changed');
 		canvasHandler.updateNodeStyles(getNodeStyles());
 		untrack(() => saveState());

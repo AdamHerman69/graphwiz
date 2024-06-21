@@ -78,6 +78,11 @@ onmessage = function (event) {
 				}
 			}
 			break;
+		case 'pause':
+			simulation.stop();
+			break;
+		case 'resume':
+			simulation.restart();
 		default:
 			console.error('Unknown message type:', type);
 	}

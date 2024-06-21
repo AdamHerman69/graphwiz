@@ -4,7 +4,8 @@ import {
 	nodeSettingsDefaults,
 	type NodeStyles,
 	type EdgeStyles,
-	getNodeStyle
+	getNodeStyle,
+	type LayoutType
 } from './graphSettings.svelte';
 import {
 	type Renderer,
@@ -15,6 +16,7 @@ import {
 import Worker from './forceSimulation.worker.ts?worker';
 import ReadabilityWorker from '$lib/greadability/greadability.worker.ts?worker';
 import { greadability } from '$lib/greadability/greadability';
+import { type ILayoutProvieder, ElkLayoutProvider, type NodePositions } from './elk.svelte';
 
 export type D3Node = d3.SimulationNodeDatum & {
 	id: string;
@@ -38,6 +40,7 @@ export interface ICanvasHandler {
 	detectHover(event: MouseEvent): void;
 	canvasClicked(event: MouseEvent): void;
 	exportSVG(): string;
+	changeLayout(layout: LayoutType): Promise<void>;
 
 	readablity: ReadabilityMetrics | undefined;
 	selectedNode: D3Node | null;
@@ -54,6 +57,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	d3links: (d3.SimulationLinkDatum<D3Node> & { id: string })[];
 	transform: d3.ZoomTransform = $state(d3.zoomIdentity);
 	simulationWorker: Worker;
+	elkLayoutProvider: ILayoutProvieder;
 
 	nodeStyles: NodeStyles;
 	edgeStyles: EdgeStyles;
@@ -121,6 +125,8 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 				w: target
 			})
 		);
+
+		this.elkLayoutProvider = new ElkLayoutProvider(graph);
 	}
 
 	initReadabilityWorker() {
@@ -318,6 +324,33 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 
 	exportSVG(): string {
 		return this.paperRenderer.exportSVG();
+	}
+
+	async changeLayout(layout: LayoutType) {
+		if (layout === 'force-graph') {
+			this.simulationWorker.postMessage({
+				type: 'resume',
+				nodes: $state.snapshot(this.d3nodes),
+				links: this.d3links,
+				width: this.width,
+				height: this.height
+			});
+		} else {
+			this.simulationWorker.postMessage({ type: 'pause' });
+			let elkNodes = await this.elkLayoutProvider.layout(
+				{ 'elk.algorithm': layout },
+				this.width,
+				this.height
+			);
+			this.d3nodes.forEach((node, index) => {
+				let elkNode = elkNodes.find((n) => n.id === node.id);
+				if (elkNode) {
+					node.x = elkNode.x;
+					node.y = elkNode.y;
+				}
+			});
+			this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
+		}
 	}
 }
 

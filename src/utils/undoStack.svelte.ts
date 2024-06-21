@@ -61,7 +61,7 @@ export function canRedo() {
 // SkipSaveCounter is 2 when the change is caused by undoing
 // - two reactive statements can cause state TODO change to three with layout
 
-const EFFECTS_TO_SKIP = 2;
+const EFFECTS_TO_SKIP = 3;
 
 let skipSaveCounter = $state(0);
 export function shouldSkipSave(): boolean {
