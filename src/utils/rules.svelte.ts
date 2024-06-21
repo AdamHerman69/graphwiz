@@ -34,6 +34,7 @@ function evalAtomicRule(rule: AtomicRule, id: string, operator: RuleOperator): b
 		rule.value = Number(rule.value);
 
 		// get the property from the appropriate target
+		console.log(rule.target);
 		switch (rule.target) {
 			case 'node':
 				propertyValue = Number(getAttributeValue(id, rule.property));
@@ -42,12 +43,16 @@ function evalAtomicRule(rule: AtomicRule, id: string, operator: RuleOperator): b
 				propertyValue = Number(getAttributeValue(id, rule.property));
 				break;
 			case 'source':
+				console.log('source branch start');
 				propertyValue = Number(getAttributeValue(getEdgeSource(id), rule.property));
+				console.log('source branch, prop val:', propertyValue);
 				break;
 			case 'target':
 				propertyValue = Number(getAttributeValue(getEdgeTarget(id), rule.property));
 				break;
 		}
+
+		console.log('GOT HEERE propertyValue:', propertyValue);
 
 		// evaluate the rule
 		switch (rule.operator) {
@@ -76,6 +81,7 @@ export function evalRule(
 		try {
 			return evalAtomicRule(rule as AtomicRule, id, operator);
 		} catch (e) {
+			console.warn(e);
 			return operator === 'AND' ? true : false;
 		}
 	}

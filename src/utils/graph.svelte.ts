@@ -111,7 +111,7 @@ export function computeAttributes(graph: Graph) {
 	availableAttributes.push(...findAllNodeAttributes(graph));
 	availableAttributes.push(...findAllEdgeAttributes(graph));
 	// TODO: recompute ranges on general attributes
-	availableAttributes.push(...generalAttributes);
+	availableAttributes.push(...computeRanges(graphObject, generalAttributes));
 }
 
 // Finding attributes
@@ -129,6 +129,29 @@ function findAllNodeAttributes(graph: Graph): Attribute[] {
 	return classifyAttributes(foundNodeAttributes, 'node');
 }
 
+function findAllAttributeValues(graph: Graph, attribute: Attribute): any[] {
+	let values: any[] = [];
+	graph.forEachNode((id) => {
+		try {
+			values.push(getAttributeValue(id, attribute));
+		} catch (e) {
+			// do nothing
+			console.warn("Couldn't find attribute value for node: ", id, ' attribute: ', attribute.name);
+		}
+	});
+	return values;
+}
+
+function computeRanges(graph: Graph, attributes: Attribute[]): Attribute[] {
+	attributes.forEach((attribute) => {
+		if (attribute.type === 'number') {
+			let range = computeAttributeRange(graph, attribute as RangeAttribute);
+			(attribute as RangeAttribute).range = range;
+		}
+	});
+	return attributes;
+}
+
 function findAllEdgeAttributes(graph: Graph): Attribute[] {
 	let foundEdgeAttributes: Map<string, any[]> = new Map<string, any[]>();
 	graph.forEachEdge((id, attributes) => {
@@ -144,7 +167,8 @@ function findAllEdgeAttributes(graph: Graph): Attribute[] {
 function classifyAttribute(
 	name: string,
 	values: any[],
-	owner: 'node' | 'edge'
+	owner: 'node' | 'edge',
+	general = false
 ): RangeAttribute | StringAttribute {
 	const minValue = Math.min(...values);
 
@@ -154,7 +178,7 @@ function classifyAttribute(
 			values: values,
 			type: 'string',
 			owner: owner,
-			general: false
+			general: general
 		} as StringAttribute;
 	} else {
 		const maxValue = Math.max(...values);
@@ -164,7 +188,7 @@ function classifyAttribute(
 			range: [minValue, maxValue],
 			type: 'number',
 			owner: owner,
-			general: false
+			general: general
 		} as RangeAttribute;
 	}
 }

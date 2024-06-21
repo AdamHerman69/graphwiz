@@ -23,11 +23,7 @@
 
 	let canvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
 
-	onMount(() => {
-		// initialize spring with the middle of canvas
-		selectedNodeSpring = spring({ x: width / 2, y: height / 2 }, { stiffness: 0.05, damping: 0.2 });
-	});
-
+	// react to graph change
 	$effect(() => {
 		console.log('Graph changed');
 		let g = getGraph();
@@ -38,27 +34,25 @@
 		});
 	});
 
+	// React to graph settings changes
 	// todo layout effect
-
 	$effect(() => {
 		//console.log('Node styles changed');
 		canvasHandler.updateNodeStyles(getNodeStyles());
 		untrack(() => saveState());
 	});
-
 	$effect(() => {
 		//console.log('Edge styles changed');
 		canvasHandler.updateEdgeStyles(getEdgeStyles());
 		untrack(() => saveState());
 	});
 
-	// $effect(() => {
-	// 	if (graphSettings.byUndo) {
-	// 		console.log('byundo reactive');
-	// 	}
-	// });
-
+	// Node Info location, when a node is selected
 	let selectedNodeSpring: Spring<{ x: number; y: number }>;
+	onMount(() => {
+		// initialize spring with the middle of canvas
+		selectedNodeSpring = spring({ x: width / 2, y: height / 2 }, { stiffness: 0.05, damping: 0.2 });
+	});
 	$effect(() => {
 		if (canvasHandler.selectedNode && canvasHandler.selectedNodePosition) {
 			selectedNodeSpring.set({
