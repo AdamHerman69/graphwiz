@@ -70,14 +70,10 @@ onmessage = function (event) {
 			break;
 		case 'dragStarted':
 			simulation.alphaTarget(0.3).restart();
-			console.log('dragStarted');
 			break;
 		case 'dragged':
-			console.log('dragged');
 			let draggedNode = d3nodes.find((node) => node.id === nodeId);
-			console.log('draggedNode:', draggedNode);
 			if (draggedNode) {
-				console.log('changing');
 				draggedNode.fx = position.fx;
 				draggedNode.fy = position.fy;
 			}

@@ -332,7 +332,6 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 
 	async changeLayout(layout: LayoutType) {
 		if (layout === 'force-graph') {
-			console.log($state.snapshot(this.d3nodes));
 			$inspect(this.d3nodes);
 			this.simulationWorker.postMessage({
 				type: 'resume',
@@ -454,8 +453,6 @@ export class CanvasHandler implements ICanvasHandler {
 	}
 
 	computeReadability() {
-		console.log('nodes before:', this.d3nodes);
-		console.log('links before:', this.d3links);
 		this.readability = greadability(this.d3nodes, this.d3links);
 	}
 
