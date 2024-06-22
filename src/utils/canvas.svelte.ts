@@ -17,6 +17,10 @@ import Worker from './forceSimulation.worker.ts?worker';
 import ReadabilityWorker from '$lib/greadability/greadability.worker.ts?worker';
 import { greadability } from '$lib/greadability/greadability';
 import { type ILayoutProvieder, ElkLayoutProvider, type NodePositions } from './elk.svelte';
+import { spring } from 'svelte/motion';
+import gsap from 'gsap';
+
+const ANIMATE_LAYOUT = true;
 
 export type D3Node = d3.SimulationNodeDatum & {
 	id: string;
@@ -328,6 +332,8 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 
 	async changeLayout(layout: LayoutType) {
 		if (layout === 'force-graph') {
+			console.log($state.snapshot(this.d3nodes));
+			$inspect(this.d3nodes);
 			this.simulationWorker.postMessage({
 				type: 'resume',
 				nodes: $state.snapshot(this.d3nodes),
@@ -344,9 +350,25 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			);
 			this.d3nodes.forEach((node, index) => {
 				let elkNode = elkNodes.find((n) => n.id === node.id);
+
 				if (elkNode) {
-					node.x = elkNode.x;
-					node.y = elkNode.y;
+					if (ANIMATE_LAYOUT) {
+						gsap.to(node, {
+							duration: 1,
+							x: elkNode.x,
+							y: elkNode.y,
+							ease: 'power2.inOut',
+							onUpdate: () => {
+								this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
+							},
+							onComplete: () => {
+								delete node._gsap;
+							}
+						});
+					} else {
+						node.x = elkNode.x;
+						node.y = elkNode.y;
+					}
 				}
 			});
 			this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);

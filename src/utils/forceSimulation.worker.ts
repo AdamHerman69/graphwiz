@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 let simulation: d3.Simulation<D3Node, d3.SimulationLinkDatum<D3Node>>;
 let d3nodes: D3Node[];
 let d3links: (d3.SimulationLinkDatum<D3Node> & { id: string })[];
+let simRunning = false;
 
 function log(message: string) {
 	postMessage({
@@ -19,7 +20,6 @@ function startSimulation(
 	width: number,
 	height: number
 ) {
-	log(width + ' ' + height);
 	simulation = d3
 		.forceSimulation(d3nodes)
 		.force(
@@ -50,19 +50,34 @@ onmessage = function (event) {
 		position,
 		zeroAlphaTarget,
 		resetFixedPosition
+	}: {
+		type: string;
+		nodes: D3Node[];
+		links: (d3.SimulationLinkDatum<D3Node> & { id: string })[];
+		width: number;
+		height: number;
+		nodeId: string;
+		position: { fx: number; fy: number };
+		zeroAlphaTarget: boolean;
+		resetFixedPosition: boolean;
 	} = event.data;
 	switch (type) {
 		case 'startSimulation':
 			d3nodes = nodes;
 			d3links = links;
 			startSimulation(d3nodes, d3links, width, height);
+			simRunning = true;
 			break;
 		case 'dragStarted':
 			simulation.alphaTarget(0.3).restart();
+			console.log('dragStarted');
 			break;
 		case 'dragged':
+			console.log('dragged');
 			let draggedNode = d3nodes.find((node) => node.id === nodeId);
+			console.log('draggedNode:', draggedNode);
 			if (draggedNode) {
+				console.log('changing');
 				draggedNode.fx = position.fx;
 				draggedNode.fy = position.fy;
 			}
@@ -80,9 +95,18 @@ onmessage = function (event) {
 			break;
 		case 'pause':
 			simulation.stop();
+			simRunning = false;
 			break;
 		case 'resume':
-			simulation.restart();
+			if (!simRunning) {
+				simulation.nodes().forEach((simNode) => {
+					simNode.x = nodes.find((node) => node.id === simNode.id)?.x;
+					simNode.y = nodes.find((node) => node.id === simNode.id)?.y;
+				});
+				simulation.restart().alpha(0.5);
+				simRunning = true;
+			}
+			break;
 		default:
 			console.error('Unknown message type:', type);
 	}

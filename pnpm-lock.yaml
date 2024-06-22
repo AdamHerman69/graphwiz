@@ -29,6 +29,9 @@ importers:
       graphology-graphml:
         specifier: ^0.5.2
         version: 0.5.2(graphology-types@0.24.7)
+      gsap:
+        specifier: ^3.12.5
+        version: 3.12.5
       lottie-web:
         specifier: ^5.12.2
         version: 5.12.2
@@ -1140,6 +1143,9 @@ packages:
     resolution: {integrity: sha512-33g0Ol9nkWdD6ulw687viS8YJQBxqG5LWII6FI6nul0pq6iM2t5EKquOTFDbyTblRB3O9I+7KX4xI8u5ffekAQ==}
     peerDependencies:
       graphology-types: '>=0.24.0'
+
+  gsap@3.12.5:
+    resolution: {integrity: sha512-srBfnk4n+Oe/ZnMIOXt3gT605BX9x5+rh/prT2F1SsNJsU1XuMiP0E2aptW481OnonOGACZWBqseH5Z7csHxhQ==}
 
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
@@ -2888,6 +2894,8 @@ snapshots:
       events: 3.3.0
       graphology-types: 0.24.7
       obliterator: 2.0.4
+
+  gsap@3.12.5: {}
 
   has-flag@4.0.0: {}
 
