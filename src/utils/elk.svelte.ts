@@ -21,7 +21,7 @@ export class ElkLayoutProvider implements ILayoutProvieder {
 		this.elkGraph = {
 			id: 'root',
 			children: graph.mapNodes((node, attr) => {
-				return { id: node, width: 30, height: 30 };
+				return { id: node, width: 5, height: 5 };
 			}),
 			edges: graph.mapEdges((edge, attr, source, target) => {
 				return { id: edge, sources: [source], targets: [target] };
