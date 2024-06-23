@@ -53,7 +53,9 @@
 			/>
 		{/if}
 		<button onclick={toggleAttributeBinding}>
-			<span class="material-symbols-outlined"> add_link </span>
+			<span class="material-symbols-outlined">
+				{numSettings.attribute ? 'link_off' : 'add_link'}</span
+			>
 		</button>
 	</div>
 </div>

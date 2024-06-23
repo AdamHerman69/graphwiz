@@ -53,11 +53,12 @@
 					bind:selectedAttribute={numSetting.attribute}
 					filter={(attribute: Attribute) => (attribute.owner === owner && attribute.type === 'number')}
 				/>
-			{:else}
-				<button onclick={() => toggleAttributeBinding(index)}>
-					<span class="material-symbols-outlined"> add_link </span>
-				</button>
 			{/if}
+			<button onclick={() => toggleAttributeBinding(index)}>
+				<span class="material-symbols-outlined"
+					>{numSetting.attribute ? 'link_off' : 'add_link'}</span
+				>
+			</button>
 		{/each}
 	</div>
 </div>
