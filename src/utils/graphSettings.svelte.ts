@@ -96,7 +96,7 @@ type RuleSettings = {
 export type NodeSettings = NodeProperties & RuleSettings;
 export type EdgeSettings = EdgeProperties & RuleSettings;
 
-const edgeTypes = ['straight', 'arrow', 'conical'] as const;
+const edgeTypes = ['straight', 'orthogonal', 'conical'] as const;
 export type EdgeType = (typeof edgeTypes)[number];
 
 // todo layout specific settings in a layout object. swich layouts based on this object, not other
@@ -115,6 +115,7 @@ const layoutTypes = [
 	'rectpacking'
 ] as const;
 export type LayoutType = (typeof layoutTypes)[number];
+export let edgeBendPoints: Map<string, { x: number; y: number }[]> = new Map();
 
 export type EdgeProperties = {
 	type?: SelectSetting<EdgeType>;
@@ -244,6 +245,7 @@ export type EdgeStyle = {
 	partialEnd: number;
 	decorators: DecoratorData[];
 	labels: EdgeLabel[];
+	bendPoints: { x: number; y: number }[];
 };
 
 export type NodeStyles = Map<string, NodeStyle>;
@@ -361,13 +363,16 @@ export function getEdgeStyle(id: string, edgeSettings: EdgeSettings[]): EdgeStyl
 		}
 	}
 
-	// TODO labels
 	edgeStyle.labels = $state.snapshot(chosenSettings.labels);
 	edgeStyle.labels.forEach((label) => {
 		if (label.attribute) {
 			label.text = getAttributeValue(id, label.attribute).toString();
 		}
 	});
+
+	if (edgeBendPoints) {
+		edgeStyle.bendPoints = edgeBendPoints.get(id) || [];
+	}
 	return edgeStyle;
 }
 

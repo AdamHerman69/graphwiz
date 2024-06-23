@@ -343,10 +343,11 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		} else {
 			this.simulationWorker.postMessage({ type: 'pause' });
 			let elkNodes = await this.elkLayoutProvider.layout(
-				{ 'elk.algorithm': layout },
+				{ 'elk.algorithm': layout, 'elk.edgeRouting': 'ORTHOGONAL' },
 				this.width,
 				this.height
 			);
+
 			this.d3nodes.forEach((node, index) => {
 				let elkNode = elkNodes.find((n) => n.id === node.id);
 

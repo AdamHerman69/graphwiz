@@ -10,6 +10,7 @@
 	import autoAnimate from '@formkit/auto-animate';
 	import { setContext } from 'svelte';
 	import { availableAttributes } from '../utils/graph.svelte';
+	import SettingsSelect from './SettingsSelect.svelte';
 
 	let collapsed = $state(false);
 
@@ -45,13 +46,14 @@
 				<SettingsHeader title="edge" bind:collapsed />
 				<!-- Settings -->
 				{#if !collapsed}
-					<!-- TODO Edge Type -->
+					<SettingsSelect selectSetting={setting.type!} />
 					<SettingsSlider numSettings={setting.width!} />
 					<SettingsSliderMultiple
 						name="Partial Edge"
 						numSettings={[graphSettings.edgeSettings[0].partialStart!, graphSettings.edgeSettings[0].partialEnd!]}
 					/>
 					<SettingsColor colorSetting={setting.color!} />
+					
 					<!-- TODO Decorators -->
 					<SettingsEdgeLabel labels={setting.labels!} />
 				{/if}

@@ -13,9 +13,37 @@ import { toStringGradient } from './Color';
 import { colord } from 'colord';
 
 interface EdgeShape {
-	updatePosition(source: paper.Point, target: paper.Point): void;
+	updatePosition(source: paper.Point, target: paper.Point, bendPoints?: paper.Point[]): void;
 	updateStyle(style: paper.Style): void;
 	delete(): void;
+}
+
+class OrthogonalShape implements EdgeShape {
+	line: paper.Path;
+
+	constructor(source: paper.Point, target: paper.Point, bendPoints: paper.Point[]) {
+		this.line = new Paper.Path();
+		bendPoints.forEach((point) => this.line.add(point));
+	}
+
+	updatePosition(source: paper.Point, target: paper.Point, bendPoints: paper.Point[]): void {
+		this.line.removeSegments();
+		bendPoints.forEach((point) => this.line.add(point));
+
+		//update gradient todo?
+		if (this.line.strokeColor?.gradient) {
+			this.line.strokeColor.origin = source;
+			this.line.strokeColor.destination = target;
+		}
+	}
+
+	updateStyle(style: paper.Style) {
+		this.line.style = style;
+	}
+
+	delete(): void {
+		this.line.remove();
+	}
 }
 
 class LineShape implements EdgeShape {
@@ -162,10 +190,22 @@ export class PEdge {
 		[this.sourceConnectionPoint, this.targetConnectionPoint] = this.getConnectionPoints();
 
 		this.type = style.type;
-		if (this.type == 'conical') {
-			this.lineShape = new TriangleShape(this.sourceConnectionPoint, this.targetConnectionPoint);
-		} else {
-			this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
+		switch (style.type) {
+			case 'conical':
+				this.lineShape = new TriangleShape(this.sourceConnectionPoint, this.targetConnectionPoint);
+				break;
+			case 'straight':
+				this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
+				break;
+			case 'orthogonal':
+				this.lineShape = new OrthogonalShape(
+					this.sourceConnectionPoint,
+					this.targetConnectionPoint,
+					style.bendPoints.map((point) => new Paper.Point(point.x, point.y))
+				);
+				break;
+			default:
+				throw new Error('Invalid edge type');
 		}
 
 		this.partialStart = 0;
@@ -302,10 +342,25 @@ export class PEdge {
 			this.type = style.type;
 			this.lineShape.delete();
 
-			if (style.type == 'conical') {
-				this.lineShape = new TriangleShape(this.sourceConnectionPoint, this.targetConnectionPoint);
-			} else if (style.type == 'straight') {
-				this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
+			switch (style.type) {
+				case 'conical':
+					this.lineShape = new TriangleShape(
+						this.sourceConnectionPoint,
+						this.targetConnectionPoint
+					);
+					break;
+				case 'straight':
+					this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
+					break;
+				case 'orthogonal':
+					this.lineShape = new OrthogonalShape(
+						this.sourceConnectionPoint,
+						this.targetConnectionPoint,
+						style.bendPoints.map((point) => new Paper.Point(point.x, point.y))
+					);
+					break;
+				default:
+					throw new Error('Invalid edge type');
 			}
 		}
 
