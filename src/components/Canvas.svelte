@@ -8,6 +8,7 @@
 	import { loadSampleGraph, computeAttributes, getGraph } from '../utils/graph.svelte';
 	import { graphSettings, getNodeStyles, getEdgeStyles } from '../utils/graphSettings.svelte';
 	import DynamicIsland from './DynamicIsland.svelte';
+	import DynamicIsland2 from './DynamicIsland.svelte';
 	import ReadabilityMetrics from './ReadabilityMetrics.svelte';
 	import { spring, type Spring } from 'svelte/motion';
 	import NodeInfo from './NodeInfo.svelte';

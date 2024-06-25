@@ -6,8 +6,121 @@
 	import { blur } from 'svelte/transition';
 	import { undo, redo } from '../utils/undoStack.svelte';
 
-	export let exportSVG: () => string;
-	export let sticky: boolean;
+	let { sticky = $bindable(), exportSVG }: { sticky: boolean; exportSVG: () => string } = $props();
+
+	let menuOpen: 'import' | 'export' | null = $state(null);
+
+	const blurParamsOut = {
+		delay: 0,
+		duration: 100
+	};
+
+	const SVG_WIDTH = 520;
+	const SVG_HEIGHT = 220;
+
+	// ISLAND DIMS
+	const BUTTON_WIDTH = 24;
+	const BUTTON_SPACING = 10;
+	const BUTTON_COUNT = 5;
+	const ISLAND_X_MARGIN = 17;
+	const ISLAND_EXPANDED_WIDTH = 400;
+	const ISLAND_EXPANDED_HEIGHT = 200;
+	let island_width = $derived.by(() => {
+		if (menuOpen) {
+			return ISLAND_EXPANDED_WIDTH;
+		} else if (sticky) {
+			return (
+				BUTTON_WIDTH * (BUTTON_COUNT - 1) +
+				BUTTON_SPACING * (BUTTON_COUNT - 2) +
+				2 * ISLAND_X_MARGIN
+			);
+		} else {
+			return (
+				BUTTON_WIDTH * BUTTON_COUNT + BUTTON_SPACING * (BUTTON_COUNT - 1) + 2 * ISLAND_X_MARGIN
+			);
+		}
+	});
+	const HEIGHT = 32;
+
+	// ISLAND POSITION
+	const Y = 10;
+	let island_x = $derived(
+		menuOpen
+			? (SVG_WIDTH - ISLAND_EXPANDED_WIDTH) / 2
+			: (SVG_WIDTH -
+					(BUTTON_WIDTH * BUTTON_COUNT +
+						BUTTON_SPACING * (BUTTON_COUNT - 1) +
+						2 * ISLAND_X_MARGIN)) /
+					2
+	);
+
+	// STICKY BUTTON
+	const STICKY_WIDTH = 45;
+	const STICKY_GAP = 10;
+	const STICKY_INSIDE_X =
+		island_x +
+		ISLAND_X_MARGIN +
+		(BUTTON_COUNT - 1) * (BUTTON_WIDTH + BUTTON_SPACING) -
+		(STICKY_WIDTH - BUTTON_WIDTH) / 2;
+
+	// SPRINGS
+	const islandStyles = spring(
+		{ x: island_x, y: Y, width: island_width, height: HEIGHT },
+		{
+			stiffness: 0.1,
+			damping: 0.5
+		}
+	);
+	const stickyStyles = spring(
+		{
+			x: STICKY_INSIDE_X,
+			y: Y,
+			width: STICKY_WIDTH,
+			height: HEIGHT
+		},
+		{
+			stiffness: 0.1,
+			damping: 0.5
+		}
+	);
+
+	let STICKY_X_MIDDLE = $derived($stickyStyles.x + $stickyStyles.width / 2);
+
+	$effect(() => {
+		if (sticky) {
+			stickyStyles.set({
+				x: island_x + island_width + STICKY_GAP,
+				y: Y,
+				width: STICKY_WIDTH,
+				height: HEIGHT
+			});
+		} else {
+			stickyStyles.set({
+				x: STICKY_INSIDE_X,
+				y: Y,
+				width: STICKY_WIDTH,
+				height: HEIGHT
+			});
+		}
+	});
+
+	$effect(() => {
+		if (menuOpen) {
+			islandStyles.set({
+				x: island_x,
+				y: Y,
+				width: island_width,
+				height: ISLAND_EXPANDED_HEIGHT
+			});
+		} else {
+			islandStyles.set({
+				x: island_x,
+				y: Y,
+				width: island_width,
+				height: HEIGHT
+			});
+		}
+	});
 
 	function downloadFile(contents: string, fileName: string, fileType: string) {
 		// Create a Blob from the string
@@ -31,138 +144,10 @@
 		// Release the object URL
 		URL.revokeObjectURL(url);
 	}
-
-	let importMenuOpen = false;
-	let exportMenuOpen = false;
-
-	// Dimmentions
-	const svgWidthCollapsed = 220;
-	const svgHeightCollapsed = 50;
-	const svgWidthExpanded = 520;
-	const svgHeightExpanded = 220;
-
-	const buttonWidth = 24;
-	const buttonSpacing = 10;
-	let buttonCount = 5;
-
-	const menuBarSideMargin = 17;
-	const menuBarHeight = 32;
-
-	let menuBarWidth =
-		buttonWidth * buttonCount + buttonSpacing * (buttonCount - 1) + menuBarSideMargin * 2;
-	let menuBarX = (svgWidthExpanded - menuBarWidth) / 2;
-	let menuBarY = 10;
-
-	let stickyRectWidth = 45;
-	let stickyTrueMargin = 10;
-
-	$: stickyRectMiddle = $stickyRectStyles.x + $stickyRectStyles.width / 2;
-	let expandedWidth = 400;
-	const expandedHeight = 200;
-	let expandedX = (svgWidthExpanded - expandedWidth) / 2;
-
-	const blurParamsIn = {
-		delay: 300
-	};
-
-	const menuBarStyles = spring({ x: 0, opacity: 1 }, { stiffness: 0.1 });
-	const stickyStyles = spring({ x: 0, opacity: 1 }, { stiffness: 0.1 });
-	const islandStyles = spring({ scale: 1 }, { stiffness: 0.1 });
-
-	const menuRectStyles = spring(
-		{
-			x: menuBarX,
-			y: menuBarY,
-			width: menuBarWidth,
-			height: menuBarHeight
-		},
-		{ stiffness: 0.1 }
-	);
-	const stickyRectStyles = spring(
-		{
-			x:
-				menuBarX +
-				menuBarSideMargin +
-				(buttonCount - 1) * buttonWidth +
-				(buttonCount - 1) * buttonSpacing -
-				(stickyRectWidth / 2 - buttonWidth / 2),
-			y: menuBarY,
-			width: stickyRectWidth,
-			height: menuBarHeight
-		},
-		{ stiffness: 0.1 }
-	);
-
-	$: {
-		if (sticky) {
-			// sticky true styles
-			menuBarWidth =
-				buttonWidth * (buttonCount - 1) + buttonSpacing * (buttonCount - 2) + menuBarSideMargin * 2;
-			stickyStyles.set({ x: 50, opacity: 1 });
-			stickyRectStyles.set({
-				x: menuBarX + menuBarWidth + stickyTrueMargin,
-				y: 10,
-				width: 45,
-				height: 32
-			});
-		} else {
-			// sticky false styles
-			stickyStyles.set({ x: 50, opacity: 1 });
-			menuBarWidth =
-				buttonWidth * buttonCount + buttonSpacing * (buttonCount - 1) + menuBarSideMargin * 2;
-			stickyRectStyles.set({
-				x:
-					menuBarX +
-					menuBarSideMargin +
-					(buttonCount - 1) * buttonWidth +
-					(buttonCount - 1) * buttonSpacing -
-					(stickyRectWidth / 2 - buttonWidth / 2),
-				y: menuBarY,
-				width: stickyRectWidth,
-				height: menuBarHeight
-			});
-		}
-	}
-
-	$: {
-		if (importMenuOpen || exportMenuOpen) {
-			// expanded styles
-			// menuBarStyles.set({ x: 0, opacity: 1 });
-			// menuRectStyles.set({ x: 10, y: 10, width: menuBarWidth + 100, height: 150 });
-
-			menuBarStyles.set({ x: 0, opacity: 1 });
-			menuRectStyles.set({
-				x: expandedX,
-				y: menuBarY,
-				width: expandedWidth,
-				height: expandedHeight
-			});
-			if (sticky) {
-				stickyRectStyles.set({
-					x: expandedX + expandedWidth + stickyTrueMargin,
-					y: 10,
-					width: 45,
-					height: 32
-				});
-			}
-		} else {
-			// collapsed styles
-			menuBarStyles.set({ x: 0, opacity: 1 });
-			menuRectStyles.set({ x: menuBarX, y: menuBarY, width: menuBarWidth, height: menuBarHeight });
-			if (sticky) {
-				stickyRectStyles.set({
-					x: menuBarX + menuBarWidth + stickyTrueMargin,
-					y: 10,
-					width: 45,
-					height: 32
-				});
-			}
-		}
-	}
 </script>
 
 <div class="menuBar relative">
-	<svg width={svgWidthExpanded} height={svgHeightExpanded}>
+	<svg width={SVG_WIDTH} height={SVG_HEIGHT}>
 		<defs>
 			<filter id="split-effect" width="400%" x="-150%" height="400%" y="-150%">
 				<feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
@@ -180,18 +165,18 @@
 		<g filter="url(#drop-shadow)">
 			<g filter="url(#split-effect)">
 				<rect
-					x={$menuRectStyles.x}
-					y={$menuRectStyles.y}
-					width={$menuRectStyles.width}
-					height={$menuRectStyles.height}
+					x={$islandStyles.x}
+					y={$islandStyles.y}
+					width={$islandStyles.width}
+					height={$islandStyles.height}
 					rx="16"
 					fill="black"
 				/>
 				<rect
-					x={$stickyRectStyles.x}
-					y={$stickyRectStyles.y}
-					width={$stickyRectStyles.width}
-					height={$stickyRectStyles.height}
+					x={$stickyStyles.x}
+					y={$stickyStyles.y}
+					width={$stickyStyles.width}
+					height={$stickyStyles.height}
 					rx="16"
 					fill="black"
 				/>
@@ -199,55 +184,50 @@
 		</g>
 	</svg>
 	<div class="menuBarButtons">
-		{#if !importMenuOpen && !exportMenuOpen}
+		{#if !menuOpen}
 			<!-- Upload -->
 			<button
-				out:blur
-				in:blur={blurParamsIn}
-				on:click={() => (importMenuOpen = !importMenuOpen)}
-				style={`left: ${menuBarX + menuBarSideMargin + 0 * buttonWidth + 0 * buttonSpacing}px`}
+				transition:blur
+				onclick={() => (menuOpen = 'import')}
+				style={`left: ${island_x + ISLAND_X_MARGIN + 0 * BUTTON_WIDTH + 0 * BUTTON_SPACING}px`}
 			>
 				<span class="material-symbols-outlined">upload_file</span>
 			</button>
 
 			<!-- Download -->
 			<button
-				out:blur
-				in:blur={blurParamsIn}
-				on:click={() => (exportMenuOpen = !exportMenuOpen)}
-				style={`left: ${menuBarX + menuBarSideMargin + 1 * buttonWidth + 1 * buttonSpacing}px`}
+				transition:blur
+				onclick={() => (menuOpen = 'export')}
+				style={`left: ${island_x + ISLAND_X_MARGIN + 1 * BUTTON_WIDTH + 1 * BUTTON_SPACING}px`}
 			>
 				<span class="material-symbols-outlined">download</span>
 			</button>
 
 			<!-- Undo -->
 			<button
-				out:blur
-				in:blur={blurParamsIn}
-				on:click={undo}
-				style={`left: ${menuBarX + menuBarSideMargin + 2 * buttonWidth + 2 * buttonSpacing}px`}
+				transition:blur
+				onclick={undo}
+				style={`left: ${island_x + ISLAND_X_MARGIN + 2 * BUTTON_WIDTH + 2 * BUTTON_SPACING}px`}
 			>
 				<span class="material-symbols-outlined">undo</span>
 			</button>
 
 			<!-- Redo -->
 			<button
-				out:blur
-				in:blur={blurParamsIn}
-				on:click={redo}
-				style={`left: ${menuBarX + menuBarSideMargin + 3 * buttonWidth + 3 * buttonSpacing}px`}
+				transition:blur
+				onclick={redo}
+				style={`left: ${island_x + ISLAND_X_MARGIN + 3 * BUTTON_WIDTH + 3 * BUTTON_SPACING}px`}
 			>
 				<span class="material-symbols-outlined">redo</span>
 			</button>
 		{/if}
 
 		<!-- Sticky -->
-		{#if sticky || (!importMenuOpen && !exportMenuOpen)}
+		{#if sticky || !menuOpen}
 			<button
-				out:blur
-				in:blur={blurParamsIn}
-				on:click={() => (sticky = !sticky)}
-				style={`left: ${stickyRectMiddle - buttonWidth / 2}px;`}
+				transition:blur
+				onclick={() => (sticky = !sticky)}
+				style={`left: ${STICKY_X_MIDDLE - BUTTON_WIDTH / 2}px;`}
 			>
 				<span class="material-symbols-outlined"> {sticky ? 'keep_off' : 'keep'}</span>
 			</button>
@@ -255,38 +235,36 @@
 	</div>
 
 	<!-- Import Menu -->
-	{#if importMenuOpen}
+	{#if menuOpen === 'import'}
 		<div
-			in:blur={blurParamsIn}
-			out:blur={{ delay: 0, duration: 100 }}
+			transition:blur
 			class="importDiv"
-			style={`width: ${expandedWidth - 2 * menuBarSideMargin}px; height: ${
-				expandedHeight - 2 * menuBarSideMargin
-			}px; left: ${expandedX + menuBarSideMargin}px; top: ${menuBarY + menuBarSideMargin}px`}
+			style={`width: ${ISLAND_EXPANDED_WIDTH - 2 * ISLAND_X_MARGIN}px; height: ${
+				ISLAND_EXPANDED_HEIGHT - 2 * ISLAND_X_MARGIN
+			}px; left: ${island_x + ISLAND_X_MARGIN}px; top: ${Y + ISLAND_X_MARGIN}px`}
 		>
-			<FileImport closeMenu={() => (importMenuOpen = false)} />
+			<FileImport closeMenu={() => (menuOpen = null)} />
 
-			<button class="closeExpanded" on:click={() => (importMenuOpen = false)}>
+			<button class="closeExpanded" onclick={() => (menuOpen = null)}>
 				<span class="material-symbols-outlined">close</span>
 			</button>
 		</div>
 	{/if}
-	{#if exportMenuOpen}
+	{#if menuOpen === 'export'}
 		<div
-			in:blur={blurParamsIn}
-			out:blur={{ delay: 0, duration: 100 }}
+			transition:blur
 			class="exportDiv"
-			style={`width: ${expandedWidth - 2 * menuBarSideMargin}px; height: ${
-				expandedHeight - 2 * menuBarSideMargin
-			}px; left: ${expandedX + menuBarSideMargin}px; top: ${menuBarY + menuBarSideMargin}px`}
+			style={`width: ${ISLAND_EXPANDED_WIDTH - 2 * ISLAND_X_MARGIN}px; height: ${
+				ISLAND_EXPANDED_HEIGHT - 2 * ISLAND_X_MARGIN
+			}px; left: ${island_x + ISLAND_X_MARGIN}px; top: ${Y + ISLAND_X_MARGIN}px`}
 		>
 			<div class="optionContainer">
 				<div class="heading">svg</div>
 				<div class="description">Export the visualization as a scalable vector graphic file.</div>
 				<button
-					on:click={async () => {
+					onclick={async () => {
 						downloadFile(exportSVG(), 'graph', 'image/svg+xml');
-						exportMenuOpen = false;
+						menuOpen = null;
 					}}
 				>
 					<span class="material-symbols-outlined">download</span>
@@ -296,12 +274,12 @@
 				<div class="heading">settings</div>
 				<div class="description">Export the visualization settings alone.</div>
 				<button
-					on:click={() => {
+					onclick={() => {
 						let objectToExport = { settings: exportState() };
 						let json = JSON.stringify(objectToExport, null, 2);
 						console.log(json);
 						downloadFile(json, 'graphwiz_settings', 'application/json');
-						exportMenuOpen = false;
+						menuOpen = null;
 					}}
 				>
 					<span class="material-symbols-outlined">download</span>
@@ -311,67 +289,25 @@
 				<div class="heading">full state</div>
 				<div class="description">Export the complete state of your session.</div>
 				<button
-					on:click={() => {
+					onclick={() => {
 						let objectToExport = { settings: exportState(), graph: exportGraph() };
 						let json = JSON.stringify(objectToExport, null, 2);
 						downloadFile(json, 'graphwiz_state', 'application/json');
-						exportMenuOpen = false;
+						menuOpen = null;
 					}}
 				>
 					<span class="material-symbols-outlined">download</span>
 				</button>
 			</div>
 
-			<button class="closeExpanded" on:click={() => (exportMenuOpen = false)}>
+			<button class="closeExpanded" onclick={() => (menuOpen = null)}>
 				<span class="material-symbols-outlined">close</span>
 			</button>
 		</div>
 	{/if}
 </div>
 
-<!-- {#if exportMenuOpen}
-		<button on:click={exportSVG}>export SVG</button>
-		<button on:click={saveStateString}>export JSON</button>
-	{/if} -->
-
-<div class="island" style="transform: scale({$islandStyles.scale});">
-	<div class="minimized-mode-item-wrapper minimized-mode-left-item-wrapper">
-		<div
-			class="minimized-mode-left-item"
-			style="transform: translateX({$menuBarStyles.x}px); opacity: {$menuBarStyles.opacity};"
-		>
-			<!-- <img class="photo" src="/lyft.png" /> -->
-		</div>
-	</div>
-	<div class="minimized-mode-item-wrapper minimized-mode-right-item-wrapper">
-		<div
-			class="minimized-mode-right-item"
-			style="transform: translateX({$stickyStyles.x}px); opacity: {$stickyStyles.opacity};"
-		/>
-	</div>
-</div>
-
 <style>
-	.island {
-		position: relative;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		transition: transform 0.3s;
-	}
-	.minimized-mode-item-wrapper {
-		position: absolute;
-	}
-	.minimized-mode-left-item,
-	.minimized-mode-right-item {
-		transition:
-			transform 0.3s,
-			opacity 0.3s;
-	}
-	.controls {
-		margin-top: 20px;
-	}
-
 	button {
 		color: white;
 	}
