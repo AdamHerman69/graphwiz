@@ -13,19 +13,23 @@
 	let select: HTMLSelectElement;
 	function handleChange() {
 		selectedAttribute = filteredAttributes[select.selectedIndex];
-		console.log('handle change', selectedAttribute);
+		//console.log('handle change', selectedAttribute);
 	}
 
-	// todo make work with states - replace with a separate component
-	// maybe just don't have anything selected by default
+	// todo bug attributes shown which don't have values for all nodes
 
+	// for state changes not coming from this component
 	$effect(() => {
-		if (select.value) console.log('value: ', select.value, selectedAttribute);
+		if (select.value != selectedAttribute?.name) {
+			select.value = selectedAttribute?.name!;
+			//console.log('effect actually did something');
+		}
+		//console.log('effect ran');
 	});
 </script>
 
 <select bind:this={select} onchange={handleChange} class="bg-transparent">
 	{#each filteredAttributes as attribute}
-		<option value={attribute}>{attribute.name}</option>
+		<option value={attribute.name}>{attribute.name}</option>
 	{/each}
 </select>

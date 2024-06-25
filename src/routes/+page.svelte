@@ -9,7 +9,7 @@
 	<div class="absolute inset-0 z-0"><Canvas /></div>
 	<div class="h-full w-full flex flex-col mx-2">
 		<div class="grow flex justify-between">
-			<div class="w-1/5 z-10 p-8 overflow-y-auto h-screen">gp</div>
+			<div class="w-1/5 z-10 p-8 overflow-y-auto h-screen pointer-events-none">gp</div>
 			<div class="settingsPanel z-10 text-sm h-screen">
 				<GraphSettingsPanel />
 				<button onclick={() => console.log($state.snapshot(graphSettings))}>log</button>

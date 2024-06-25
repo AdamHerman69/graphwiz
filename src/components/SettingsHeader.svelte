@@ -30,7 +30,7 @@
 	}
 </script>
 
-<div class="mx-2 mt-1 mb-2">
+<div class="mt-1 mb-2">
 	<div class="flex justify-between items-center">
 		<div class="settingsHeader">{title}</div>
 		<button bind:this={collapseButton} on:click={collapse} class="w-10 h-10 pt-1" />
