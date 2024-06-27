@@ -8,19 +8,15 @@
 	import { loadSampleGraph, computeAttributes, getGraph } from '../utils/graph.svelte';
 	import { graphSettings, getNodeStyles, getEdgeStyles } from '../utils/graphSettings.svelte';
 	import DynamicIsland from './DynamicIsland.svelte';
-	import DynamicIsland2 from './DynamicIsland.svelte';
 	import ReadabilityMetrics from './ReadabilityMetrics.svelte';
 	import { spring, type Spring } from 'svelte/motion';
 	import NodeInfo from './NodeInfo.svelte';
 	import { saveState } from '../utils/undoStack.svelte';
+	import GraphSettingsPanel from './GraphSettingsPanel.svelte';
 
 	let canvas: HTMLCanvasElement;
-	let width: number;
-	let height: number;
-
-	// todo refactor elsewhere
-	loadSampleGraph();
-	computeAttributes(getGraph());
+	let width: number = $state(0);
+	let height: number = $state(0);
 
 	let canvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
 
@@ -70,11 +66,17 @@
 			});
 		}
 	});
+
+	$effect(() => {
+		canvasHandler.resize(width, height);
+		console.log('resize effect');
+	});
 </script>
 
+<button onclick={() => console.log(width, height)}>log dims</button>
 <div class="relative h-full w-full">
 	<canvas
-		resize
+		resize="true"
 		class="h-full w-full"
 		bind:this={canvas}
 		bind:clientWidth={width}
@@ -85,7 +87,6 @@
 	<div class="absolute top-10 left-1/2 transform -translate-x-1/2 pointer-events-none">
 		<DynamicIsland exportSVG={canvasHandler.exportSVG} bind:sticky={canvasHandler.sticky} />
 	</div>
-
 	<ReadabilityMetrics bind:readability={canvasHandler.readability} />
 
 	{#if canvasHandler.selectedNode}

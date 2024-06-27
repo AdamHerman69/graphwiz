@@ -33,6 +33,7 @@ export interface Renderer {
 	): void;
 	zoomed(zoomEvent: d3.ZoomBehavior<HTMLCanvasElement, any>): d3.ZoomTransform;
 	exportSVG(): string;
+	resize(width: number, height: number): void;
 }
 
 export class PaperRenderer implements Renderer {
@@ -160,5 +161,11 @@ export class PaperRenderer implements Renderer {
 
 	exportSVG() {
 		return this.paperScope.project.exportSVG({ asString: true }) as string;
+	}
+
+	resize(width: number, height: number): void {
+		this.paperScope.activate();
+		this.paperScope.view.viewSize.width = width;
+		this.paperScope.view.viewSize.height = height;
 	}
 }

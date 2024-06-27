@@ -45,6 +45,7 @@ export interface ICanvasHandler {
 	canvasClicked(event: MouseEvent): void;
 	exportSVG(): string;
 	changeLayout(layout: LayoutType): Promise<void>;
+	resize(width: number, height: number): void;
 
 	readablity: ReadabilityMetrics | undefined;
 	selectedNode: D3Node | null;
@@ -328,6 +329,10 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 
 	exportSVG(): string {
 		return this.paperRenderer.exportSVG();
+	}
+
+	resize(width: number, height: number): void {
+		this.paperRenderer.resize(width, height);
 	}
 
 	async changeLayout(layout: LayoutType) {

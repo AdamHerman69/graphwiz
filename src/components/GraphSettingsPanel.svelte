@@ -33,7 +33,7 @@
 		overflow-y: scroll;
 		padding: 0px 40px 0px 40px;
 		margin: 0px -40px;
-		width: 395px;
+		width: 380px;
 
 		scroll-behavior: smooth;
 		pointer-events: none;
