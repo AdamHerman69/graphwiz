@@ -5,9 +5,10 @@
 	import ToggleSwitch from './GUI/ToggleSwitch.svelte';
 	import NodeRule from './NodeRule.svelte';
 	import EdgeRule from './EdgeRule.svelte';
-	import { newGUIID } from '../utils/graphSettings.svelte';
 	import { availableAttributes } from '../utils/graph.svelte';
 	import { getContext } from 'svelte';
+
+	let newGUIID = getContext('graphSettings').newGUIID;
 
 	let {
 		rule,

@@ -1,6 +1,9 @@
 <script lang="ts">
-	import { graphSettings } from '../utils/graphSettings.svelte';
+	import type { GraphSettings } from '../utils/graphSettings.svelte';
 	import SettingsHeader from './SettingsHeader.svelte';
+	import { getContext } from 'svelte';
+
+	let graphSettings: GraphSettings = getContext('graphSettings').graphSettings;
 
 	let collapsed = $state(false);
 </script>

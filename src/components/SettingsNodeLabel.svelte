@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type NodeLabel, newGUIID } from '../utils/graphSettings.svelte';
+	import { type NodeLabel } from '../utils/graphSettings.svelte';
 	import type { Attribute } from '../utils/graph.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import AttributePicker from './AttributePicker.svelte';
@@ -7,6 +7,9 @@
 	import ColorPicker from '$lib/colorPicker/components/ColorPicker.svelte';
 	import ColorPickerWrapper from '$lib/RangeSlider/ColorPickerWrapper.svelte';
 	import { availableAttributes } from '../utils/graph.svelte';
+	import { getContext } from 'svelte';
+
+	let newGUIID = getContext('graphSettings').newGUIID;
 
 	let { labels }: { labels: NodeLabel[] } = $props();
 	let colorPickers: boolean[] = $state(Array(labels.length).fill(false));

@@ -1,18 +1,19 @@
 <script lang="ts">
-	import { onMount, untrack } from 'svelte';
+	import { getContext, onMount, untrack } from 'svelte';
 	import {
 		CanvasHandler,
 		type ICanvasHandler,
 		WebWorkerCanvasHandler
 	} from '../utils/canvas.svelte';
 	import { loadSampleGraph, computeAttributes, getGraph } from '../utils/graph.svelte';
-	import { graphSettings, getNodeStyles, getEdgeStyles } from '../utils/graphSettings.svelte';
+	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import DynamicIsland from './DynamicIsland.svelte';
 	import ReadabilityMetrics from './ReadabilityMetrics.svelte';
 	import { spring, type Spring } from 'svelte/motion';
 	import NodeInfo from './NodeInfo.svelte';
-	import { saveState } from '../utils/undoStack.svelte';
 	import GraphSettingsPanel from './GraphSettingsPanel.svelte';
+
+	let graphSettings: GraphSettingsClass = getContext('graphSettings');
 
 	let canvas: HTMLCanvasElement;
 	let width: number = $state(0);
@@ -27,29 +28,29 @@
 
 		untrack(() => {
 			canvasHandler.initialize(canvas, width, height, g);
-			canvasHandler.startForceSimulation(getNodeStyles(), getEdgeStyles());
+			canvasHandler.startForceSimulation(graphSettings.nodeStyles, graphSettings.edgeStyles);
 		});
 	});
 
 	// React to graph settings changes
 	// todo layout effect
 	$effect(() => {
-		console.log('Layout changed', graphSettings.layout.value);
+		console.log('Layout changed', graphSettings.graphSettings.layout.value);
 		// ;
 		untrack(() => {
-			saveState();
-			canvasHandler.changeLayout(graphSettings.layout.value);
+			graphSettings.saveState();
+			canvasHandler.changeLayout(graphSettings.graphSettings.layout.value);
 		});
 	});
 	$effect(() => {
 		//console.log('Node styles changed');
-		canvasHandler.updateNodeStyles(getNodeStyles());
-		untrack(() => saveState());
+		canvasHandler.updateNodeStyles(graphSettings.nodeStyles);
+		untrack(() => graphSettings.saveState());
 	});
 	$effect(() => {
 		//console.log('Edge styles changed');
-		canvasHandler.updateEdgeStyles(getEdgeStyles());
-		untrack(() => saveState());
+		canvasHandler.updateEdgeStyles(graphSettings.edgeStyles);
+		untrack(() => graphSettings.saveState());
 	});
 
 	// Node Info location, when a node is selected

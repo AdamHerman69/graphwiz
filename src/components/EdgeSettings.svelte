@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { graphSettings, newGUIID } from '../utils/graphSettings.svelte';
+	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import SettingsHeader from './SettingsHeader.svelte';
 	import RuleSettings from './RuleNodeSettings.svelte';
 	import SettingsSliderMultiple from './SettingsSliderMultiple.svelte';
@@ -11,21 +11,24 @@
 	import { setContext } from 'svelte';
 	import { availableAttributes } from '../utils/graph.svelte';
 	import SettingsSelect from './SettingsSelect.svelte';
+	import { getContext } from 'svelte';
+
+	let graphSettings: GraphSettingsClass = getContext('graphSettings');
 
 	let collapsed = $state(false);
 
 	setContext('type', 'edge');
 
 	function addRule() {
-		graphSettings.edgeSettings.push({
-			id: newGUIID(),
+		graphSettings.graphSettings.edgeSettings.push({
+			id: graphSettings.newGUIID(),
 			priority: graphSettings.edgeSettings.length + 1,
 			rule: {
-				id: newGUIID(),
+				id: graphSettings.newGUIID(),
 				operator: 'AND',
 				rules: [
 					{
-						id: newGUIID(),
+						id: graphSettings.newGUIID(),
 						operator: '>',
 						type: 'number',
 						target: 'edge',
@@ -40,7 +43,7 @@
 </script>
 
 <div use:autoAnimate={{ duration: 300 }}>
-	{#each graphSettings.edgeSettings as setting, index (setting.id)}
+	{#each graphSettings.graphSettings.edgeSettings as setting, index (setting.id)}
 		{#if index === 0}
 			<div class="card cardSpacing">
 				<SettingsHeader title="edge" bind:collapsed />
@@ -50,10 +53,10 @@
 					<SettingsSlider numSettings={setting.width!} />
 					<SettingsSliderMultiple
 						name="Partial Edge"
-						numSettings={[graphSettings.edgeSettings[0].partialStart!, graphSettings.edgeSettings[0].partialEnd!]}
+						numSettings={[graphSettings.graphSettings.edgeSettings[0].partialStart!, graphSettings.graphSettings.edgeSettings[0].partialEnd!]}
 					/>
 					<SettingsColor colorSetting={setting.color!} />
-					
+
 					<!-- TODO Decorators -->
 					<SettingsEdgeLabel labels={setting.labels!} />
 				{/if}

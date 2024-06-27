@@ -1,6 +1,5 @@
 <script lang="ts">
 	import GraphSettingsPanel from '../components/GraphSettingsPanel.svelte';
-	import { graphSettings } from '../utils/graphSettings.svelte';
 	import Canvas from '../components/Canvas.svelte';
 	import AppView from '../components/AppView.svelte';
 	import { loadSampleGraph, computeAttributes, getGraph } from '../utils/graph.svelte';

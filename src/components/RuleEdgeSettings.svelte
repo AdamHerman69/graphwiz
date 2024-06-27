@@ -1,12 +1,20 @@
 <script lang="ts">
-	import { type EdgeSettingsName, edgeSettingsDefaults } from '../utils/graphSettings.svelte';
-	import { graphSettings, type EdgeSettings } from '../utils/graphSettings.svelte';
+	import {
+		type EdgeSettingsName,
+		edgeSettingsDefaults,
+		type GraphSettings
+	} from '../utils/graphSettings.svelte';
+	import { type EdgeSettings } from '../utils/graphSettings.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import Rules from './Rules.svelte';
 	import SettingsSlider from './SettingsSlider.svelte';
 	import SettingsColor from './SettingsColor.svelte';
 	import SettingsEdgeLabel from './SettingsEdgeLabel.svelte';
 	import SettingsSliderMultiple from './SettingsSliderMultiple.svelte';
+	import { getContext } from 'svelte';
+	import GraphSettingsPanel from './GraphSettingsPanel.svelte';
+
+	let { graphSettings }: { graphSettings: GraphSettings } = getContext('graphSettings');
 
 	let { edgeSettings }: { edgeSettings: EdgeSettings } = $props();
 

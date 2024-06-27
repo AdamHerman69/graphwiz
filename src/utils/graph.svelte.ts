@@ -1,6 +1,6 @@
 import Graph from 'graphology';
 import { parse } from 'graphology-graphml';
-import { unbindAttributes } from './graphSettings.svelte';
+//import { unbindAttributes } from './graphSettings.svelte';
 
 export type Attribute = {
 	name: string;
@@ -215,7 +215,7 @@ export function isValidGraph(object: any): boolean {
 }
 
 export function importGraphJSON(newGraphObject: object): void {
-	unbindAttributes();
+	//unbindAttributes();
 
 	let newGraph = new Graph();
 	newGraph.import(newGraphObject);
@@ -226,7 +226,7 @@ export function importGraphJSON(newGraphObject: object): void {
 }
 
 export function importGraphOther(graphString: string): void {
-	unbindAttributes();
+	//unbindAttributes();
 
 	graphObject = parse(Graph, graphString);
 	computeAttributes(graphObject);

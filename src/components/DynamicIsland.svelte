@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { spring } from 'svelte/motion';
-	import { exportState } from '../utils/graphSettings.svelte';
 	import { exportGraph } from '../utils/graph.svelte';
 	import FileImport from './FileImport.svelte';
 	import { blur } from 'svelte/transition';
-	import { undo, redo } from '../utils/undoStack.svelte';
 	import { getContext } from 'svelte';
+	import type { GraphSettingsClass } from '../utils/graphSettings.svelte';
+
+	let graphSettings: GraphSettingsClass = getContext('graphSettings');
 
 	let { sticky = $bindable(), exportSVG }: { sticky: boolean; exportSVG: () => string } = $props();
 
@@ -218,7 +219,7 @@
 			<!-- Undo -->
 			<button
 				transition:blur
-				onclick={undo}
+				onclick={graphSettings.undo}
 				style={`left: ${island_x + ISLAND_X_MARGIN + 3 * BUTTON_WIDTH + 3 * BUTTON_SPACING}px`}
 			>
 				<span class="material-symbols-outlined">undo</span>
@@ -227,7 +228,7 @@
 			<!-- Redo -->
 			<button
 				transition:blur
-				onclick={redo}
+				onclick={graphSettings.redo}
 				style={`left: ${island_x + ISLAND_X_MARGIN + 4 * BUTTON_WIDTH + 4 * BUTTON_SPACING}px`}
 			>
 				<span class="material-symbols-outlined">redo</span>
@@ -287,7 +288,7 @@
 				<div class="description">Export the visualization settings alone.</div>
 				<button
 					onclick={() => {
-						let objectToExport = { settings: exportState() };
+						let objectToExport = { settings: graphSettings.exportState() };
 						let json = JSON.stringify(objectToExport, null, 2);
 						console.log(json);
 						downloadFile(json, 'graphwiz_settings', 'application/json');
@@ -302,7 +303,7 @@
 				<div class="description">Export the complete state of your session.</div>
 				<button
 					onclick={() => {
-						let objectToExport = { settings: exportState(), graph: exportGraph() };
+						let objectToExport = { settings: graphSettings.exportState(), graph: exportGraph() };
 						let json = JSON.stringify(objectToExport, null, 2);
 						downloadFile(json, 'graphwiz_state', 'application/json');
 						menuOpen = null;

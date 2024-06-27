@@ -2,6 +2,9 @@
 	import LayoutSettings from './LayoutSettings.svelte';
 	import NodeSettings from './NodeSettings.svelte';
 	import EdgeSettings from './EdgeSettings.svelte';
+	import { getContext } from 'svelte';
+
+	let graphSettings = getContext('graphSettings');
 
 	let collapsed = $state({
 		layout: false,

@@ -1,11 +1,14 @@
 <script lang="ts">
 	import { type NodeSettingsName, nodeSettingsDefaults } from '../utils/graphSettings.svelte';
-	import { graphSettings, type NodeSettings } from '../utils/graphSettings.svelte';
+	import { type GraphSettings, type NodeSettings } from '../utils/graphSettings.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import Rules from './Rules.svelte';
 	import SettingsSlider from './SettingsSlider.svelte';
 	import SettingsColor from './SettingsColor.svelte';
 	import SettingsNodeLabel from './SettingsNodeLabel.svelte';
+	import { getContext } from 'svelte';
+
+	let { graphSettings }: { graphSettings: GraphSettings } = getContext('graphSettings');
 
 	let { nodeSettings }: { nodeSettings: NodeSettings } = $props();
 

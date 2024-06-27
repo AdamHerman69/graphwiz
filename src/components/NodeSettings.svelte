@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { graphSettings, newGUIID } from '../utils/graphSettings.svelte';
+	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import RuleNodeSettings from './RuleNodeSettings.svelte';
 	import SettingsHeader from './SettingsHeader.svelte';
 	import SettingsSlider from './SettingsSlider.svelte';
@@ -8,6 +8,9 @@
 	import autoAnimate from '@formkit/auto-animate';
 	import { setContext } from 'svelte';
 	import { availableAttributes } from '../utils/graph.svelte';
+	import { getContext } from 'svelte';
+
+	let graphSettings: GraphSettingsClass = getContext('graphSettings');
 
 	let collapsed = $state(false);
 
@@ -15,15 +18,15 @@
 
 	function addRule() {
 		// todo priority and ID
-		graphSettings.nodeSettings.push({
-			id: newGUIID(),
-			priority: graphSettings.nodeSettings.length + 1,
+		graphSettings.graphSettings.nodeSettings.push({
+			id: graphSettings.newGUIID(),
+			priority: graphSettings.graphSettings.nodeSettings.length + 1,
 			rule: {
-				id: newGUIID(),
+				id: graphSettings.newGUIID(),
 				operator: 'AND',
 				rules: [
 					{
-						id: newGUIID(),
+						id: graphSettings.newGUIID(),
 						operator: '>',
 						type: 'number',
 						target: 'node',
@@ -38,7 +41,7 @@
 </script>
 
 <div use:autoAnimate={{ duration: 300 }}>
-	{#each graphSettings.nodeSettings as setting, index (setting.id)}
+	{#each graphSettings.graphSettings.nodeSettings as setting, index (setting.id)}
 		{#if index === 0}
 			<div class="card cardSpacing">
 				<SettingsHeader title="node" bind:collapsed />

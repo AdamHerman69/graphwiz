@@ -153,40 +153,175 @@ export const nodeSettingsDefaults: NodeProperties = {
 	labels: []
 } as const;
 
-let guiID = $state(0);
+// let guiID = $state(0);
 
 export type GraphSettings = {
 	guiID: number;
 	layout: SelectSetting<LayoutType>;
 	nodeSettings: NodeSettings[];
 	edgeSettings: EdgeSettings[];
+	nodeStyles: Map<string, NodeStyle>;
+	edgeStyles: Map<string, EdgeStyle>;
 };
 
-export let graphSettings: GraphSettings = $state({
-	guiID: guiID,
-	layout: {
-		name: 'layout',
-		values: Array.from(layoutTypes),
-		value: 'force-graph',
-		source: null
-	},
-	nodeSettings: [
-		{
-			...nodeSettingsDefaults,
-			id: newGUIID(),
-			priority: 0,
+const EFFECTS_TO_SKIP = 3;
+export class GraphSettingsClass {
+	undoStack: GraphSettings[] = $state([]);
+	stateIndex = $state(-1);
+	skipSaveCounter = $state(0);
+
+	graphSettings: GraphSettings = $state({
+		guiID: 0,
+		layout: {
+			name: 'layout',
+			values: Array.from(layoutTypes),
+			value: 'force-graph',
 			source: null
+		},
+		nodeSettings: [
+			{
+				...structuredClone(nodeSettingsDefaults),
+				id: 1,
+				priority: 0,
+				source: null
+			}
+		],
+		edgeSettings: [
+			{
+				...structuredClone(edgeSettingsDefaults),
+				id: 2,
+				priority: 0,
+				source: null
+			}
+		]
+	});
+
+	nodeStyles: Map<string, NodeStyle> = $derived.by(() => {
+		let ns = new Map<string, NodeStyle>();
+		getGraph().forEachNode((id: string) => {
+			ns.set(id, getNodeStyle(id, this.graphSettings.nodeSettings));
+		});
+		console.log('styles recomputed');
+		return ns;
+	});
+	edgeStyles: Map<string, EdgeStyle> = $derived.by(() => {
+		let es = new Map<string, EdgeStyle>();
+		getGraph().forEachEdge((id: string) => {
+			es.set(id, getEdgeStyle(id, this.graphSettings.edgeSettings));
+		});
+		return es;
+	});
+
+	constructor() {
+		this.exportState = this.exportState.bind(this);
+		this.importState = this.importState.bind(this);
+		this.unbindAttributes = this.unbindAttributes.bind(this);
+		this.newGUIID = this.newGUIID.bind(this);
+		this.saveState = this.saveState.bind(this);
+		this.actuallySaveState = this.actuallySaveState.bind(this);
+		this.undo = this.undo.bind(this);
+		this.redo = this.redo.bind(this);
+		this.canUndo = this.canUndo.bind(this);
+		this.canRedo = this.canRedo.bind(this);
+		this.shouldSkipSave = this.shouldSkipSave.bind(this);
+		this.signalSkipSave = this.signalSkipSave.bind(this);
+		this.clearUndoStack = this.clearUndoStack.bind(this);
+	}
+
+	exportState(): GraphSettings {
+		return $state.snapshot(this.graphSettings);
+	}
+
+	importState(state: GraphSettings): void {
+		this.graphSettings.guiID = state.guiID;
+		this.graphSettings.layout = state.layout;
+		this.graphSettings.nodeSettings = state.nodeSettings;
+		this.graphSettings.edgeSettings = state.edgeSettings;
+	}
+
+	unbindAttributes() {
+		this.graphSettings.nodeSettings.forEach((ns) => {
+			if (ns.size?.attribute) ns.size.attribute = undefined;
+			if (ns.color?.attribute) ns.color.attribute = undefined;
+			if (ns.strokeWidth?.attribute) ns.strokeWidth.attribute = undefined;
+			if (ns.strokeColor?.attribute) ns.strokeColor.attribute = undefined;
+
+			if (ns.rule) stripAttributeBasedRules(ns.rule);
+		});
+
+		this.graphSettings.edgeSettings.forEach((es) => {
+			if (es.width?.attribute) es.width.attribute = undefined;
+			if (es.color?.attribute) es.color.attribute = undefined;
+			if (es.partialStart?.attribute) es.partialStart.attribute = undefined;
+			if (es.partialEnd?.attribute) es.partialEnd.attribute = undefined;
+
+			if (es.rule) stripAttributeBasedRules(es.rule);
+		});
+	}
+
+	newGUIID(): number {
+		return this.graphSettings.guiID++;
+	}
+
+	saveState() {
+		if (this.shouldSkipSave()) {
+			//console.log('skipped save');
+			this.signalSkipSave(); // this changes again causing saveState again // TODO!!!! not this, it's the import state that changes..
+		} else {
+			this.actuallySaveState();
 		}
-	],
-	edgeSettings: [
-		{
-			...edgeSettingsDefaults,
-			id: newGUIID(),
-			priority: 0,
-			source: null
+	}
+
+	actuallySaveState() {
+		console.log('saveState');
+		let state = this.exportState();
+
+		// Remove all states after the current state
+		this.undoStack = [...this.undoStack.slice(0, this.stateIndex + 1), state];
+		this.stateIndex++;
+	}
+
+	undo() {
+		if (this.stateIndex > 0) {
+			this.stateIndex--;
+			this.importState($state.snapshot(this.undoStack[this.stateIndex]));
+			this.skipSaveCounter = EFFECTS_TO_SKIP;
+		} else {
+			console.log('no more states');
 		}
-	]
-});
+	}
+
+	redo() {
+		if (this.stateIndex < this.undoStack.length - 1) {
+			this.stateIndex++;
+			this.importState(this.undoStack[this.stateIndex]);
+			this.skipSaveCounter = EFFECTS_TO_SKIP;
+		} else {
+			console.log('no more states');
+		}
+	}
+
+	canUndo() {
+		return this.stateIndex > 0;
+	}
+
+	canRedo() {
+		return this.stateIndex < this.undoStack.length - 1;
+	}
+
+	shouldSkipSave(): boolean {
+		if (this.skipSaveCounter > 0) return true;
+		else return false;
+	}
+	signalSkipSave() {
+		this.skipSaveCounter--;
+	}
+
+	clearUndoStack() {
+		this.undoStack = [];
+		this.stateIndex = -1;
+	}
+}
 
 // import / export
 
@@ -195,37 +330,38 @@ export function isValidSettings(object: any): boolean {
 	return true;
 }
 
-export function exportState(): GraphSettings {
-	return $state.snapshot(graphSettings);
-}
+// export function exportState(graphSettings: GraphSettings): GraphSettings {
+// 	return $state.snapshot(graphSettings);
+// }
 
-export function importState(state: GraphSettings): void {
-	graphSettings.guiID = state.guiID;
-	graphSettings.layout = state.layout;
-	graphSettings.nodeSettings = state.nodeSettings;
-	graphSettings.edgeSettings = state.edgeSettings;
-}
+// export function importState(graphSettings: GraphSettings, state: GraphSettings): void {
+// 	graphSettings.guiID = state.guiID;
+// 	graphSettings.layout = state.layout;
+// 	graphSettings.nodeSettings = state.nodeSettings;
+// 	graphSettings.edgeSettings = state.edgeSettings;
+// }
 
+// todo need to handle multiple calls here
 // called on new graph import to remove all non-general attribute bindings
-export function unbindAttributes() {
-	graphSettings.nodeSettings.forEach((ns) => {
-		if (ns.size?.attribute) ns.size.attribute = undefined;
-		if (ns.color?.attribute) ns.color.attribute = undefined;
-		if (ns.strokeWidth?.attribute) ns.strokeWidth.attribute = undefined;
-		if (ns.strokeColor?.attribute) ns.strokeColor.attribute = undefined;
+// export function unbindAttributes(graphSettings: GraphSettings) {
+// 	graphSettings.nodeSettings.forEach((ns) => {
+// 		if (ns.size?.attribute) ns.size.attribute = undefined;
+// 		if (ns.color?.attribute) ns.color.attribute = undefined;
+// 		if (ns.strokeWidth?.attribute) ns.strokeWidth.attribute = undefined;
+// 		if (ns.strokeColor?.attribute) ns.strokeColor.attribute = undefined;
 
-		if (ns.rule) stripAttributeBasedRules(ns.rule);
-	});
+// 		if (ns.rule) stripAttributeBasedRules(ns.rule);
+// 	});
 
-	graphSettings.edgeSettings.forEach((es) => {
-		if (es.width?.attribute) es.width.attribute = undefined;
-		if (es.color?.attribute) es.color.attribute = undefined;
-		if (es.partialStart?.attribute) es.partialStart.attribute = undefined;
-		if (es.partialEnd?.attribute) es.partialEnd.attribute = undefined;
+// 	graphSettings.edgeSettings.forEach((es) => {
+// 		if (es.width?.attribute) es.width.attribute = undefined;
+// 		if (es.color?.attribute) es.color.attribute = undefined;
+// 		if (es.partialStart?.attribute) es.partialStart.attribute = undefined;
+// 		if (es.partialEnd?.attribute) es.partialEnd.attribute = undefined;
 
-		if (es.rule) stripAttributeBasedRules(es.rule);
-	});
-}
+// 		if (es.rule) stripAttributeBasedRules(es.rule);
+// 	});
+// }
 
 // Types for renderer
 export type NodeStyle = {
@@ -376,31 +512,31 @@ export function getEdgeStyle(id: string, edgeSettings: EdgeSettings[]): EdgeStyl
 	return edgeStyle;
 }
 
-// todo maybe don't create a new map every time
-let nodeStyles: Map<string, NodeStyle> = $derived.by(() => {
-	let ns = new Map<string, NodeStyle>();
-	getGraph().forEachNode((id: string) => {
-		ns.set(id, getNodeStyle(id, graphSettings.nodeSettings));
-	});
-	console.log('styles recomputed');
-	return ns;
-});
-let edgeStyles: Map<string, EdgeStyle> = $derived.by(() => {
-	let es = new Map<string, EdgeStyle>();
-	getGraph().forEachEdge((id: string) => {
-		es.set(id, getEdgeStyle(id, graphSettings.edgeSettings));
-	});
-	return es;
-});
+// // todo maybe don't create a new map every time
+// let nodeStyles: Map<string, NodeStyle> = $derived.by(() => {
+// 	let ns = new Map<string, NodeStyle>();
+// 	getGraph().forEachNode((id: string) => {
+// 		ns.set(id, getNodeStyle(id, graphSettings.nodeSettings));
+// 	});
+// 	console.log('styles recomputed');
+// 	return ns;
+// });
+// let edgeStyles: Map<string, EdgeStyle> = $derived.by(() => {
+// 	let es = new Map<string, EdgeStyle>();
+// 	getGraph().forEachEdge((id: string) => {
+// 		es.set(id, getEdgeStyle(id, graphSettings.edgeSettings));
+// 	});
+// 	return es;
+// });
 
-export function getNodeStyles() {
-	return nodeStyles;
-}
+// export function getNodeStyles() {
+// 	return nodeStyles;
+// }
 
-export function getEdgeStyles() {
-	return edgeStyles;
-}
+// export function getEdgeStyles() {
+// 	return edgeStyles;
+// }
 
-export function newGUIID(): number {
-	return guiID++;
-}
+// export function newGUIID(): number {
+// 	return guiID++;
+// }
