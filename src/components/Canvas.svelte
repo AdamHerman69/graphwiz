@@ -73,7 +73,6 @@
 	});
 </script>
 
-<button onclick={() => console.log(width, height)}>log dims</button>
 <div class="relative h-full w-full">
 	<canvas
 		resize="true"

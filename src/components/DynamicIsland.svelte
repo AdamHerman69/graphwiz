@@ -5,10 +5,13 @@
 	import FileImport from './FileImport.svelte';
 	import { blur } from 'svelte/transition';
 	import { undo, redo } from '../utils/undoStack.svelte';
+	import { getContext } from 'svelte';
 
 	let { sticky = $bindable(), exportSVG }: { sticky: boolean; exportSVG: () => string } = $props();
 
 	let menuOpen: 'import' | 'export' | null = $state(null);
+
+	const toggleSplitView: (left: boolean, right: boolean) => void = getContext('toggleSplitView');
 
 	const blurParamsOut = {
 		delay: 0,
@@ -21,7 +24,7 @@
 	// ISLAND DIMS
 	const BUTTON_WIDTH = 24;
 	const BUTTON_SPACING = 10;
-	const BUTTON_COUNT = 5;
+	const BUTTON_COUNT = 6;
 	const ISLAND_X_MARGIN = 17;
 	const ISLAND_EXPANDED_WIDTH = 400;
 	const ISLAND_EXPANDED_HEIGHT = 200;
@@ -203,11 +206,20 @@
 				<span class="material-symbols-outlined">download</span>
 			</button>
 
+			<!-- Split View -->
+			<button
+				transition:blur
+				onclick={() => toggleSplitView(true, true)}
+				style={`left: ${island_x + ISLAND_X_MARGIN + 2 * BUTTON_WIDTH + 2 * BUTTON_SPACING}px`}
+			>
+				<span class="material-symbols-outlined"> splitscreen_vertical_add </span>
+			</button>
+
 			<!-- Undo -->
 			<button
 				transition:blur
 				onclick={undo}
-				style={`left: ${island_x + ISLAND_X_MARGIN + 2 * BUTTON_WIDTH + 2 * BUTTON_SPACING}px`}
+				style={`left: ${island_x + ISLAND_X_MARGIN + 3 * BUTTON_WIDTH + 3 * BUTTON_SPACING}px`}
 			>
 				<span class="material-symbols-outlined">undo</span>
 			</button>
@@ -216,7 +228,7 @@
 			<button
 				transition:blur
 				onclick={redo}
-				style={`left: ${island_x + ISLAND_X_MARGIN + 3 * BUTTON_WIDTH + 3 * BUTTON_SPACING}px`}
+				style={`left: ${island_x + ISLAND_X_MARGIN + 4 * BUTTON_WIDTH + 4 * BUTTON_SPACING}px`}
 			>
 				<span class="material-symbols-outlined">redo</span>
 			</button>

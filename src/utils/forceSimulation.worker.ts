@@ -103,6 +103,9 @@ onmessage = function (event) {
 				simRunning = true;
 			}
 			break;
+		case 'resize':
+			simulation.force('center', d3.forceCenter(width / 2, height / 2));
+			break;
 		default:
 			console.error('Unknown message type:', type);
 	}

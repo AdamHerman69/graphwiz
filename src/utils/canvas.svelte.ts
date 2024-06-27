@@ -333,6 +333,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 
 	resize(width: number, height: number): void {
 		this.paperRenderer.resize(width, height);
+		this.simulationWorker.postMessage({ type: 'resize', width, height });
 	}
 
 	async changeLayout(layout: LayoutType) {
