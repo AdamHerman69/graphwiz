@@ -5,6 +5,7 @@
 	import { loadSampleGraph, computeAttributes, getGraph } from '../utils/graph.svelte';
 	import { onMount, setContext } from 'svelte';
 	import { gsap } from 'gsap';
+	import { filter } from 'd3';
 
 	// todo refactor elsewhere
 	loadSampleGraph();
@@ -81,16 +82,43 @@
 		document.removeEventListener('mousemove', doDrag);
 		document.removeEventListener('mouseup', stopDrag);
 	}
+
+	function dividerHover(e: MouseEvent) {
+		const hoverCircle = document.getElementById('hoverCircle');
+
+		const rect = e.currentTarget.getBoundingClientRect();
+		const y = e.clientY - rect.top; // x position within the element.
+		const x = e.clientX - rect.left; // y position within the element.
+		hoverCircle.setAttribute('cy', y.toString());
+		hoverCircle.setAttribute('cx', x.toString());
+	}
+
+	function showCircle() {
+		const hoverCircle = document.getElementById('hoverCircle');
+		hoverCircle.style.visibility = 'visible';
+	}
+
+	function hideCircle() {
+		const hoverCircle = document.getElementById('hoverCircle');
+		hoverCircle.style.visibility = 'hidden';
+	}
 </script>
 
 <div class="flex h-full w-full" bind:clientWidth={fullWidth}>
 	{#if splitView.left}
 		<div class="h-full relative" style="width: {width.left}%">
-			<AppView />
+			<AppView side="left" />
 		</div>
 	{/if}
+
+	{#if splitView.right}
+		<div class="h-full relative" style="width: {width.right}%">
+			<AppView side="right" />
+		</div>
+	{/if}
+
 	{#if splitView.left && splitView.right}
-		<div class="middleContainer">
+		<div class="middleContainer" style="left: {width.left}%">
 			<div class="splitButtons">
 				<button onclick={() => toggleSplitView(true, false)}>
 					<span class="material-symbols-outlined"> splitscreen_left </span>
@@ -100,27 +128,60 @@
 					<span class="material-symbols-outlined"> splitscreen_right </span>
 				</button>
 			</div>
-			<div class="divider" onmousedown={dragStart}></div>
-		</div>
-	{/if}
 
-	{#if splitView.right}
-		<div class="h-full relative" style="width: {width.right}%">
-			<AppView />
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
+			<svg
+				class="divider"
+				onmousedown={dragStart}
+				onmouseover={dividerHover}
+				onmouseenter={showCircle}
+				onmouseleave={hideCircle}
+				height="100%"
+				width="30"
+			>
+				<defs>
+					<filter id="split-effect" width="400%" x="-150%" height="400%" y="-150%">
+						<feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
+						<feColorMatrix
+							in="blur"
+							type="matrix"
+							values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 25 -10"
+							result="matrix"
+						/>
+					</filter>
+					<filter id="drop-shadow" x="-50%" y="-50%" width="200%" height="200%">
+						<feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="rgba(0,0,0,0.5)" />
+					</filter>
+				</defs>
+				<!-- <g filter="url(#drop-shadow)">
+						<g filter="url(#split-effect)">
+							<rect width="100%" height="100%" fill="#000000"></rect>
+						</g>
+					</g> -->
+				<g filter="url(#split-effect)">
+					<rect x="12.3" width="5.4" height="100%" fill="black"></rect>
+					<circle id="hoverCircle" cx="-100" cy="-100" r="10" fill="black" visibility="hidden" />
+				</g>
+			</svg>
 		</div>
 	{/if}
 </div>
 
 <style>
 	.divider {
-		background-color: #ccc;
 		cursor: ew-resize;
-		width: 5px;
 		height: 80%;
+		z-index: 1000;
 	}
 
 	.middleContainer {
+		position: absolute;
 		height: 100%;
+		transform: translate(-50%);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 	}
 
 	.splitButtons {
@@ -132,8 +193,8 @@
 		background-color: black;
 		color: white;
 		border-radius: 20px;
-		margin-top: 25px; /* 65px is the height of the menu bar */
-		transform: translate(-50%, -50%); /* Adjust based on the exact positioning you need */
+		margin-top: 50px; /* 65px is the height of the menu bar */
+		box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
 	}
 
 	.splitButtons button {
