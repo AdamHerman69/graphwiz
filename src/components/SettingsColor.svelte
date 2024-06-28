@@ -7,6 +7,7 @@
 	import RangeSliderGradient from '$lib/RangeSlider/RangeSliderGradient.svelte';
 	import ColorPickerWrapper from '$lib/RangeSlider/ColorPickerWrapper.svelte';
 	import { getContext } from 'svelte';
+	import autoAnimate from '@formkit/auto-animate';
 
 	let { colorSetting }: { colorSetting: ColorSetting } = $props();
 	const owner = getContext('type');
@@ -87,26 +88,28 @@
 	</div>
 </div>
 
-{#if colorSetting.value.length > 1}
-	<!-- TODO remove color -->
-	<RangeSliderGradient
-		bind:values={colorPositions.value}
-		gradient={colorSetting.value}
-		max={1}
-		min={0}
-		step={0.05}
-		float
-		onRangeNubDubClick={(index: number) => toggleColorPicker(index)}
-		{removeColor}
-	/>
-{/if}
+<div use:autoAnimate>
+	{#if colorSetting.value.length > 1}
+		<!-- TODO remove color -->
+		<RangeSliderGradient
+			bind:values={colorPositions.value}
+			gradient={colorSetting.value}
+			max={1}
+			min={0}
+			step={0.05}
+			float
+			onRangeNubDubClick={(index: number) => toggleColorPicker(index)}
+			{removeColor}
+		/>
+	{/if}
 
-{#if pickerColorIndex >= 0}
-	<ColorPicker
-		bind:rgb={colorSetting.value[pickerColorIndex][0] as RgbaColor}
-		label="tadyy"
-		isDialog={false}
-		components={{ wrapper: ColorPickerWrapper }}
-		closeFunction={() => console.log('close color picker')}
-	/>
-{/if}
+	{#if pickerColorIndex >= 0}
+		<ColorPicker
+			bind:rgb={colorSetting.value[pickerColorIndex][0] as RgbaColor}
+			label="tadyy"
+			isDialog={false}
+			components={{ wrapper: ColorPickerWrapper }}
+			closeFunction={() => console.log('close color picker')}
+		/>
+	{/if}
+</div>
