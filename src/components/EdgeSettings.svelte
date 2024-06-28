@@ -22,7 +22,7 @@
 	function addRule() {
 		graphSettings.graphSettings.edgeSettings.push({
 			id: graphSettings.newGUIID(),
-			priority: graphSettings.edgeSettings.length + 1,
+			priority: graphSettings.graphSettings.edgeSettings.length + 1,
 			rule: {
 				id: graphSettings.newGUIID(),
 				operator: 'AND',
@@ -45,7 +45,7 @@
 <div use:autoAnimate={{ duration: 300 }}>
 	{#each graphSettings.graphSettings.edgeSettings as setting, index (setting.id)}
 		{#if index === 0}
-			<div class="card cardSpacing">
+			<div use:autoAnimate={{ duration: 300 }} class="card cardSpacing">
 				<SettingsHeader title="edge" bind:collapsed />
 				<!-- Settings -->
 				{#if !collapsed}

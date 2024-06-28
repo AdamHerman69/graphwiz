@@ -2,7 +2,7 @@
 	import Canvas from './Canvas.svelte';
 	import GraphSettingsPanel from './GraphSettingsPanel.svelte';
 	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
-	import { setContext } from 'svelte';
+	import { onMount, setContext } from 'svelte';
 	import { blur } from 'svelte/transition';
 
 	const graphSettings = new GraphSettingsClass();
@@ -10,6 +10,13 @@
 	setContext<GraphSettingsClass>('graphSettings', graphSettings);
 
 	let { side }: { side: 'left' | 'right' } = $props();
+
+	onMount(() => {
+		console.log('mounted AppView');
+		// clear saves triggered by initializing
+		graphSettings.clearUndoStack();
+		graphSettings.saveState();
+	});
 </script>
 
 <Canvas />

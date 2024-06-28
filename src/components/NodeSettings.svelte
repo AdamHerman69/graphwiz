@@ -43,7 +43,7 @@
 <div use:autoAnimate={{ duration: 300 }}>
 	{#each graphSettings.graphSettings.nodeSettings as setting, index (setting.id)}
 		{#if index === 0}
-			<div class="card cardSpacing">
+			<div use:autoAnimate={{ duration: 300 }} class="card cardSpacing">
 				<SettingsHeader title="node" bind:collapsed />
 				<!-- Settings -->
 				{#if !collapsed}

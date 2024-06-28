@@ -161,8 +161,9 @@
 					</g> -->
 				<g filter="url(#split-effect)">
 					<rect x="12.3" width="5.4" height="100%" fill="black"></rect>
-					<circle id="hoverCircle" cx="-100" cy="-100" r="10" fill="black" visibility="hidden" />
+					<circle id="hoverCircle" cx="-100" cy="-100" r="6" fill="black" visibility="hidden" />
 				</g>
+				<g><rect x="13.3" width="2" height="100%" fill="black"></rect></g>
 			</svg>
 		</div>
 	{/if}
