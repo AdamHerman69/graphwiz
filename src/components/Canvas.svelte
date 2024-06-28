@@ -6,7 +6,7 @@
 		WebWorkerCanvasHandler
 	} from '../utils/canvas.svelte';
 	import { loadSampleGraph, computeAttributes, getGraph } from '../utils/graph.svelte';
-	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
+	import { GraphSettingsClass, checkAll, getNodeStyle } from '../utils/graphSettings.svelte';
 	import DynamicIsland from './DynamicIsland.svelte';
 	import ReadabilityMetrics from './ReadabilityMetrics.svelte';
 	import { spring, type Spring } from 'svelte/motion';
@@ -28,7 +28,10 @@
 
 		untrack(() => {
 			canvasHandler.initialize(canvas, width, height, g);
-			canvasHandler.startForceSimulation(graphSettings.nodeStyles, graphSettings.edgeStyles);
+			canvasHandler.startForceSimulation(
+				graphSettings.getNodeStyles(),
+				graphSettings.getEdgeStyles()
+			);
 		});
 	});
 
@@ -42,10 +45,19 @@
 			canvasHandler.changeLayout(graphSettings.graphSettings.layout.value);
 		});
 	});
+	let nodeStyleTimer: number;
 	$effect(() => {
-		//console.log('Node styles changed');
-		canvasHandler.updateNodeStyles(graphSettings.nodeStyles);
-		untrack(() => graphSettings.saveState());
+		console.log('Node styles effect');
+		// debounce
+		clearTimeout(nodeStyleTimer);
+		console.time('checkAll');
+		// checkAll(graphSettings.graphSettings.nodeSettings);
+		getNodeStyle(getGraph().nodes()[0], graphSettings.graphSettings.nodeSettings);
+		console.timeEnd('checkAll');
+		nodeStyleTimer = setTimeout(() => {
+			canvasHandler.updateNodeStyles(graphSettings.getNodeStyles());
+			untrack(() => graphSettings.saveState());
+		}, 500);
 	});
 	$effect(() => {
 		//console.log('Edge styles changed');
@@ -68,6 +80,7 @@
 		}
 	});
 
+	// todo throttle
 	$effect(() => {
 		canvasHandler.resize(width, height);
 		console.log('resize effect');

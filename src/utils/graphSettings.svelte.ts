@@ -196,21 +196,33 @@ export class GraphSettingsClass {
 		]
 	});
 
-	nodeStyles: Map<string, NodeStyle> = $derived.by(() => {
-		let ns = new Map<string, NodeStyle>();
-		getGraph().forEachNode((id: string) => {
-			ns.set(id, getNodeStyle(id, this.graphSettings.nodeSettings));
-		});
-		console.log('styles recomputed');
-		return ns;
-	});
+	// nodeStyles: Map<string, NodeStyle> = $derived.by(() => {
+	// 	let ns = new Map<string, NodeStyle>();
+	// 	getGraph().forEachNode((id: string) => {
+	// 		ns.set(id, getNodeStyle(id, this.graphSettings.nodeSettings));
+	// 	});
+	// 	console.log('styles recomputed');
+	// 	return ns;
+	// });
 	edgeStyles: Map<string, EdgeStyle> = $derived.by(() => {
+		console.log('edgeStyles recomputed');
+
 		let es = new Map<string, EdgeStyle>();
 		getGraph().forEachEdge((id: string) => {
 			es.set(id, getEdgeStyle(id, this.graphSettings.edgeSettings));
 		});
+		console.log('edgeStyles ACTUALLY recomputed');
 		return es;
 	});
+
+	getEdgeStyles() {
+		let es = new Map<string, EdgeStyle>();
+		getGraph().forEachEdge((id: string) => {
+			es.set(id, getEdgeStyle(id, this.graphSettings.edgeSettings));
+		});
+		console.log('edgeStyles ACTUALLY recomputed');
+		return es;
+	}
 
 	constructor() {
 		this.exportState = this.exportState.bind(this);
@@ -226,6 +238,16 @@ export class GraphSettingsClass {
 		this.shouldSkipSave = this.shouldSkipSave.bind(this);
 		this.signalSkipSave = this.signalSkipSave.bind(this);
 		this.clearUndoStack = this.clearUndoStack.bind(this);
+	}
+
+	getNodeStyles() {
+		console.time('getNodeStyles');
+		let ns = new Map<string, NodeStyle>();
+		getGraph().forEachNode((id: string) => {
+			ns.set(id, getNodeStyle(id, this.graphSettings.nodeSettings));
+		});
+		console.timeEnd('getNodeStyles');
+		return ns;
 	}
 
 	exportState(): GraphSettings {
@@ -454,6 +476,24 @@ export function getNodeStyle(id: string, nodeSettings: NodeSettings[]): NodeStyl
 	// }
 
 	return nodeStyle;
+}
+
+export function checkAll(nodeSettings: NodeSettings[]) {
+	nodeSettings.forEach((ns) => {
+		if (ns.size) ns.size.value;
+		if (ns.color) ns.color.value.forEach((color) => color[0]);
+		if (ns.strokeWidth) ns.strokeWidth.value;
+		if (ns.strokeColor) ns.strokeColor.value;
+		if (ns.labels)
+			ns.labels.forEach((label) => {
+				label.text;
+				label.color;
+				label.size;
+				label.attribute;
+				label.position;
+				label.id;
+			});
+	});
 }
 
 export function getEdgeStyle(id: string, edgeSettings: EdgeSettings[]): EdgeStyle {
