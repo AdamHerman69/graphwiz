@@ -1,22 +1,12 @@
 <script lang="ts">
 	import { getContext, onMount, untrack } from 'svelte';
-	import {
-		CanvasHandler,
-		type ICanvasHandler,
-		WebWorkerCanvasHandler
-	} from '../utils/canvas.svelte';
-	import { loadSampleGraph, computeAttributes, getGraph } from '../utils/graph.svelte';
-	import {
-		GraphSettingsClass,
-		getNodeStyle,
-		getEdgeStyle,
-		type NodeStyles
-	} from '../utils/graphSettings.svelte';
+	import { type ICanvasHandler, WebWorkerCanvasHandler } from '../utils/canvas.svelte';
+	import { getGraph } from '../utils/graph.svelte';
+	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import DynamicIsland from './DynamicIsland.svelte';
 	import ReadabilityMetrics from './ReadabilityMetrics.svelte';
 	import { spring, type Spring } from 'svelte/motion';
 	import NodeInfo from './NodeInfo.svelte';
-	import { debounce } from '../utils/debounceThrottle.svelte';
 
 	let graphSettings: GraphSettingsClass = getContext('graphSettings');
 
@@ -25,7 +15,6 @@
 	let height: number = $state(0);
 
 	let canvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
-	let ns: NodeStyles;
 
 	// react to graph change
 	$effect(() => {
@@ -34,6 +23,7 @@
 
 		untrack(() => {
 			canvasHandler.initialize(canvas, width, height, g);
+
 			canvasHandler.startForceSimulation(
 				graphSettings.computeNodeStyles(),
 				graphSettings.computeEdgeStyles()

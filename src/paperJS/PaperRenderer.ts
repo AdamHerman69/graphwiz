@@ -72,7 +72,7 @@ export class PaperRenderer implements Renderer {
 	updateNodeStyles(styles: Map<string, NodeStyle>) {
 		this.paperScope.activate();
 		this.nodes.forEach((node, key) => {
-			if (!styles.get(key)) console.log('style not found', key);
+			if (!styles.get(key)) console.warn('style not found', key);
 			node.updateStyle(styles.get(key)!);
 		});
 

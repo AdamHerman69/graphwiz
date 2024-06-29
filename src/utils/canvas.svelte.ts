@@ -152,6 +152,9 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	}
 
 	startForceSimulation(nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void {
+		this.nodeStyles = nodeStyles;
+		this.edgeStyles = edgeStyles;
+
 		if (this.paperRenderer)
 			this.paperRenderer.restart(
 				this.d3nodes as NodePositionDatum[],
@@ -301,6 +304,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	handleHover(nodeKey: string | undefined) {
 		if (this.hoveredNodeKey && this.hoveredNodeKey != nodeKey) {
 			// cancel old shadow
+
 			this.nodeStyles.get(this.hoveredNodeKey)!.shadow = false;
 			this.paperRenderer.updateNodeStyle(
 				this.hoveredNodeKey,
@@ -464,6 +468,8 @@ export class CanvasHandler implements ICanvasHandler {
 	}
 
 	startForceSimulation(nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void {
+		this.nodeStyles = nodeStyles;
+		this.edgeStyles = edgeStyles;
 		if (this.paperRenderer)
 			this.paperRenderer.restart(
 				this.d3nodes as NodePositionDatum[],
