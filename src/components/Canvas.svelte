@@ -6,12 +6,17 @@
 		WebWorkerCanvasHandler
 	} from '../utils/canvas.svelte';
 	import { loadSampleGraph, computeAttributes, getGraph } from '../utils/graph.svelte';
-	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
+	import {
+		GraphSettingsClass,
+		getNodeStyle,
+		getEdgeStyle,
+		type NodeStyles
+	} from '../utils/graphSettings.svelte';
 	import DynamicIsland from './DynamicIsland.svelte';
 	import ReadabilityMetrics from './ReadabilityMetrics.svelte';
 	import { spring, type Spring } from 'svelte/motion';
 	import NodeInfo from './NodeInfo.svelte';
-	import GraphSettingsPanel from './GraphSettingsPanel.svelte';
+	import { debounce } from '../utils/debounceThrottle.svelte';
 
 	let graphSettings: GraphSettingsClass = getContext('graphSettings');
 
@@ -20,6 +25,7 @@
 	let height: number = $state(0);
 
 	let canvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
+	let ns: NodeStyles;
 
 	// react to graph change
 	$effect(() => {
@@ -28,7 +34,10 @@
 
 		untrack(() => {
 			canvasHandler.initialize(canvas, width, height, g);
-			canvasHandler.startForceSimulation(graphSettings.nodeStyles, graphSettings.edgeStyles);
+			canvasHandler.startForceSimulation(
+				graphSettings.computeNodeStyles(),
+				graphSettings.computeEdgeStyles()
+			);
 		});
 	});
 
@@ -42,15 +51,27 @@
 			canvasHandler.changeLayout(graphSettings.graphSettings.layout.value);
 		});
 	});
+
+	// todo debounce if graph large
+	let nodeDebounceTimer: number;
+	const DEBOUNCE_TIME = 50;
 	$effect(() => {
-		//console.log('Node styles changed');
-		canvasHandler.updateNodeStyles(graphSettings.nodeStyles);
-		untrack(() => graphSettings.saveState());
+		JSON.stringify(graphSettings.graphSettings.nodeSettings); // just to make the effect run
+		clearTimeout(nodeDebounceTimer);
+		nodeDebounceTimer = setTimeout(() => {
+			canvasHandler.updateNodeStyles(graphSettings.computeNodeStyles());
+			graphSettings.saveState();
+		}, DEBOUNCE_TIME);
 	});
+
+	let edgeDebounceTimer: number;
 	$effect(() => {
-		//console.log('Edge styles changed');
-		canvasHandler.updateEdgeStyles(graphSettings.edgeStyles);
-		untrack(() => graphSettings.saveState());
+		JSON.stringify(graphSettings.graphSettings.edgeSettings); // just to make the effect run
+		clearTimeout(edgeDebounceTimer);
+		edgeDebounceTimer = setTimeout(() => {
+			canvasHandler.updateEdgeStyles(graphSettings.computeEdgeStyles());
+			graphSettings.saveState();
+		}, DEBOUNCE_TIME);
 	});
 
 	// Node Info location, when a node is selected
@@ -68,9 +89,9 @@
 		}
 	});
 
+	// todo throttle?
 	$effect(() => {
 		canvasHandler.resize(width, height);
-		console.log('resize effect');
 	});
 </script>
 

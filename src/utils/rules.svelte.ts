@@ -43,16 +43,12 @@ function evalAtomicRule(rule: AtomicRule, id: string, operator: RuleOperator): b
 				propertyValue = Number(getAttributeValue(id, rule.property));
 				break;
 			case 'source':
-				console.log('source branch start');
 				propertyValue = Number(getAttributeValue(getEdgeSource(id), rule.property));
-				console.log('source branch, prop val:', propertyValue);
 				break;
 			case 'target':
 				propertyValue = Number(getAttributeValue(getEdgeTarget(id), rule.property));
 				break;
 		}
-
-		console.log('GOT HEERE propertyValue:', propertyValue);
 
 		// evaluate the rule
 		switch (rule.operator) {
@@ -105,7 +101,6 @@ export function stripAttributeBasedRules(rule: Rule | AtomicRule): void {
 	(rule as Rule).rules = (rule as Rule).rules.filter((r) => {
 		if (isAtomic(r)) {
 			let isGeneral = (r as AtomicRule).property?.general;
-			console.log(isGeneral);
 			return (r as AtomicRule).property?.general;
 		} else {
 			console.log(r);
