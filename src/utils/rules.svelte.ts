@@ -100,6 +100,10 @@ export function stripAttributeBasedRules(rule: Rule | AtomicRule): void {
 
 	(rule as Rule).rules = (rule as Rule).rules.filter((r) => {
 		if (isAtomic(r)) {
+<<<<<<< HEAD
+=======
+			let isGeneral = (r as AtomicRule).property?.general;
+>>>>>>> debounce-throttle
 			return (r as AtomicRule).property?.general;
 		} else {
 			stripAttributeBasedRules(r);

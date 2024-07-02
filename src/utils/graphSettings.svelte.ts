@@ -170,6 +170,9 @@ export class GraphSettingsClass {
 	stateIndex = $state(-1);
 	skipSaveCounter = $state(0);
 
+	nodeStyles: Map<string, NodeStyle>;
+	edgeStyles: Map<string, EdgeStyle>;
+
 	graphSettings: GraphSettings = $state({
 		guiID: 0,
 		layout: {
@@ -196,22 +199,6 @@ export class GraphSettingsClass {
 		]
 	});
 
-	nodeStyles: Map<string, NodeStyle> = $derived.by(() => {
-		let ns = new Map<string, NodeStyle>();
-		getGraph().forEachNode((id: string) => {
-			ns.set(id, getNodeStyle(id, this.graphSettings.nodeSettings));
-		});
-		console.log('styles recomputed');
-		return ns;
-	});
-	edgeStyles: Map<string, EdgeStyle> = $derived.by(() => {
-		let es = new Map<string, EdgeStyle>();
-		getGraph().forEachEdge((id: string) => {
-			es.set(id, getEdgeStyle(id, this.graphSettings.edgeSettings));
-		});
-		return es;
-	});
-
 	constructor() {
 		this.exportState = this.exportState.bind(this);
 		this.importState = this.importState.bind(this);
@@ -226,6 +213,26 @@ export class GraphSettingsClass {
 		this.shouldSkipSave = this.shouldSkipSave.bind(this);
 		this.signalSkipSave = this.signalSkipSave.bind(this);
 		this.clearUndoStack = this.clearUndoStack.bind(this);
+		this.nodeStyles = this.computeNodeStyles();
+		this.edgeStyles = this.computeEdgeStyles();
+	}
+
+	computeNodeStyles() {
+		let ns = new Map<string, NodeStyle>();
+		getGraph().forEachNode((id: string) => {
+			ns.set(id, getNodeStyle(id, this.graphSettings.nodeSettings));
+		});
+		this.nodeStyles = ns;
+		return ns;
+	}
+
+	computeEdgeStyles() {
+		let es = new Map<string, EdgeStyle>();
+		getGraph().forEachEdge((id: string) => {
+			es.set(id, getEdgeStyle(id, this.graphSettings.edgeSettings));
+		});
+		this.edgeStyles = es;
+		return es;
 	}
 
 	exportState(): GraphSettings {

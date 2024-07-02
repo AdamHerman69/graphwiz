@@ -185,6 +185,8 @@ export class PEdge {
 	constructor(source: IPNode, target: IPNode, style: EdgeStyle) {
 		this.source = source;
 		this.target = target;
+		this.partialStart = style.partialStart;
+		this.partialEnd = style.partialEnd;
 		// line
 		// vvvvv doesn't work but doesn't really matter
 		[this.sourceConnectionPoint, this.targetConnectionPoint] = this.getConnectionPoints();
@@ -208,18 +210,10 @@ export class PEdge {
 				throw new Error('Invalid edge type');
 		}
 
-		this.partialStart = 0;
-		this.partialEnd = 1;
-
-		// decorators
 		this.decorators = [];
-		this.addRemoveDecorators(style.decorators);
-
 		this.labels = [];
-		this.updateLabels(style.labels);
 
-		// doesn't work too, the points are NaN
-		this.updateDecorators();
+		this.updateStyle(style);
 	}
 
 	addRemoveDecorators(decoratorData: DecoratorData[]) {
