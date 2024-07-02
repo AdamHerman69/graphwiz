@@ -1,0 +1,108 @@
+[
+	{
+		"id": "guideline_001",
+		"description": "Visualization guideline for sparse, undirected graphs",
+		"literature": [],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"weight": 7,
+						"condition": {
+							"type": "numeric",
+							"property": "density",
+							"min": 0,
+							"max": 0.1,
+							"ideal": 0.05
+						}
+					},
+					{
+						"weight": 3,
+						"condition": {
+							"type": "string",
+							"property": "type",
+							"value": "directed"
+						}
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"layout": "force_directed",
+			"edgeType": "straight",
+			"nodeSize": "degree_centrality"
+		}
+	},
+	{
+		"id": "guideline_002",
+		"description": "Visualization guideline for large trees",
+		"literature": [],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"weight": 6,
+						"condition": {
+							"type": "boolean",
+							"property": "isDAG",
+							"value": true
+						}
+					},
+					{
+						"weight": 4,
+						"condition": {
+							"type": "numeric",
+							"property": "nodeCount",
+							"ideal": 100,
+							"tolerance": 50
+						}
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"layout": "hierarchical",
+			"edgeType": "curved",
+			"nodeSize": "constant"
+		}
+	},
+	{
+		"id": "guideline_003",
+		"description": "Visualization guideline for small graphs",
+		"literature": [],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"weight": 6,
+						"condition": {
+							"type": "boolean",
+							"property": "isDAG",
+							"value": false
+						}
+					},
+					{
+						"weight": 4,
+						"condition": {
+							"type": "numeric",
+							"property": "nodeCount",
+							"ideal": 10,
+							"tolerance": 4
+						}
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"layout": "hierarchical",
+			"edgeType": "curved",
+			"nodeSize": "constant"
+		}
+	}
+]

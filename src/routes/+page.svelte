@@ -2,14 +2,22 @@
 	import GraphSettingsPanel from '../components/GraphSettingsPanel.svelte';
 	import Canvas from '../components/Canvas.svelte';
 	import AppView from '../components/AppView.svelte';
-	import { loadSampleGraph, computeAttributes, getGraph } from '../utils/graph.svelte';
-	import { onMount, setContext } from 'svelte';
+	import {
+		loadSampleGraph,
+		computeAttributes,
+		getGraph,
+		recomputeCharacteristics
+	} from '../utils/graph.svelte';
+	import { setContext } from 'svelte';
 	import { gsap } from 'gsap';
-	import { filter } from 'd3';
+	import { loadGuidelines, sortGuidelines } from '../utils/guideline.svelte';
 
 	// todo refactor elsewhere
-	loadSampleGraph();
+	let graph = loadSampleGraph();
 	computeAttributes(getGraph());
+	recomputeCharacteristics(graph);
+	loadGuidelines();
+	sortGuidelines(graph);
 
 	setContext('toggleSplitView', toggleSplitView);
 

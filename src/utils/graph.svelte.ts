@@ -1,5 +1,8 @@
 import Graph from 'graphology';
 import { parse } from 'graphology-graphml';
+import { density, diameter } from 'graphology-metrics/graph';
+import hasCycle from 'graphology-dag/has-cycle';
+import isBypartiteBy from 'graphology-bipartite/is-bipartite-by';
 //import { unbindAttributes } from './graphSettings.svelte';
 
 export type Attribute = {
@@ -220,6 +223,7 @@ export function importGraphJSON(newGraphObject: object): void {
 	let newGraph = new Graph();
 	newGraph.import(newGraphObject);
 	computeAttributes(newGraph);
+	recomputeCharacteristics(newGraph);
 	graphObject = newGraph;
 
 	// todo clear history
@@ -230,6 +234,7 @@ export function importGraphOther(graphString: string): void {
 
 	graphObject = parse(Graph, graphString);
 	computeAttributes(graphObject);
+	recomputeCharacteristics(graphObject);
 	// todo unbind attributes
 	// recompute attributes
 	// clear history
@@ -246,4 +251,75 @@ export function getEdgeSource(edge: string): string {
 
 export function getEdgeTarget(edge: string): string {
 	return graphObject.target(edge);
+}
+
+////// Guidelines
+
+export type CharacteristicType = 'boolean' | 'number' | 'string' | 'numberArray' | 'objectMap';
+
+export type CharacteristicValue = boolean | number | string | number[] | { [key: string]: number };
+
+export type Characteristic<T extends CharacteristicValue> = {
+	type: CharacteristicType;
+	value?: T;
+	getter: (graph: Graph) => T;
+};
+
+// more here: https://graphology.github.io/standard-library/metrics.html#extent
+export const graphCharacteristics: { [key: string]: Characteristic<CharacteristicValue> } = {
+	type: {
+		// 'directed' | 'mixed' | 'undirected'
+		type: 'string',
+		getter: (graph: Graph) => {
+			return graph.type;
+		}
+	},
+	nodeCount: {
+		type: 'number',
+		getter: (graph: Graph) => graph.order
+	},
+	edgeCount: {
+		type: 'number',
+		getter: (graph: Graph) => graph.size
+	},
+	density: {
+		type: 'number',
+		getter: (graph: Graph) => {
+			return density(graph);
+		}
+	},
+	diameter: {
+		type: 'number',
+		getter: (graph: Graph) => {
+			return diameter(graph);
+		}
+	},
+	averageDegree: {
+		type: 'number',
+		getter: (graph: Graph) => {
+			return graph.size / graph.order;
+		}
+	},
+	isDAG: {
+		type: 'boolean',
+		getter: (graph: Graph) => {
+			hasCycle(graph);
+			return false;
+		}
+	},
+	isBipartite: {
+		type: 'boolean',
+		getter: (graph: Graph) => {
+			return isBypartiteBy(graph, 'node');
+		}
+	}
+};
+
+export function recomputeCharacteristics(graph: Graph) {
+	console.log('recomputing characteristics');
+	for (const [key, characteristic] of Object.entries(graphCharacteristics)) {
+		console.log('recomputing', key);
+		characteristic.value = characteristic.getter(graph);
+	}
+	console.log('recomputed characteristics');
 }

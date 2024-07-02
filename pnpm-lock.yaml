@@ -26,9 +26,18 @@ importers:
       graphology:
         specifier: ^0.25.4
         version: 0.25.4(graphology-types@0.24.7)
+      graphology-bipartite:
+        specifier: ^0.0.3
+        version: 0.0.3(graphology-types@0.24.7)
+      graphology-dag:
+        specifier: ^0.4.1
+        version: 0.4.1(graphology-types@0.24.7)
       graphology-graphml:
         specifier: ^0.5.2
         version: 0.5.2(graphology-types@0.24.7)
+      graphology-metrics:
+        specifier: ^2.3.0
+        version: 2.3.0(graphology-types@0.24.7)
       gsap:
         specifier: ^3.12.5
         version: 3.12.5
@@ -607,6 +616,9 @@ packages:
     resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
     engines: {node: '>=10.0.0'}
 
+  '@yomguithereal/helpers@1.1.1':
+    resolution: {integrity: sha512-UYvAq/XCA7xoh1juWDYsq3W0WywOB+pz8cgVnE1b45ZfdMhBvHDrgmSFG3jXeZSr2tMTYLGHFHON+ekG05Jebg==}
+
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -1123,11 +1135,36 @@ packages:
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
 
+  graphology-bipartite@0.0.3:
+    resolution: {integrity: sha512-mLYHs42l5xdEKWzmqQ432kEHwM0klNPZBtuS05X5h5pIYIVp++ChcLtU7Gt8sPaVg72ohOEx2BU7rALM80UJBA==}
+    peerDependencies:
+      graphology-types: '>=0.19.0'
+
+  graphology-dag@0.4.1:
+    resolution: {integrity: sha512-3ch9oOAnHZDoT043vyg7ukmSkKJ505nFzaHaYOn0IF2PgGo5VtIavyVK4UpbIa4tli3hhGm1ZTdBsubTmaxu/w==}
+    peerDependencies:
+      graphology-types: '>=0.19.0'
+
   graphology-graphml@0.5.2:
     resolution: {integrity: sha512-Z9m3amTxszia2dYdtdHJI9gHcbw2gSyCTWRmgsj2dAXMj8VwcoEEWnFPYykqMFw1sIuoQviZueadyE3H02wKOQ==}
 
+  graphology-indices@0.17.0:
+    resolution: {integrity: sha512-A7RXuKQvdqSWOpn7ZVQo4S33O0vCfPBnUSf7FwE0zNCasqwZVUaCXePuWo5HBpWw68KJcwObZDHpFk6HKH6MYQ==}
+    peerDependencies:
+      graphology-types: '>=0.20.0'
+
+  graphology-metrics@2.3.0:
+    resolution: {integrity: sha512-ayDWSnSlq2wIL1QIrRQ3cIUsS7V/kRdBzciLPkGsI8Vl/MDQkxiU9WDt9cUAMzAE6Q1n1pWT5SXPkKeZdKCjzA==}
+    peerDependencies:
+      graphology-types: '>=0.20.0'
+
   graphology-operators@1.6.0:
     resolution: {integrity: sha512-yfnVNsFd6plBw7r6Td4luGlNoQn9MKI56EZ/NcFcRmvu/D1R8eWHjpipNUdBjl5MVV8iSW8e/XuY8YsjRDnLoA==}
+    peerDependencies:
+      graphology-types: '>=0.20.0'
+
+  graphology-shortest-path@2.1.0:
+    resolution: {integrity: sha512-KbT9CTkP/u72vGEJzyRr24xFC7usI9Es3LMmCPHGwQ1KTsoZjxwA9lMKxfU0syvT/w+7fZUdB/Hu2wWYcJBm6Q==}
     peerDependencies:
       graphology-types: '>=0.20.0'
 
@@ -1313,6 +1350,9 @@ packages:
   mkdirp@0.5.6:
     resolution: {integrity: sha512-FP+p8RB8OWpF3YZBCrP5gtADmtXApB5AMLn+vdyA+PyxCjrCs00mjyUozssO33cwDeT3wNGdLxJ5M//YqtHAJw==}
     hasBin: true
+
+  mnemonist@0.39.8:
+    resolution: {integrity: sha512-vyWo2K3fjrUw8YeeZ1zF0fy6Mu59RHokURlld8ymdUPjMlD9EC9ov1/YPqTgqRvUN9nTr3Gqfz29LYAmu0PHPQ==}
 
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -2302,6 +2342,8 @@ snapshots:
 
   '@xmldom/xmldom@0.8.10': {}
 
+  '@yomguithereal/helpers@1.1.1': {}
+
   acorn-jsx@5.3.2(acorn@8.11.3):
     dependencies:
       acorn: 8.11.3
@@ -2869,6 +2911,17 @@ snapshots:
 
   graphemer@1.4.0: {}
 
+  graphology-bipartite@0.0.3(graphology-types@0.24.7):
+    dependencies:
+      graphology-types: 0.24.7
+      graphology-utils: 2.5.2(graphology-types@0.24.7)
+
+  graphology-dag@0.4.1(graphology-types@0.24.7):
+    dependencies:
+      graphology-types: 0.24.7
+      graphology-utils: 2.5.2(graphology-types@0.24.7)
+      mnemonist: 0.39.8
+
   graphology-graphml@0.5.2(graphology-types@0.24.7):
     dependencies:
       '@xmldom/xmldom': 0.8.10
@@ -2878,10 +2931,31 @@ snapshots:
     transitivePeerDependencies:
       - graphology-types
 
+  graphology-indices@0.17.0(graphology-types@0.24.7):
+    dependencies:
+      graphology-types: 0.24.7
+      graphology-utils: 2.5.2(graphology-types@0.24.7)
+      mnemonist: 0.39.8
+
+  graphology-metrics@2.3.0(graphology-types@0.24.7):
+    dependencies:
+      graphology-shortest-path: 2.1.0(graphology-types@0.24.7)
+      graphology-types: 0.24.7
+      graphology-utils: 2.5.2(graphology-types@0.24.7)
+      mnemonist: 0.39.8
+
   graphology-operators@1.6.0(graphology-types@0.24.7):
     dependencies:
       graphology-types: 0.24.7
       graphology-utils: 2.5.2(graphology-types@0.24.7)
+
+  graphology-shortest-path@2.1.0(graphology-types@0.24.7):
+    dependencies:
+      '@yomguithereal/helpers': 1.1.1
+      graphology-indices: 0.17.0(graphology-types@0.24.7)
+      graphology-types: 0.24.7
+      graphology-utils: 2.5.2(graphology-types@0.24.7)
+      mnemonist: 0.39.8
 
   graphology-types@0.24.7: {}
 
@@ -3030,6 +3104,10 @@ snapshots:
   mkdirp@0.5.6:
     dependencies:
       minimist: 1.2.8
+
+  mnemonist@0.39.8:
+    dependencies:
+      obliterator: 2.0.4
 
   mri@1.2.0: {}
 
