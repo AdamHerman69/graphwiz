@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { type Guideline, getGuidelines } from '../utils/guideline.svelte';
+	import type Graph from 'graphology';
+	import { graphCharacteristics } from '../utils/graph.svelte';
+	import { type Guideline, getGuidelines, applyGuideline } from '../utils/guideline.svelte';
+	import { getContext } from 'svelte';
+	import type { GraphSettingsClass } from '../utils/graphSettings.svelte';
+
+	let graphSettings = getContext('graphSettings') as GraphSettingsClass;
 
 	let guidelines: Guideline[] = getGuidelines();
 </script>
@@ -10,7 +16,17 @@
 			<div class="text-lg font-bold">{guideline.id}</div>
 			<div class="text-sm">{guideline.description}</div>
 			<div class="text-sm">{guideline.score}</div>
-		</div>{/each}
+			<button class="text-sm" on:click={() => applyGuideline(guideline, graphSettings)}
+				>apply</button
+			>
+		</div>
+	{/each}
+	<div class="card cardSpacing">
+		<div class="text-lg font-bold">graphCharacteristics</div>
+		{#each Object.keys(graphCharacteristics) as key}
+			<div class="text-sm">{key} : {graphCharacteristics[key].value}</div>
+		{/each}
+	</div>
 </div>
 
 <style>

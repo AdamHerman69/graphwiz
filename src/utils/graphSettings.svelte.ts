@@ -4,6 +4,7 @@ import { type Rule, stripAttributeBasedRules, evalRule } from './rules.svelte';
 import type { RgbaColor } from 'colord';
 import { scaleLinear } from './scaleLinear';
 import { getGradientColor } from './gradient';
+import { edge } from 'graphology-metrics';
 
 export type Setting<T> = {
 	name: string;
@@ -29,6 +30,7 @@ export type DecoratorData = {
 	id: number;
 	type: DecoratorType;
 	position: number;
+	source?: null | string;
 };
 
 const decoratorTypes = ['triangle', 'circle', 'square'] as const;
@@ -49,6 +51,7 @@ type LabelStyle = {
 	color: RgbaColor;
 	size: number;
 	attribute?: Attribute;
+	source?: null | string;
 };
 
 export type NodeLabel = LabelStyle & {
@@ -90,7 +93,7 @@ type RuleSettings = {
 	id: number; // for keyed each blocks
 	priority: number;
 	rule?: Rule;
-	source: null | Guideline;
+	source: null | string;
 };
 
 export type NodeSettings = NodeProperties & RuleSettings;
@@ -233,6 +236,57 @@ export class GraphSettingsClass {
 		});
 		this.edgeStyles = es;
 		return es;
+	}
+
+	applyGuideline(layout: LayoutType, nodeSettings: NodeSettings[], edgeSettings: EdgeSettings[]) {
+		if (layout) {
+			// todo
+		}
+
+		if (nodeSettings) {
+			nodeSettings = $state.snapshot(nodeSettings);
+			if (nodeSettings[0].size) this.graphSettings.nodeSettings[0].size = nodeSettings[0].size;
+			if (nodeSettings[0].color) this.graphSettings.nodeSettings[0].color = nodeSettings[0].color;
+			if (nodeSettings[0].strokeWidth)
+				this.graphSettings.nodeSettings[0].strokeWidth = nodeSettings[0].strokeWidth;
+			if (nodeSettings[0].strokeColor)
+				this.graphSettings.nodeSettings[0].strokeColor = nodeSettings[0].strokeColor;
+			if (nodeSettings[0].labels)
+				nodeSettings[0].labels.forEach((label) => {
+					this.graphSettings.nodeSettings[0].labels!.push({ ...label, id: this.newGUIID() });
+				});
+
+			// add new rules
+			nodeSettings.slice(1).forEach((ns) => {
+				this.graphSettings.nodeSettings.push({ ...ns, id: this.newGUIID() });
+			});
+		}
+
+		if (edgeSettings) {
+			edgeSettings = $state.snapshot(edgeSettings);
+			if (edgeSettings[0].type) this.graphSettings.edgeSettings[0].type = edgeSettings[0].type;
+			if (edgeSettings[0].width) this.graphSettings.edgeSettings[0].width = edgeSettings[0].width;
+			if (edgeSettings[0].color) this.graphSettings.edgeSettings[0].color = edgeSettings[0].color;
+			if (edgeSettings[0].partialStart)
+				this.graphSettings.edgeSettings[0].partialStart = edgeSettings[0].partialStart;
+			if (edgeSettings[0].partialEnd)
+				this.graphSettings.edgeSettings[0].partialEnd = edgeSettings[0].partialEnd;
+			if (edgeSettings[0].decorators)
+				edgeSettings[0].decorators.value.forEach((decorator) => {
+					this.graphSettings.edgeSettings[0].decorators!.value.push({
+						...decorator,
+						id: this.newGUIID()
+					});
+				});
+			if (edgeSettings[0].labels)
+				edgeSettings[0].labels.forEach((label) => {
+					this.graphSettings.edgeSettings[0].labels!.push({ ...label, id: this.newGUIID() });
+				});
+
+			edgeSettings.slice(1).forEach((es) => {
+				this.graphSettings.edgeSettings.push({ ...es, id: this.newGUIID() });
+			});
+		}
 	}
 
 	exportState(): GraphSettings {

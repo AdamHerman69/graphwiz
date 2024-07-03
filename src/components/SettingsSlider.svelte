@@ -15,6 +15,7 @@
 		},
 		set value(val: number[]) {
 			numSettings.value = val[0];
+			numSettings.source = 'manual';
 		}
 	};
 
@@ -42,7 +43,7 @@
 	<div class="text-m uppercase">
 		{numSettings.name}
 		{numSettings.value}
-
+		{numSettings.source}
 		<!-- {numSettings.source} -->
 	</div>
 	<div class="flex justify-end items-center">

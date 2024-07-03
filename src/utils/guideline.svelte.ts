@@ -1,6 +1,11 @@
 import { getGraph } from './graph.svelte';
 import type Graph from 'graphology';
-import type { NodeSettings, EdgeSettings, LayoutType } from './graphSettings.svelte';
+import {
+	type NodeSettings,
+	type EdgeSettings,
+	type LayoutType,
+	GraphSettingsClass
+} from './graphSettings.svelte';
 import guidelinesFile from './guidelines.json';
 import { graphCharacteristics } from './graph.svelte';
 
@@ -137,6 +142,56 @@ const evaluateCondition = (condition: Condition): number => {
 	}
 };
 
+export function applyGuideline(guideline: Guideline, graphSettings: GraphSettingsClass): void {
+	console.log('guideline recommendations:', $state.snapshot(guideline.recommendations));
+	graphSettings.applyGuideline(
+		guideline.recommendations.layout,
+		guideline.recommendations.nodeSettings,
+		guideline.recommendations.edgeSettings
+	);
+}
+
+function addSourceToSettings(guidelines: Guideline[]): void {
+	// todo layout
+	console.log('source guidelines:', $state.snapshot(guidelines));
+	guidelines.forEach((guideline) => {
+		guideline.recommendations.nodeSettings?.forEach((nodeSetting: NodeSettings) => {
+			nodeSetting.source = guideline.id;
+			if (nodeSetting.size) nodeSetting.size.source = guideline.id;
+			if (nodeSetting.color) nodeSetting.color.source = guideline.id;
+			if (nodeSetting.strokeWidth) nodeSetting.strokeWidth.source = guideline.id;
+			if (nodeSetting.strokeColor) nodeSetting.strokeColor.source = guideline.id;
+			if (nodeSetting.labels)
+				nodeSetting.labels.forEach((label) => {
+					label.source = guideline.id;
+				});
+		});
+
+		guideline.recommendations.edgeSettings?.forEach((edgeSetting) => {
+			edgeSetting.source = guideline.id;
+			if (edgeSetting.color) edgeSetting.color.source = guideline.id;
+			if (edgeSetting.width) edgeSetting.width.source = guideline.id;
+			if (edgeSetting.partialStart) edgeSetting.partialStart.source = guideline.id;
+			if (edgeSetting.partialEnd) edgeSetting.partialEnd.source = guideline.id;
+			if (edgeSetting.decorators)
+				edgeSetting.decorators.value.forEach((decorator) => {
+					decorator.source = guideline.id;
+				});
+			if (edgeSetting.labels)
+				edgeSetting.labels.forEach((label) => {
+					label.source = guideline.id;
+				});
+		});
+	});
+
+	// guideline.recommendations.edgeSettings?.forEach((edgeSetting) => {
+	// 	edgeSetting.source = guideline;
+	// 	Object.keys(edgeSetting).forEach((key) => {
+	// 		if (edgeSetting[key]) edgeSetting[key].source = guideline;
+	// 	});
+	// });
+}
+
 const calculateApplicability = (guideline: Guideline): number => {
 	console.log('calculate applicability: condition:', guideline.rootCondition.condition);
 	guideline.score = evaluateCondition(guideline.rootCondition.condition);
@@ -158,6 +213,13 @@ let guidelines: Guideline[] = $state([]);
 export function getGuidelines(): Guideline[] {
 	return guidelines;
 }
+
+// todo handle guideline IDs
 export function loadGuidelines() {
-	guidelines = guidelinesFile;
+	// todo check format
+	let guidelinesFromFile = structuredClone(guidelinesFile) as Guideline[];
+	console.log('guidelinesFromFile', structuredClone(guidelinesFromFile));
+	addSourceToSettings(guidelinesFromFile);
+	console.log('guidelinesFromFile', guidelinesFromFile);
+	guidelines = guidelinesFromFile;
 }

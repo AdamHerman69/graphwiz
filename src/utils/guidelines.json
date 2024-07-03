@@ -23,7 +23,7 @@
 						"condition": {
 							"type": "string",
 							"property": "type",
-							"value": "directed"
+							"value": "undirected"
 						}
 					}
 				]
@@ -31,13 +31,22 @@
 		},
 		"recommendations": {
 			"layout": "force_directed",
-			"edgeType": "straight",
-			"nodeSize": "degree_centrality"
+			"nodeSettings": [
+				{
+					"size": { "name": "size", "value": 6, "min": 1, "max": 10 },
+					"color": {
+						"name": "color",
+						"value": [[{ "r": 240, "g": 15, "b": 100, "a": 1 }, 1]]
+					},
+					"strokeWidth": { "name": "strokeWidth", "value": 0, "min": 0, "max": 10 },
+					"labels": []
+				}
+			]
 		}
 	},
 	{
 		"id": "guideline_002",
-		"description": "Visualization guideline for large trees",
+		"description": "Visualization guideline for large trees (RULES)",
 		"literature": [],
 		"rootCondition": {
 			"weight": 1,
@@ -65,14 +74,34 @@
 			}
 		},
 		"recommendations": {
-			"layout": "hierarchical",
-			"edgeType": "curved",
-			"nodeSize": "constant"
+			"nodeSettings": [
+				{
+					"size": { "name": "size", "value": 6, "min": 1, "max": 10 },
+					"color": {
+						"name": "color",
+						"value": [[{ "r": 240, "g": 15, "b": 100, "a": 1 }, 1]]
+					},
+					"strokeWidth": { "name": "strokeWidth", "value": 0, "min": 0, "max": 10 },
+					"labels": []
+				},
+				{
+					"rule": {
+						"operator": "AND",
+						"rules": []
+					},
+					"size": { "name": "size", "value": 1, "min": 1, "max": 10 },
+					"color": {
+						"name": "color",
+						"value": [[{ "r": 0, "g": 15, "b": 100, "a": 1 }, 1]]
+					},
+					"labels": []
+				}
+			]
 		}
 	},
 	{
 		"id": "guideline_003",
-		"description": "Visualization guideline for small graphs",
+		"description": "Visualization guideline for small graphs (EDGE)",
 		"literature": [],
 		"rootCondition": {
 			"weight": 1,
@@ -100,9 +129,77 @@
 			}
 		},
 		"recommendations": {
-			"layout": "hierarchical",
-			"edgeType": "curved",
-			"nodeSize": "constant"
+			"edgeSettings": [
+				{
+					"width": {
+						"name": "width",
+						"value": 4,
+						"min": 0,
+						"max": 5,
+						"increment": 0.5,
+						"source": null
+					},
+					"partialStart": {
+						"name": "partialStart",
+						"value": 0,
+						"min": 0,
+						"max": 1,
+						"increment": 0.05,
+						"source": null
+					},
+					"partialEnd": {
+						"name": "partialEnd",
+						"value": 0.75,
+						"min": 0,
+						"max": 1,
+						"increment": 0.05,
+						"source": null
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "guideline_004",
+		"description": "Visualization guideline dense larger graphs",
+		"literature": [],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"weight": 4,
+						"condition": {
+							"type": "numeric",
+							"property": "nodeCount",
+							"ideal": 100,
+							"tolerance": 50
+						}
+					},
+					{
+						"weight": 4,
+						"condition": {
+							"type": "numeric",
+							"property": "density",
+							"ideal": 0.5,
+							"tolerance": 0.3
+						}
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"nodeSettings": [
+				{
+					"size": { "name": "size", "value": 3, "min": 1, "max": 10 },
+					"color": {
+						"name": "color",
+						"value": [[{ "r": 240, "g": 215, "b": 15, "a": 1 }, 1]]
+					},
+					"strokeWidth": { "name": "strokeWidth", "value": 0, "min": 0, "max": 10 }
+				}
+			]
 		}
 	}
 ]

@@ -2,8 +2,9 @@ import Graph from 'graphology';
 import { parse } from 'graphology-graphml';
 import { density, diameter } from 'graphology-metrics/graph';
 import hasCycle from 'graphology-dag/has-cycle';
-import isBypartiteBy from 'graphology-bipartite/is-bipartite-by';
+import isBipartiteBy from 'graphology-bipartite/is-bipartite-by';
 //import { unbindAttributes } from './graphSettings.svelte';
+import { sortGuidelines } from './guideline.svelte';
 
 export type Attribute = {
 	name: string;
@@ -217,13 +218,23 @@ export function isValidGraph(object: any): boolean {
 	return true;
 }
 
+// unbind attributes
+export const onGraphImport: ((graph: Graph) => void)[] = [
+	computeAttributes,
+	recomputeCharacteristics,
+	sortGuidelines
+];
+
+function onGraphImportRun(graph: Graph) {
+	onGraphImport.forEach((func) => func(graph));
+}
+
 export function importGraphJSON(newGraphObject: object): void {
 	//unbindAttributes();
 
 	let newGraph = new Graph();
 	newGraph.import(newGraphObject);
-	computeAttributes(newGraph);
-	recomputeCharacteristics(newGraph);
+	onGraphImportRun(newGraph);
 	graphObject = newGraph;
 
 	// todo clear history
@@ -233,8 +244,7 @@ export function importGraphOther(graphString: string): void {
 	//unbindAttributes();
 
 	graphObject = parse(Graph, graphString);
-	computeAttributes(graphObject);
-	recomputeCharacteristics(graphObject);
+	onGraphImportRun(graphObject);
 	// todo unbind attributes
 	// recompute attributes
 	// clear history
@@ -266,7 +276,7 @@ export type Characteristic<T extends CharacteristicValue> = {
 };
 
 // more here: https://graphology.github.io/standard-library/metrics.html#extent
-export const graphCharacteristics: { [key: string]: Characteristic<CharacteristicValue> } = {
+export const graphCharacteristics: { [key: string]: Characteristic<CharacteristicValue> } = $state({
 	type: {
 		// 'directed' | 'mixed' | 'undirected'
 		type: 'string',
@@ -306,14 +316,14 @@ export const graphCharacteristics: { [key: string]: Characteristic<Characteristi
 			hasCycle(graph);
 			return false;
 		}
-	},
-	isBipartite: {
-		type: 'boolean',
-		getter: (graph: Graph) => {
-			return isBypartiteBy(graph, 'node');
-		}
 	}
-};
+	// isBipartite: {
+	// 	type: 'boolean',
+	// 	getter: (graph: Graph) => {
+	// 		return isBipartiteBy(graph);
+	// 	}
+	// }
+});
 
 export function recomputeCharacteristics(graph: Graph) {
 	console.log('recomputing characteristics');
