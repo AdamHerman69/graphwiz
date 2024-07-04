@@ -124,25 +124,30 @@ export function areRulesEqual(rule1: Rule | AtomicRule, rule2: Rule | AtomicRule
 	}
 
 	// Compare Rule objects
-
 	if ('rules' in rule1 && 'rules' in rule2) {
-		console.log('rule comparisoooooooon', $state.snapshot(rule1), $state.snapshot(rule2));
-		console.log(
-			'rule comparisoooooooon returns',
-			rule1.operator === rule2.operator &&
-				rule1.rules.length === rule2.rules.length &&
-				rule1.rules.every((r1, index) => areRulesEqual(r1, rule2.rules[index]))
-		);
 		if (rule1.rules.length === 0 || rule2.rules.length === 0) return false; // empty rules are not equal
-		return (
-			rule1.operator === rule2.operator &&
-			rule1.rules.length === rule2.rules.length &&
-			rule1.rules.every((r1, index) => areRulesEqual(r1, rule2.rules[index]))
-		);
+		if (rule1.operator !== rule2.operator || rule1.rules.length !== rule2.rules.length) {
+			return false;
+		}
+
+		// Create a copy of rule2.rules to mark matched rules
+		const unmatchedRules = [...rule2.rules];
+
+		// Check if each rule in rule1 has a match in rule2
+		return rule1.rules.every((r1) => {
+			const matchIndex = unmatchedRules.findIndex((r2) => areRulesEqual(r1, r2));
+			if (matchIndex !== -1) {
+				unmatchedRules.splice(matchIndex, 1); // Remove the matched rule
+				return true;
+			}
+			return false;
+		});
 	}
 
 	// Compare AtomicRule objects
-	if ('operator' in rule1 && 'operator' in rule2) {
+	if (isAtomic(rule1) && isAtomic(rule2)) {
+		rule1 = rule1 as AtomicRule;
+		rule2 = rule2 as AtomicRule;
 		return (
 			rule1.operator === rule2.operator &&
 			rule1.type === rule2.type &&
