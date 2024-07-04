@@ -21,6 +21,24 @@ export type StringAttribute = Attribute & {
 	values: string[];
 };
 
+export function areAttributesEqual(
+	attr1: Attribute | undefined,
+	attr2: Attribute | undefined
+): boolean {
+	if (attr1 === undefined && attr2 === undefined) {
+		return true;
+	}
+	if (attr1 === undefined || attr2 === undefined) {
+		return false;
+	}
+	return (
+		attr1.name === attr2.name &&
+		attr1.type === attr2.type &&
+		attr1.owner === attr2.owner &&
+		attr1.general === attr2.general
+	);
+}
+
 const generalAttributes: Attribute[] = [
 	{ name: 'degree', type: 'number', owner: 'node', general: true },
 	{ name: 'inDegree', type: 'number', owner: 'node', general: true },

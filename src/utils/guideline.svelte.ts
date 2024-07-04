@@ -9,6 +9,7 @@ import {
 } from './graphSettings.svelte';
 import guidelinesFile from './guidelines.json';
 import { graphCharacteristics } from './graph.svelte';
+import { areRulesEqual } from './rules.svelte';
 
 export type Literature = {
 	title: string;
@@ -264,7 +265,11 @@ function checkSettings(
 	// Check conditional settings (index 1-n)
 	for (let i = 1; i < recommendedSettings.length; i++) {
 		const recommendedSetting = recommendedSettings[i];
-		const currentSetting = currentSettings.find((s) => s.rule === recommendedSetting.rule);
+		const currentSetting = currentSettings.find((s) =>
+			areRulesEqual(s.rule, recommendedSetting.rule)
+		);
+
+		console.log('guideline: ', guidelineId, 'currentSetting: ', currentSetting);
 
 		if (currentSetting) {
 			if (currentSetting.source === guidelineId) {

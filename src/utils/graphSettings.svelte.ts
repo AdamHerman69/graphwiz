@@ -1,6 +1,6 @@
 import { type Attribute, type RangeAttribute, getAttributeValue, getGraph } from './graph.svelte';
 import type { Guideline } from './guideline.svelte';
-import { type Rule, stripAttributeBasedRules, evalRule } from './rules.svelte';
+import { type Rule, stripAttributeBasedRules, evalRule, type AtomicRule } from './rules.svelte';
 import type { RgbaColor } from 'colord';
 import { scaleLinear } from './scaleLinear';
 import { getGradientColor } from './gradient';
@@ -238,6 +238,18 @@ export class GraphSettingsClass {
 		return es;
 	}
 
+	assignGUIIDs(rule: Rule | AtomicRule): Rule | AtomicRule {
+		// Assign a new ID to the current rule
+		rule.id = this.newGUIID();
+
+		// If it's a Rule (not an AtomicRule), recursively assign IDs to nested rules
+		if ('rules' in rule) {
+			rule.rules = rule.rules.map((nestedRule: Rule | AtomicRule) => this.assignGUIIDs(nestedRule));
+		}
+
+		return rule;
+	}
+
 	applyGuideline(layout: LayoutType, nodeSettings: NodeSettings[], edgeSettings: EdgeSettings[]) {
 		if (layout) {
 			// todo
@@ -258,7 +270,11 @@ export class GraphSettingsClass {
 
 			// add new rules
 			nodeSettings.slice(1).forEach((ns) => {
-				this.graphSettings.nodeSettings.push({ ...ns, id: this.newGUIID() });
+				this.graphSettings.nodeSettings.push({
+					...ns,
+					rule: this.assignGUIIDs(ns.rule),
+					id: this.newGUIID()
+				});
 			});
 		}
 
@@ -284,7 +300,11 @@ export class GraphSettingsClass {
 				});
 
 			edgeSettings.slice(1).forEach((es) => {
-				this.graphSettings.edgeSettings.push({ ...es, id: this.newGUIID() });
+				this.graphSettings.edgeSettings.push({
+					...es,
+					rule: this.assignGUIIDs(es.rule),
+					id: this.newGUIID()
+				});
 			});
 		}
 	}

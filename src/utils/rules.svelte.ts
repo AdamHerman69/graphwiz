@@ -1,4 +1,10 @@
-import { getAttributeValue, type Attribute, getEdgeSource, getEdgeTarget } from './graph.svelte';
+import {
+	getAttributeValue,
+	type Attribute,
+	getEdgeSource,
+	getEdgeTarget,
+	areAttributesEqual
+} from './graph.svelte';
 import type Graph from 'graphology';
 
 type RuleOperator = 'AND' | 'OR';
@@ -106,4 +112,46 @@ export function stripAttributeBasedRules(rule: Rule | AtomicRule): void {
 			return true;
 		}
 	});
+}
+
+export function areRulesEqual(rule1: Rule | AtomicRule, rule2: Rule | AtomicRule): boolean {
+	if (rule1 === undefined || rule2 === undefined) {
+		return false;
+	}
+	// Check if the rules are of the same type (Rule or AtomicRule)
+	if ('rules' in rule1 !== 'rules' in rule2) {
+		return false;
+	}
+
+	// Compare Rule objects
+
+	if ('rules' in rule1 && 'rules' in rule2) {
+		console.log('rule comparisoooooooon', $state.snapshot(rule1), $state.snapshot(rule2));
+		console.log(
+			'rule comparisoooooooon returns',
+			rule1.operator === rule2.operator &&
+				rule1.rules.length === rule2.rules.length &&
+				rule1.rules.every((r1, index) => areRulesEqual(r1, rule2.rules[index]))
+		);
+		if (rule1.rules.length === 0 || rule2.rules.length === 0) return false; // empty rules are not equal
+		return (
+			rule1.operator === rule2.operator &&
+			rule1.rules.length === rule2.rules.length &&
+			rule1.rules.every((r1, index) => areRulesEqual(r1, rule2.rules[index]))
+		);
+	}
+
+	// Compare AtomicRule objects
+	if ('operator' in rule1 && 'operator' in rule2) {
+		return (
+			rule1.operator === rule2.operator &&
+			rule1.type === rule2.type &&
+			rule1.target === rule2.target &&
+			areAttributesEqual(rule1.property, rule2.property) &&
+			rule1.value == rule2.value
+		);
+	}
+
+	// If we reach here, the rules are not equal
+	return false;
 }
