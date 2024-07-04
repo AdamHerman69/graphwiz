@@ -70,6 +70,7 @@
 				<div class="flex items-center">
 					<!-- TODO Size -->
 					<div class="flex flex-col flex-grow">
+						<div>{label.source}</div>
 						<AttributePicker
 							bind:selectedAttribute={label.attribute}
 							filter={(attribute: Attribute) => attribute.owner === 'edge'}

@@ -58,6 +58,7 @@
 				<div class="flex-1 my-1 py-1">
 					<div class="flex items-center">
 						<div class="flex-col flex-grow">
+							<div>{label.source}</div>
 							<AttributePicker
 								bind:selectedAttribute={label.attribute}
 								filter={(attribute: Attribute) => attribute.owner === 'node'}

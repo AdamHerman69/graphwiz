@@ -16,15 +16,28 @@
 
 	function addColor() {
 		colorSetting.value.push([{ r: 255, g: 255, b: 255, a: 1 }, 0]);
+		colorSetting.source = null;
 	}
 
 	function removeColor(index: number) {
 		if (pickerColorIndex === index) pickerColorIndex = -1;
 		if (pickerColorIndex > index) pickerColorIndex--;
 		colorSetting.value.splice(index, 1);
+		colorSetting.source = null;
 	}
 
-	// For range slider gradient positions
+	// proxy just to set source to manual (null)
+	let colorValue = {
+		get value() {
+			return colorSetting.value[pickerColorIndex][0];
+		},
+		set value(val: RgbaColor) {
+			colorSetting.value[pickerColorIndex][0] = val;
+			colorSetting.source = null;
+		}
+	};
+
+	// For range slider gradient positions, runs only if position changes
 	let colorPositions = {
 		get value() {
 			return colorSetting.value.map((colorPosTuple) => colorPosTuple[1]);
@@ -58,7 +71,7 @@
 <div class="flex justify-between items-center">
 	<div class="text-m uppercase">
 		{colorSetting.name}
-		<!-- {colorSettings.source} -->
+		{colorSetting.source}
 	</div>
 	<div class="flex justify-end items-center">
 		{#if colorSetting.attribute}
@@ -105,7 +118,7 @@
 
 	{#if pickerColorIndex >= 0}
 		<ColorPicker
-			bind:rgb={colorSetting.value[pickerColorIndex][0] as RgbaColor}
+			bind:rgb={colorValue.value as RgbaColor}
 			label="tadyy"
 			isDialog={false}
 			components={{ wrapper: ColorPickerWrapper }}

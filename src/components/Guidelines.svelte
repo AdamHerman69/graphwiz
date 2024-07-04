@@ -16,6 +16,14 @@
 			<div class="text-lg font-bold">{guideline.id}</div>
 			<div class="text-sm">{guideline.description}</div>
 			<div class="text-sm">{guideline.score}</div>
+			{#if guideline.status}
+				<div class="text-sm">{guideline.status.applied}</div>
+
+				{#each guideline.status.conflicts as conflict}
+					<div class="text-sm">{JSON.stringify(conflict)}</div>
+				{/each}
+			{/if}
+
 			<button class="text-sm" on:click={() => applyGuideline(guideline, graphSettings)}
 				>apply</button
 			>

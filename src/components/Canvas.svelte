@@ -7,6 +7,7 @@
 	import ReadabilityMetrics from './ReadabilityMetrics.svelte';
 	import { spring, type Spring } from 'svelte/motion';
 	import NodeInfo from './NodeInfo.svelte';
+	import { computeGuidelineStatuses } from '../utils/guideline.svelte';
 
 	let graphSettings: GraphSettingsClass = getContext('graphSettings');
 
@@ -50,6 +51,7 @@
 		clearTimeout(nodeDebounceTimer);
 		nodeDebounceTimer = setTimeout(() => {
 			canvasHandler.updateNodeStyles(graphSettings.computeNodeStyles());
+			computeGuidelineStatuses(graphSettings);
 			graphSettings.saveState();
 		}, DEBOUNCE_TIME);
 	});
@@ -60,6 +62,7 @@
 		clearTimeout(edgeDebounceTimer);
 		edgeDebounceTimer = setTimeout(() => {
 			canvasHandler.updateEdgeStyles(graphSettings.computeEdgeStyles());
+			computeGuidelineStatuses(graphSettings);
 			graphSettings.saveState();
 		}, DEBOUNCE_TIME);
 	});

@@ -1,5 +1,5 @@
 import { type Attribute, type RangeAttribute, getAttributeValue, getGraph } from './graph.svelte';
-import type { Guideline } from './guidelines.svelte';
+import type { Guideline } from './guideline.svelte';
 import { type Rule, stripAttributeBasedRules, evalRule } from './rules.svelte';
 import type { RgbaColor } from 'colord';
 import { scaleLinear } from './scaleLinear';
@@ -10,7 +10,7 @@ export type Setting<T> = {
 	name: string;
 	value: T;
 	attribute?: RangeAttribute;
-	source: null | Guideline;
+	source: null | string; // guideline id
 };
 
 export type SelectSetting<T> = Setting<T> & {

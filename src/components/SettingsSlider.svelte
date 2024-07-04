@@ -15,7 +15,7 @@
 		},
 		set value(val: number[]) {
 			numSettings.value = val[0];
-			numSettings.source = 'manual';
+			numSettings.source = null;
 		}
 	};
 

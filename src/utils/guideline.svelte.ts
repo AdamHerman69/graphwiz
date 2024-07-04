@@ -4,7 +4,8 @@ import {
 	type NodeSettings,
 	type EdgeSettings,
 	type LayoutType,
-	GraphSettingsClass
+	GraphSettingsClass,
+	type Setting
 } from './graphSettings.svelte';
 import guidelinesFile from './guidelines.json';
 import { graphCharacteristics } from './graph.svelte';
@@ -13,6 +14,18 @@ export type Literature = {
 	title: string;
 	authors: string[];
 	year: number;
+};
+
+export type GuidelineStatus = {
+	applied: 'fully' | 'partially' | 'notApplied';
+	conflicts: Conflict[];
+};
+
+type Conflict = {
+	type: 'layout' | 'nodeSetting' | 'edgeSetting';
+	property?: string;
+	index?: number;
+	conflictingGuidelineId: string;
 };
 
 type NumericCondition = {
@@ -54,6 +67,7 @@ export type Guideline = {
 	score?: number;
 	description: string;
 	literature: Literature[];
+	status: GuidelineStatus;
 	rootCondition: WeightedCondition;
 	recommendations: {
 		layout?: LayoutType;
@@ -141,6 +155,179 @@ const evaluateCondition = (condition: Condition): number => {
 			return evaluateStringCondition(condition);
 	}
 };
+
+export function computeGuidelineStatuses(graphSettings: GraphSettingsClass): void {
+	guidelines.forEach((guideline) => {
+		guideline.status = getGuidelineStatus(guideline, graphSettings);
+	});
+}
+
+// todo layout and labels[] derocators[] don't work
+function getGuidelineStatus(
+	guideline: Guideline,
+	graphSettings: GraphSettingsClass
+): GuidelineStatus {
+	const status: GuidelineStatus = {
+		applied: 'notApplied',
+		conflicts: []
+	};
+
+	let appliedCount = 0;
+	let totalRecommendations = 0;
+
+	// Check layout
+	if (guideline.recommendations.layout) {
+		totalRecommendations++;
+		if (
+			graphSettings.graphSettings.layout.value === guideline.recommendations.layout &&
+			graphSettings.graphSettings.layout.source === guideline.id
+		) {
+			appliedCount++;
+		} else if (
+			graphSettings.graphSettings.layout.source &&
+			graphSettings.graphSettings.layout.source !== guideline.id
+		) {
+			status.conflicts.push({
+				type: 'layout',
+				conflictingGuidelineId: graphSettings.graphSettings.layout.source
+			});
+		}
+	}
+
+	// Check node settings
+	if (guideline.recommendations.nodeSettings) {
+		appliedCount += checkSettings(
+			guideline.recommendations.nodeSettings,
+			graphSettings.graphSettings.nodeSettings,
+			guideline.id,
+			'nodeSetting',
+			status.conflicts
+		);
+		totalRecommendations += countRecommendations(guideline.recommendations.nodeSettings);
+	}
+
+	// Check edge settings
+	if (guideline.recommendations.edgeSettings) {
+		appliedCount += checkSettings(
+			guideline.recommendations.edgeSettings,
+			graphSettings.graphSettings.edgeSettings,
+			guideline.id,
+			'edgeSetting',
+			status.conflicts
+		);
+		totalRecommendations += countRecommendations(guideline.recommendations.edgeSettings);
+	}
+
+	// Determine application status
+	if (appliedCount === totalRecommendations) {
+		status.applied = 'fully';
+	} else if (appliedCount > 0) {
+		status.applied = 'partially';
+	}
+
+	console.log(
+		'guideline id:',
+		guideline.id,
+		'status:',
+		status,
+		'appliedCount:',
+		appliedCount,
+		'totalRecommendations:',
+		totalRecommendations
+	);
+	console.log('recommendations:', JSON.stringify(guideline.recommendations, null, 2));
+
+	return status;
+}
+
+function checkSettings(
+	recommendedSettings: (NodeSettings | EdgeSettings)[],
+	currentSettings: (NodeSettings | EdgeSettings)[],
+	guidelineId: string,
+	settingType: 'nodeSetting' | 'edgeSetting',
+	conflicts: Conflict[]
+): number {
+	let appliedCount = 0;
+
+	// Check global settings (index 0)
+	if (recommendedSettings[0] && currentSettings[0]) {
+		appliedCount += checkProperties(
+			recommendedSettings[0],
+			currentSettings[0],
+			guidelineId,
+			settingType,
+			0,
+			conflicts
+		);
+	}
+
+	// Check conditional settings (index 1-n)
+	for (let i = 1; i < recommendedSettings.length; i++) {
+		const recommendedSetting = recommendedSettings[i];
+		const currentSetting = currentSettings.find((s) => s.rule === recommendedSetting.rule);
+
+		if (currentSetting) {
+			if (currentSetting.source === guidelineId) {
+				appliedCount++;
+			} else if (currentSetting.source) {
+				conflicts.push({
+					type: settingType,
+					index: i,
+					conflictingGuidelineId: currentSetting.source
+				});
+			}
+		}
+	}
+
+	return appliedCount;
+}
+
+function checkProperties(
+	recommended: NodeSettings | EdgeSettings,
+	current: NodeSettings | EdgeSettings,
+	guidelineId: string,
+	settingType: 'nodeSetting' | 'edgeSetting',
+	index: number,
+	conflicts: Conflict[]
+): number {
+	let appliedCount = 0;
+
+	for (const [key, value] of Object.entries(recommended)) {
+		if (key !== 'id' && key !== 'priority' && key !== 'rule' && key !== 'source') {
+			const currentValue = current[key] as Setting<any>;
+			if (currentValue) {
+				if (currentValue.source === guidelineId) {
+					appliedCount++;
+				} else if (currentValue.source) {
+					conflicts.push({
+						type: settingType,
+						property: key,
+						index: index,
+						conflictingGuidelineId: currentValue.source
+					});
+				}
+			}
+		}
+	}
+
+	return appliedCount;
+}
+
+function countRecommendations(settings: (NodeSettings | EdgeSettings)[]): number {
+	let count = 0;
+	settings.forEach((setting, index) => {
+		if (index === 0) {
+			// Count properties in global settings
+			count += Object.keys(setting).filter(
+				(key) => key !== 'id' && key !== 'priority' && key !== 'rule' && key !== 'source'
+			).length;
+		} else {
+			// Count conditional settings
+			count++;
+		}
+	});
+	return count;
+}
 
 export function applyGuideline(guideline: Guideline, graphSettings: GraphSettingsClass): void {
 	console.log('guideline recommendations:', $state.snapshot(guideline.recommendations));

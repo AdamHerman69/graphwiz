@@ -14,7 +14,10 @@
 			return numSettings.map((setting) => setting.value);
 		},
 		set value(val: number[]) {
-			numSettings.forEach((setting, index) => (setting.value = val[index]));
+			numSettings.forEach((setting, index) => {
+				if (setting.value !== val[index]) setting.source = null; // now manually set
+				setting.value = val[index];
+			});
 		}
 	};
 
@@ -43,6 +46,7 @@
 	<div class="text-m uppercase">
 		{name}
 		{numSettings.map((setting) => setting.value).join(', ')}
+		{numSettings.map((setting) => setting.source).join(', ')}
 
 		<!-- {numSettings.source} -->
 	</div>
