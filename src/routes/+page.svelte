@@ -10,14 +10,18 @@
 	} from '../utils/graph.svelte';
 	import { setContext } from 'svelte';
 	import { gsap } from 'gsap';
-	import { loadGuidelines, sortGuidelines } from '../utils/guideline.svelte';
+	import {
+		loadGuidelines,
+		sortGuidelines,
+		type Guideline,
+		applyGuideline
+	} from '../utils/guideline.svelte';
 
 	// todo refactor elsewhere
 	let graph = loadSampleGraph();
 	computeAttributes(getGraph());
 	recomputeCharacteristics(graph);
 	loadGuidelines();
-	sortGuidelines(graph);
 
 	setContext('toggleSplitView', toggleSplitView);
 

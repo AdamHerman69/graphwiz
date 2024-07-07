@@ -25,12 +25,37 @@
 							"property": "type",
 							"value": "undirected"
 						}
+					},
+					{
+						"weight": 2,
+						"condition": {
+							"type": "composite",
+							"conditions": [
+								{
+									"weight": 1,
+									"condition": {
+										"type": "numeric",
+										"property": "nodeCount",
+										"ideal": 10,
+										"tolerance": 5
+									}
+								},
+								{
+									"weight": 1,
+									"condition": {
+										"type": "numeric",
+										"property": "edgeCount",
+										"ideal": 10,
+										"tolerance": 5
+									}
+								}
+							]
+						}
 					}
 				]
 			}
 		},
 		"recommendations": {
-			"layout": "force_directed",
 			"nodeSettings": [
 				{
 					"size": { "name": "size", "value": 6, "min": 1, "max": 10 },

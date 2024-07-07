@@ -56,6 +56,14 @@ body {
 	pointer-events: auto;
 }
 
+.cardInset {
+	background-color: var(--card-bg-color);
+	border-radius: var(--outer-br);
+	box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+	backdrop-filter: blur(15px);
+	pointer-events: auto;
+}
+
 .cardSpacing {
 	padding: 16px;
 	margin-bottom: 8px;

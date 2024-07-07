@@ -8,8 +8,10 @@
 	import { spring, type Spring } from 'svelte/motion';
 	import NodeInfo from './NodeInfo.svelte';
 	import { computeGuidelineStatuses } from '../utils/guideline.svelte';
+	import { type Guideline } from '../utils/guideline.svelte';
 
 	let graphSettings: GraphSettingsClass = getContext('graphSettings');
+	let guidelines = getContext('guidelines') as Guideline[];
 
 	let canvas: HTMLCanvasElement;
 	let width: number = $state(0);
@@ -51,7 +53,7 @@
 		clearTimeout(nodeDebounceTimer);
 		nodeDebounceTimer = setTimeout(() => {
 			canvasHandler.updateNodeStyles(graphSettings.computeNodeStyles());
-			computeGuidelineStatuses(graphSettings);
+			computeGuidelineStatuses(guidelines, graphSettings);
 			graphSettings.saveState();
 		}, DEBOUNCE_TIME);
 	});
@@ -62,7 +64,7 @@
 		clearTimeout(edgeDebounceTimer);
 		edgeDebounceTimer = setTimeout(() => {
 			canvasHandler.updateEdgeStyles(graphSettings.computeEdgeStyles());
-			computeGuidelineStatuses(graphSettings);
+			computeGuidelineStatuses(guidelines, graphSettings);
 			graphSettings.saveState();
 		}, DEBOUNCE_TIME);
 	});

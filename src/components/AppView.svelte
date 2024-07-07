@@ -5,10 +5,16 @@
 	import { onMount, setContext } from 'svelte';
 	import { blur } from 'svelte/transition';
 	import Guidelines from './Guidelines.svelte';
+	import { newGuidelineSet, sortGuidelines, type Guideline } from '../utils/guideline.svelte';
+	import { getGraph } from '../utils/graph.svelte';
 
 	const graphSettings = new GraphSettingsClass();
 	console.log('created GS', graphSettings.stateIndex);
 	setContext<GraphSettingsClass>('graphSettings', graphSettings);
+
+	const guidelines = $state(newGuidelineSet(graphSettings));
+	sortGuidelines(guidelines, getGraph());
+	setContext<Guideline[]>('guidelines', guidelines);
 
 	let { side }: { side: 'left' | 'right' } = $props();
 

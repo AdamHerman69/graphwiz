@@ -26,7 +26,7 @@ type Conflict = {
 	type: 'layout' | 'nodeSetting' | 'edgeSetting';
 	property?: string;
 	index?: number;
-	conflictingGuidelineId: string;
+	conflictingGuidelineId: number;
 };
 
 type NumericCondition = {
@@ -55,20 +55,24 @@ type CompositeCondition = {
 	conditions: WeightedCondition[];
 };
 
+export function isComposite(condition: Condition): condition is CompositeCondition {
+	return condition.type === 'composite';
+}
+
 type Condition = NumericCondition | BooleanCondition | StringCondition | CompositeCondition;
 
-type WeightedCondition = {
+export type WeightedCondition = {
 	weight: number;
 	weightNormalized?: number;
+	score?: number;
+	scoreWeighted?: number;
 	condition: Condition;
 };
 
-export type Guideline = {
-	id: string;
-	score?: number;
+export type StaticGuideline = {
+	name: string;
 	description: string;
 	literature: Literature[];
-	status: GuidelineStatus;
 	rootCondition: WeightedCondition;
 	recommendations: {
 		layout?: LayoutType;
@@ -77,12 +81,19 @@ export type Guideline = {
 	};
 };
 
+export type Guideline = StaticGuideline & {
+	id: number;
+	score: number;
+	status: GuidelineStatus;
+};
+
 const normalizeWeights = (conditions: WeightedCondition[]): WeightedCondition[] => {
 	const totalWeight = conditions.reduce((sum, wc) => sum + wc.weight, 0);
-	return conditions.map((wc) => ({
-		...wc,
-		weightNormalized: wc.weight / totalWeight
-	}));
+	conditions.forEach((wc) => {
+		wc.weightNormalized = wc.weight / totalWeight;
+	});
+
+	return conditions;
 };
 
 const evaluateNumericCondition = (condition: NumericCondition): number => {
@@ -139,8 +150,10 @@ const evaluateCompositeCondition = (condition: CompositeCondition): number => {
 	const normalizedConditions = normalizeWeights(condition.conditions);
 	return normalizedConditions.reduce((sum, wc) => {
 		console.log('wc', wc);
-		const score = evaluateCondition(wc.condition);
-		return sum + score * wc.weightNormalized!;
+		wc.score = evaluateCondition(wc.condition);
+		console.log('wc.score', wc.score);
+		wc.scoreWeighted = wc.score * wc.weightNormalized!;
+		return sum + wc.scoreWeighted;
 	}, 0);
 };
 
@@ -157,7 +170,11 @@ const evaluateCondition = (condition: Condition): number => {
 	}
 };
 
-export function computeGuidelineStatuses(graphSettings: GraphSettingsClass): void {
+export function computeGuidelineStatuses(
+	guidelines: Guideline[],
+	graphSettings: GraphSettingsClass
+): void {
+	console.log('guidelines:', guidelines);
 	guidelines.forEach((guideline) => {
 		guideline.status = getGuidelineStatus(guideline, graphSettings);
 	});
@@ -241,10 +258,11 @@ function getGuidelineStatus(
 	return status;
 }
 
+// helper function to check Settings if guideline is applied
 function checkSettings(
 	recommendedSettings: (NodeSettings | EdgeSettings)[],
 	currentSettings: (NodeSettings | EdgeSettings)[],
-	guidelineId: string,
+	guidelineId: number,
 	settingType: 'nodeSetting' | 'edgeSetting',
 	conflicts: Conflict[]
 ): number {
@@ -287,10 +305,11 @@ function checkSettings(
 	return appliedCount;
 }
 
+// helper function used by checkSettings to check for applied guidelines
 function checkProperties(
 	recommended: NodeSettings | EdgeSettings,
 	current: NodeSettings | EdgeSettings,
-	guidelineId: string,
+	guidelineId: number,
 	settingType: 'nodeSetting' | 'edgeSetting',
 	index: number,
 	conflicts: Conflict[]
@@ -318,6 +337,7 @@ function checkProperties(
 	return appliedCount;
 }
 
+// helper for checkSettings
 function countRecommendations(settings: (NodeSettings | EdgeSettings)[]): number {
 	let count = 0;
 	settings.forEach((setting, index) => {
@@ -335,7 +355,6 @@ function countRecommendations(settings: (NodeSettings | EdgeSettings)[]): number
 }
 
 export function applyGuideline(guideline: Guideline, graphSettings: GraphSettingsClass): void {
-	console.log('guideline recommendations:', $state.snapshot(guideline.recommendations));
 	graphSettings.applyGuideline(
 		guideline.recommendations.layout,
 		guideline.recommendations.nodeSettings,
@@ -384,13 +403,19 @@ function addSourceToSettings(guidelines: Guideline[]): void {
 	// });
 }
 
+function addGuidelineIDs(guidelines: Guideline[], graphSettings: GraphSettingsClass): void {
+	guidelines.forEach((guideline) => {
+		guideline.id = graphSettings.newGUIID();
+	});
+}
+
 const calculateApplicability = (guideline: Guideline): number => {
 	console.log('calculate applicability: condition:', guideline.rootCondition.condition);
 	guideline.score = evaluateCondition(guideline.rootCondition.condition);
 	return guideline.score;
 };
 
-export const sortGuidelines = (graph: Graph): Guideline[] => {
+export const sortGuidelines = (guidelines: Guideline[], graph: Graph): Guideline[] => {
 	guidelines.forEach((guideline) => {
 		console.log('rootCondition', guideline.rootCondition);
 		$inspect(guideline);
@@ -401,17 +426,17 @@ export const sortGuidelines = (graph: Graph): Guideline[] => {
 	return guidelines;
 };
 
-let guidelines: Guideline[] = $state([]);
-export function getGuidelines(): Guideline[] {
-	return guidelines;
+let defaultGuidelines: StaticGuideline[] = $state([]);
+export function newGuidelineSet(graphSettings: GraphSettingsClass): Guideline[] {
+	const newGuidelineSet = $state.snapshot(defaultGuidelines) as Guideline[];
+	addGuidelineIDs(newGuidelineSet, graphSettings);
+	addSourceToSettings(newGuidelineSet);
+
+	return newGuidelineSet;
 }
 
-// todo handle guideline IDs
 export function loadGuidelines() {
 	// todo check format
-	let guidelinesFromFile = structuredClone(guidelinesFile) as Guideline[];
-	console.log('guidelinesFromFile', structuredClone(guidelinesFromFile));
-	addSourceToSettings(guidelinesFromFile);
-	console.log('guidelinesFromFile', guidelinesFromFile);
-	guidelines = guidelinesFromFile;
+	let guidelinesFromFile = guidelinesFile as StaticGuideline[];
+	defaultGuidelines = structuredClone(guidelinesFromFile) as StaticGuideline[];
 }

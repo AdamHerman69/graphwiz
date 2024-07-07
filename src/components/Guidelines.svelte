@@ -1,32 +1,18 @@
 <script lang="ts">
 	import type Graph from 'graphology';
 	import { graphCharacteristics } from '../utils/graph.svelte';
-	import { type Guideline, getGuidelines, applyGuideline } from '../utils/guideline.svelte';
+	import { type Guideline, applyGuideline, isComposite } from '../utils/guideline.svelte';
 	import { getContext } from 'svelte';
 	import type { GraphSettingsClass } from '../utils/graphSettings.svelte';
+	import GuidelineCard from './GuidelineCard.svelte';
 
-	let graphSettings = getContext('graphSettings') as GraphSettingsClass;
-
-	let guidelines: Guideline[] = getGuidelines();
+	let guidelines: Guideline[] = getContext('guidelines') as Guideline[];
 </script>
 
 <div class="cardStack">
 	{#each guidelines as guideline}
-		<div class="card cardSpacing">
-			<div class="text-lg font-bold">{guideline.id}</div>
-			<div class="text-sm">{guideline.description}</div>
-			<div class="text-sm">{guideline.score}</div>
-			{#if guideline.status}
-				<div class="text-sm">{guideline.status.applied}</div>
-
-				{#each guideline.status.conflicts as conflict}
-					<div class="text-sm">{JSON.stringify(conflict)}</div>
-				{/each}
-			{/if}
-
-			<button class="text-sm" on:click={() => applyGuideline(guideline, graphSettings)}
-				>apply</button
-			>
+		<div class="{guideline.status?.applied === 'fully' ? 'cardInset' : 'card'} cardSpacing">
+			<GuidelineCard {guideline} />
 		</div>
 	{/each}
 	<div class="card cardSpacing">
