@@ -18,6 +18,8 @@
 
 	let { side }: { side: 'left' | 'right' } = $props();
 
+	let showGuidelines = $state(false);
+
 	onMount(() => {
 		console.log('mounted AppView');
 		// clear saves triggered by initializing
@@ -37,13 +39,24 @@
 	<!-- <button onclick={() => console.log($state.snapshot(graphSettings.graphSettings))}>log</button> -->
 	<!-- todo delete -->
 </div>
-<div
-	transition:blur
-	class="absolute {side === 'right'
-		? 'left-1'
-		: 'right-1'} 1 top-0 settingsPanel z-10 text-sm h-full"
+
+{#if showGuidelines}
+	<div
+		transition:blur
+		class="absolute {side === 'right'
+			? 'left-1'
+			: 'right-1'} 1 top-0 settingsPanel z-10 text-sm h-full"
+	>
+		<Guidelines />
+
+		<!-- <button onclick={() => console.log($state.snapshot(graphSettings.graphSettings))}>log</button> -->
+		<!-- todo delete -->
+	</div>
+{/if}
+
+<button
+	class="absolute top-0 text-sm z-20 {side === 'right' ? 'left-1' : 'right-1'}"
+	onclick={() => (showGuidelines = !showGuidelines)}
 >
-	<Guidelines />
-	<!-- <button onclick={() => console.log($state.snapshot(graphSettings.graphSettings))}>log</button> -->
-	<!-- todo delete -->
-</div>
+	toggle guidelines
+</button>

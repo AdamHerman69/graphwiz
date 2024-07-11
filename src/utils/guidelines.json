@@ -1,6 +1,6 @@
 [
 	{
-		"id": "guideline_001",
+		"name": "guideline_001",
 		"description": "Visualization guideline for sparse, undirected graphs",
 		"literature": [],
 		"rootCondition": {
@@ -69,7 +69,7 @@
 		}
 	},
 	{
-		"id": "guideline_002",
+		"name": "guideline_002",
 		"description": "Visualization guideline for large trees (RULES)",
 		"literature": [],
 		"rootCondition": {
@@ -142,7 +142,7 @@
 		}
 	},
 	{
-		"id": "guideline_003",
+		"name": "guideline_003",
 		"description": "Visualization guideline for small graphs (EDGE)",
 		"literature": [],
 		"rootCondition": {
@@ -202,7 +202,7 @@
 		}
 	},
 	{
-		"id": "guideline_004",
+		"name": "guideline_004",
 		"description": "Visualization guideline dense larger graphs",
 		"literature": [],
 		"rootCondition": {

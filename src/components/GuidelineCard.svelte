@@ -8,15 +8,20 @@
 	let graphSettings = getContext('graphSettings') as GraphSettingsClass;
 </script>
 
-<div class="text-lg font-bold">{guideline.id}</div>
+<div class="text-lg font-bold">{guideline.name}</div>
 <div class="text-sm">{guideline.description}</div>
 
 {#if guideline.status}
 	<div class="text-sm">{guideline.status.applied}</div>
 
-	{#each guideline.status.conflicts as conflict}
-		<div class="text-sm">{JSON.stringify(conflict)}</div>
-	{/each}
+	<br />
+	{#if guideline.status.conflicts.length > 0}
+		<div class="text-sm">Conflicts:</div>
+
+		{#each guideline.status.conflicts as conflict}
+			<div class="text-sm">{conflict.property} with {conflict.conflictingGuidelineId}</div>
+		{/each}
+	{/if}
 {/if}
 
 <Score {guideline} />

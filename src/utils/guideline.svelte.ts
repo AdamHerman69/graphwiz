@@ -1,4 +1,3 @@
-import { getGraph } from './graph.svelte';
 import type Graph from 'graphology';
 import {
 	type NodeSettings,
@@ -36,30 +35,55 @@ type NumericCondition = {
 	max?: number;
 	ideal?: number;
 	tolerance?: number;
+	logicalCondition?: LogicalCondition;
 };
 
 type BooleanCondition = {
 	type: 'boolean';
 	property: string;
 	value: boolean;
+	logicalCondition?: LogicalCondition;
 };
 
 type StringCondition = {
 	type: 'string';
 	property: string;
 	value: boolean;
+	logicalCondition?: LogicalCondition;
+};
+
+type LogicalCondition = {
+	type: 'logical';
+	operator: 'and' | 'or';
+	conditions: (BooleanCondition | StringCondition | LogicalCondition | RangeCondition)[];
+	logicalCondition?: LogicalCondition;
+};
+
+type RangeCondition = {
+	type: 'range';
+	property: string;
+	min?: number;
+	max?: number;
+	logicalCondition?: LogicalCondition;
 };
 
 type CompositeCondition = {
 	type: 'composite';
 	conditions: WeightedCondition[];
+	logicalCondition?: LogicalCondition;
 };
 
 export function isComposite(condition: Condition): condition is CompositeCondition {
 	return condition.type === 'composite';
 }
 
-type Condition = NumericCondition | BooleanCondition | StringCondition | CompositeCondition;
+type Condition =
+	| NumericCondition
+	| BooleanCondition
+	| StringCondition
+	| CompositeCondition
+	| LogicalCondition
+	| RangeCondition;
 
 export type WeightedCondition = {
 	weight: number;
@@ -94,6 +118,22 @@ const normalizeWeights = (conditions: WeightedCondition[]): WeightedCondition[] 
 	});
 
 	return conditions;
+};
+
+const evaluateLogicalCondition = (condition: LogicalCondition): number => {
+	const results = condition.conditions.map(evaluateCondition);
+	if (condition.operator === 'and') {
+		return results.every((result) => result === 1) ? 1 : 0;
+	} else {
+		return results.some((result) => result === 1) ? 1 : 0;
+	}
+};
+
+const evaluateRangeCondition = (condition: RangeCondition): number => {
+	const value = graphCharacteristics[condition.property].value as number;
+	const minSatisfied = condition.min === undefined || value >= condition.min;
+	const maxSatisfied = condition.max === undefined || value <= condition.max;
+	return minSatisfied && maxSatisfied ? 1 : 0;
 };
 
 const evaluateNumericCondition = (condition: NumericCondition): number => {
@@ -158,15 +198,26 @@ const evaluateCompositeCondition = (condition: CompositeCondition): number => {
 };
 
 const evaluateCondition = (condition: Condition): number => {
+	let logicalConditionResult = 1;
+	if (condition.logicalCondition) {
+		logicalConditionResult = evaluateLogicalCondition(condition.logicalCondition);
+	}
+
 	switch (condition.type) {
 		case 'numeric':
-			return evaluateNumericCondition(condition);
+			return evaluateNumericCondition(condition) * logicalConditionResult;
 		case 'boolean':
-			return evaluateBooleanCondition(condition);
+			return evaluateBooleanCondition(condition) * logicalConditionResult;
 		case 'composite':
-			return evaluateCompositeCondition(condition);
+			return evaluateCompositeCondition(condition) * logicalConditionResult;
 		case 'string':
-			return evaluateStringCondition(condition);
+			return evaluateStringCondition(condition) * logicalConditionResult;
+		case 'logical':
+			return evaluateLogicalCondition(condition) * logicalConditionResult;
+		case 'range':
+			return evaluateRangeCondition(condition) * logicalConditionResult;
+		default:
+			throw new Error('Invalid condition type');
 	}
 };
 
