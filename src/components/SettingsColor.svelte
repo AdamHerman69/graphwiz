@@ -8,9 +8,11 @@
 	import ColorPickerWrapper from '$lib/RangeSlider/ColorPickerWrapper.svelte';
 	import { getContext } from 'svelte';
 	import autoAnimate from '@formkit/auto-animate';
+	import type { Guideline } from '../utils/guideline.svelte';
 
 	let { colorSetting }: { colorSetting: ColorSetting } = $props();
 	const owner = getContext('type');
+	let guidelines: Guideline[] = getContext('guidelines');
 
 	let pickerColorIndex: number = $state(-1); // minus one if picker closed
 
@@ -71,7 +73,11 @@
 <div class="flex justify-between items-center">
 	<div class="text-m uppercase">
 		{colorSetting.name}
-		{colorSetting.source}
+		{#if colorSetting.source}
+			<GuidelineSource
+				guideline={guidelines.find((guideline) => guideline.id === colorSetting.source)}
+			/>
+		{/if}
 	</div>
 	<div class="flex justify-end items-center">
 		{#if colorSetting.attribute}

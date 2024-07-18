@@ -1,5 +1,11 @@
 <script lang="ts">
 	import { type WeightedCondition, isComposite } from '../utils/guideline.svelte';
+	import ScoreBar from './GUI/ScoreBar.svelte';
+	import BooleanCondition from './BooleanCondition.svelte';
+	import RangeCondition from './RangeCondition.svelte';
+	import StringCondition from './StringCondition.svelte';
+	import NumericCondition from './NumericCondition.svelte';
+	import CompositeCondition from './CompositeCondition.svelte';
 
 	let { weightedCondition }: { weightedCondition: WeightedCondition } = $props();
 	console.log(weightedCondition);
@@ -11,12 +17,33 @@
 	}
 </script>
 
-<div class="flex justify-between">
-	{#if isComposite(condition)}
-		<div>composite</div>
-	{:else}
-		<div>{weightedCondition.condition.property!}</div>
+<div class="flex">
+	{#if weightedCondition.condition.type === 'boolean'}
+		<BooleanCondition booleanCondition={weightedCondition.condition} {weightedCondition} />
+	{:else if weightedCondition.condition.type === 'range'}
+		<RangeCondition rangeCondition={weightedCondition.condition} {weightedCondition} />
+	{:else if weightedCondition.condition.type === 'string'}
+		<StringCondition stringCondition={weightedCondition.condition} {weightedCondition} />
+	{:else if weightedCondition.condition.type === 'numeric'}
+		<NumericCondition numericCondition={weightedCondition.condition} {weightedCondition} />
+	{:else if weightedCondition.condition.type === 'composite'}
+		<CompositeCondition compositeCondition={weightedCondition.condition} {weightedCondition} />
 	{/if}
+</div>
+<!-- 
+<div class="flex justify-between">
+	<div>
+		<div>
+			{#if isComposite(condition)}
+				composite
+			{:else}
+				{weightedCondition.condition.property!}
+			{/if}
+		</div>
+        <div>
+            {#if }
+        </div>
+	</div>
 
 	<div class="flex">
 		<div class="text-sm flex justify-center align-middle">
@@ -52,4 +79,4 @@
 			{/each}
 		</div>
 	</div>
-{/if}
+{/if} -->

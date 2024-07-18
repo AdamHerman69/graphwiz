@@ -45,7 +45,7 @@
 									"condition": {
 										"type": "numeric",
 										"property": "edgeCount",
-										"ideal": 10,
+										"ideal": 15,
 										"tolerance": 5
 									}
 								}

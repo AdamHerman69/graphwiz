@@ -28,7 +28,7 @@ type Conflict = {
 	conflictingGuidelineId: number;
 };
 
-type NumericCondition = {
+export type NumericCondition = {
 	type: 'numeric';
 	property: string;
 	min?: number;
@@ -38,28 +38,28 @@ type NumericCondition = {
 	logicalCondition?: LogicalCondition;
 };
 
-type BooleanCondition = {
+export type BooleanCondition = {
 	type: 'boolean';
 	property: string;
 	value: boolean;
 	logicalCondition?: LogicalCondition;
 };
 
-type StringCondition = {
+export type StringCondition = {
 	type: 'string';
 	property: string;
 	value: boolean;
 	logicalCondition?: LogicalCondition;
 };
 
-type LogicalCondition = {
+export type LogicalCondition = {
 	type: 'logical';
 	operator: 'and' | 'or';
 	conditions: (BooleanCondition | StringCondition | LogicalCondition | RangeCondition)[];
 	logicalCondition?: LogicalCondition;
 };
 
-type RangeCondition = {
+export type RangeCondition = {
 	type: 'range';
 	property: string;
 	min?: number;
@@ -67,7 +67,7 @@ type RangeCondition = {
 	logicalCondition?: LogicalCondition;
 };
 
-type CompositeCondition = {
+export type CompositeCondition = {
 	type: 'composite';
 	conditions: WeightedCondition[];
 	logicalCondition?: LogicalCondition;
@@ -418,6 +418,7 @@ function addSourceToSettings(guidelines: Guideline[]): void {
 	console.log('source guidelines:', $state.snapshot(guidelines));
 	guidelines.forEach((guideline) => {
 		guideline.recommendations.nodeSettings?.forEach((nodeSetting: NodeSettings) => {
+			console.log(guideline.name, nodeSetting);
 			nodeSetting.source = guideline.id;
 			if (nodeSetting.size) nodeSetting.size.source = guideline.id;
 			if (nodeSetting.color) nodeSetting.color.source = guideline.id;
@@ -427,6 +428,7 @@ function addSourceToSettings(guidelines: Guideline[]): void {
 				nodeSetting.labels.forEach((label) => {
 					label.source = guideline.id;
 				});
+			console.log(guideline.name, nodeSetting);
 		});
 
 		guideline.recommendations.edgeSettings?.forEach((edgeSetting) => {

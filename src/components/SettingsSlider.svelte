@@ -4,9 +4,12 @@
 	import { type NumericalSetting } from '../utils/graphSettings.svelte';
 	import AttributePicker from './AttributePicker.svelte';
 	import { getContext } from 'svelte';
+	import GuidelineSource from './GUI/GuidelineSource.svelte';
+	import type { Guideline } from '../utils/guideline.svelte';
 
 	let { numSettings }: { numSettings: NumericalSetting } = $props();
 	const owner = getContext('type');
+	let guidelines: Guideline[] = getContext('guidelines');
 
 	// proxy for Range slider which requires an array - two way binding achieved
 	let valueArray = {
@@ -42,9 +45,11 @@
 <div class="flex justify-between items-center">
 	<div class="text-m uppercase">
 		{numSettings.name}
-		{numSettings.value}
-		{numSettings.source}
-		<!-- {numSettings.source} -->
+		{#if numSettings.source}
+			<GuidelineSource
+				guideline={guidelines.find((guideline) => guideline.id === numSettings.source)}
+			/>
+		{/if}
 	</div>
 	<div class="flex justify-end items-center">
 		{#if numSettings.attribute}

@@ -3,12 +3,15 @@
 	import { type GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import { getContext } from 'svelte';
 	import Score from './Score.svelte';
+	import ScoreBar from './GUI/ScoreBar.svelte';
+	import WeightedCondition from './WeightedCondition.svelte';
 
 	let { guideline }: { guideline: Guideline } = $props();
 	let graphSettings = getContext('graphSettings') as GraphSettingsClass;
 </script>
 
 <div class="text-lg font-bold">{guideline.name}</div>
+<ScoreBar score={guideline.score} />
 <div class="text-sm">{guideline.description}</div>
 
 {#if guideline.status}

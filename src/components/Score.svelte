@@ -3,6 +3,7 @@
 	import { type GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import WeightedCondition from './WeightedCondition.svelte';
 	import autoAnimate from '@formkit/auto-animate';
+	import ScoreBar from './GUI/ScoreBar.svelte';
 
 	let { guideline }: { guideline: Guideline } = $props();
 	let collapsed = $state(true);
@@ -25,6 +26,7 @@
 		</span>
 	</button>
 </div>
+<ScoreBar score={guideline.score} />
 <div use:autoAnimate>
 	{#if !collapsed}
 		{#if isComposite(guideline.rootCondition.condition)}

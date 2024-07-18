@@ -10,7 +10,7 @@ export type Setting<T> = {
 	name: string;
 	value: T;
 	attribute?: RangeAttribute;
-	source: null | string; // guideline id
+	source: null | number; // guideline id
 };
 
 export type SelectSetting<T> = Setting<T> & {
@@ -30,7 +30,7 @@ export type DecoratorData = {
 	id: number;
 	type: DecoratorType;
 	position: number;
-	source?: null | string;
+	source?: null | number;
 };
 
 const decoratorTypes = ['triangle', 'circle', 'square'] as const;
@@ -51,7 +51,7 @@ type LabelStyle = {
 	color: RgbaColor;
 	size: number;
 	attribute?: Attribute;
-	source?: null | string;
+	source?: null | number;
 };
 
 export type NodeLabel = LabelStyle & {
@@ -93,7 +93,7 @@ type RuleSettings = {
 	id: number; // for keyed each blocks
 	priority: number;
 	rule?: Rule;
-	source: null | string;
+	source: null | number;
 };
 
 export type NodeSettings = NodeProperties & RuleSettings;
@@ -177,7 +177,7 @@ export class GraphSettingsClass {
 	edgeStyles: Map<string, EdgeStyle>;
 
 	graphSettings: GraphSettings = $state({
-		guiID: 0,
+		guiID: 1,
 		layout: {
 			name: 'layout',
 			values: Array.from(layoutTypes),
