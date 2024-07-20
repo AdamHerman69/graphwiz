@@ -10,15 +10,15 @@
 </script>
 
 <div class="flex-col w-full">
-	<div class="flex justify-between w-full">
+	<div class="flex justify-between w-full items-center">
 		<div>
 			<div>{booleanCondition.property}</div>
 		</div>
 		<div>
 			{#if graphCharacteristics[booleanCondition.property].value === booleanCondition.value}
-				<span class="material-symbols-outlined"> check </span>
+				<span class="material-symbols-outlined flex items-center"> check </span>
 			{:else}
-				<span class="material-symbols-outlined"> close </span>
+				<span class="material-symbols-outlined flex items-center"> close </span>
 			{/if}
 		</div>
 	</div>

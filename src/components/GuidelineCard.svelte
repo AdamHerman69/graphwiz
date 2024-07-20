@@ -5,14 +5,17 @@
 	import Score from './Score.svelte';
 	import ScoreBar from './GUI/ScoreBar.svelte';
 	import WeightedCondition from './WeightedCondition.svelte';
+	import GuidelineHeader from './GuidelineHeader.svelte';
+	import GuidelineSettings from './GuidelineSettings.svelte';
 
 	let { guideline }: { guideline: Guideline } = $props();
 	let graphSettings = getContext('graphSettings') as GraphSettingsClass;
 </script>
 
-<div class="text-lg font-bold">{guideline.name}</div>
-<ScoreBar score={guideline.score} />
-<div class="text-sm">{guideline.description}</div>
+<GuidelineHeader {guideline} />
+<div class="text-sm mt-2">{guideline.description}</div>
+
+<GuidelineSettings recommendations={guideline.recommendations} />
 
 {#if guideline.status}
 	<div class="text-sm">{guideline.status.applied}</div>
@@ -26,8 +29,6 @@
 		{/each}
 	{/if}
 {/if}
-
-<Score {guideline} />
 
 <button class="text-sm" onclick={() => applyGuideline(guideline, graphSettings)}>apply</button>
 <button class="text-sm" onclick={() => console.log($state.snapshot(guideline))}>log</button>

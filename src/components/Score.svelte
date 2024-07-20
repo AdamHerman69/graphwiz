@@ -30,7 +30,7 @@
 <div use:autoAnimate>
 	{#if !collapsed}
 		{#if isComposite(guideline.rootCondition.condition)}
-			{#each guideline.rootCondition.condition.conditions as weightedCondition}
+			{#each guideline.rootCondition.condition.conditions.sort((a, b) => b.scoreWeighted - a.scoreWeighted) as weightedCondition}
 				<WeightedCondition {weightedCondition} />
 			{/each}
 		{/if}

@@ -8,8 +8,6 @@
 	import CompositeCondition from './CompositeCondition.svelte';
 
 	let { weightedCondition }: { weightedCondition: WeightedCondition } = $props();
-	console.log(weightedCondition);
-	let condition = weightedCondition?.condition;
 	let collapsed = $state(true);
 
 	function toggleCollapse() {
@@ -17,18 +15,24 @@
 	}
 </script>
 
-<div class="flex">
-	{#if weightedCondition.condition.type === 'boolean'}
-		<BooleanCondition booleanCondition={weightedCondition.condition} {weightedCondition} />
-	{:else if weightedCondition.condition.type === 'range'}
-		<RangeCondition rangeCondition={weightedCondition.condition} {weightedCondition} />
-	{:else if weightedCondition.condition.type === 'string'}
-		<StringCondition stringCondition={weightedCondition.condition} {weightedCondition} />
-	{:else if weightedCondition.condition.type === 'numeric'}
-		<NumericCondition numericCondition={weightedCondition.condition} {weightedCondition} />
-	{:else if weightedCondition.condition.type === 'composite'}
-		<CompositeCondition compositeCondition={weightedCondition.condition} {weightedCondition} />
-	{/if}
+<div class="flex mb-1">
+	<div class="pr-4 flex items-center">
+		<span class="material-symbols-outlined text-xs"> scale </span>
+		<div>{weightedCondition.weight}</div>
+	</div>
+	<div class="flex-1">
+		{#if weightedCondition.condition.type === 'boolean'}
+			<BooleanCondition booleanCondition={weightedCondition.condition} {weightedCondition} />
+		{:else if weightedCondition.condition.type === 'range'}
+			<RangeCondition rangeCondition={weightedCondition.condition} {weightedCondition} />
+		{:else if weightedCondition.condition.type === 'string'}
+			<StringCondition stringCondition={weightedCondition.condition} {weightedCondition} />
+		{:else if weightedCondition.condition.type === 'numeric'}
+			<NumericCondition numericCondition={weightedCondition.condition} {weightedCondition} />
+		{:else if weightedCondition.condition.type === 'composite'}
+			<CompositeCondition compositeCondition={weightedCondition.condition} {weightedCondition} />
+		{/if}
+	</div>
 </div>
 <!-- 
 <div class="flex justify-between">

@@ -2,7 +2,7 @@ import { type Attribute, type RangeAttribute, getAttributeValue, getGraph } from
 import type { Guideline } from './guideline.svelte';
 import { type Rule, stripAttributeBasedRules, evalRule, type AtomicRule } from './rules.svelte';
 import type { RgbaColor } from 'colord';
-import { scaleLinear } from './scaleLinear';
+import { scaleLinear } from './helperFunctions';
 import { getGradientColor } from './gradient';
 import { edge } from 'graphology-metrics';
 

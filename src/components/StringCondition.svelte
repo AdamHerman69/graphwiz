@@ -14,8 +14,8 @@
 		<div>
 			<div>{stringCondition.property}</div>
 		</div>
-		<div class="flex">
-			<div>{stringCondition.value}</div>
+		<div class="flex items-center">
+			<div class="pr-1">{stringCondition.value}</div>
 			{#if graphCharacteristics[stringCondition.property].value === stringCondition.value}
 				<span class="material-symbols-outlined text-xs"> check </span>
 			{:else}

@@ -9,6 +9,7 @@
 	import { getContext } from 'svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import type { Guideline } from '../utils/guideline.svelte';
+	import GuidelineSource from './GUI/GuidelineSource.svelte';
 
 	let { colorSetting }: { colorSetting: ColorSetting } = $props();
 	const owner = getContext('type');

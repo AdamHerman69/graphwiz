@@ -36,7 +36,7 @@
 									"condition": {
 										"type": "numeric",
 										"property": "nodeCount",
-										"ideal": 10,
+										"ideal": 12,
 										"tolerance": 5
 									}
 								},
@@ -163,7 +163,7 @@
 						"condition": {
 							"type": "numeric",
 							"property": "nodeCount",
-							"ideal": 10,
+							"ideal": 12,
 							"tolerance": 4
 						}
 					}
