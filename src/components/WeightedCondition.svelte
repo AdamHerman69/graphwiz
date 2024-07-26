@@ -20,7 +20,7 @@
 		<span class="material-symbols-outlined text-xs"> scale </span>
 		<div>{weightedCondition.weight}</div>
 	</div>
-	<div class="flex-1">
+	<div class="flex-1 py-1">
 		{#if weightedCondition.condition.type === 'boolean'}
 			<BooleanCondition booleanCondition={weightedCondition.condition} {weightedCondition} />
 		{:else if weightedCondition.condition.type === 'range'}

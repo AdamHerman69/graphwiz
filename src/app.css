@@ -121,3 +121,78 @@ body {
 .ruleToggleSettings span {
 	font-size: 18px;
 }
+
+@keyframes popupShowBottom {
+	from {
+		opacity: 0;
+		transform: translateX(-50%) translateY(-50%) scaleY(0);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(-50%) translateY(10px) scaleY(1);
+	}
+}
+
+@keyframes popupShowTop {
+	from {
+		opacity: 0;
+		transform: translateX(-50%) translateY(50%) scaleY(0);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(-50%) translateY(-10px) scaleY(1);
+	}
+}
+
+@keyframes popupShowLeft {
+	from {
+		opacity: 0;
+		transform: translateY(-50%) translateX(50%) scaleX(0);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(-50%) translateX(-10px) scaleX(1);
+	}
+}
+
+@keyframes popupShowRight {
+	from {
+		opacity: 0;
+		transform: translateY(-50%) translateX(-50%) scaleX(0);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(-50%) translateX(10px) scaleX(1);
+	}
+}
+
+.hover-popup {
+	border-radius: 14px;
+	color: white;
+	background-color: rgba(0, 0, 0, 0.8);
+	backdrop-filter: blur(10px);
+	padding: 8px 12px;
+	font-size: 12px;
+	max-width: 200px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.hover-popup-bottom {
+	transform-origin: top center;
+	animation: popupShowBottom 0.3s ease forwards;
+}
+
+.hover-popup-top {
+	transform-origin: bottom center;
+	animation: popupShowTop 0.3s ease forwards;
+}
+
+.hover-popup-left {
+	transform-origin: right center;
+	animation: popupShowLeft 0.3s ease forwards;
+}
+
+.hover-popup-right {
+	transform-origin: left center;
+	animation: popupShowRight 0.3s ease forwards;
+}

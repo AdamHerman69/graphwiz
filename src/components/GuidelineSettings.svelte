@@ -6,6 +6,7 @@
 		nodeSettingsDefaults
 	} from '../utils/graphSettings.svelte';
 	import SettingValue from './SettingValue.svelte';
+	import Collapser from './GUI/Collapser.svelte';
 
 	let {
 		recommendations
@@ -16,27 +17,60 @@
 			nodeSettings?: NodeSettings[];
 		};
 	} = $props();
+
+	let nodeCollapsed = $state(true);
+	let edgeCollapsed = $state(true);
 </script>
 
-{#if recommendations.layout}
-	<div>{recommendations.layout}</div>
-{/if}
-
-{#if recommendations.nodeSettings}
-	<div>
-
-		{#each recommendations.nodeSettings as ns, index}
-			<div class="flex">
-				{#if index > 0}
-					rule - 
-				{/if}
-
-				{#each Object.keys(ns) as key}
-					<SettingValue setting={ns[key]} />
-				{/each}
-			</div>
-		{/each}
+<!-- <div class="mt-1">
+	<div class="flex justify-between items-center">
+		<div class="text-m uppercase">Values</div>
+		
 	</div>
-{/if}
+</div> -->
 
-{#if recommendations.edgeSettings}{/if}
+<div class="flex justify-between">
+	{#if recommendations.layout}
+		<div>{recommendations.layout}</div>
+	{/if}
+
+	{#if recommendations.nodeSettings}
+		<div>
+			<div class="flex flex-wrap">
+				{#each recommendations.nodeSettings as ns, index}
+					{#each Object.keys(ns) as key}
+						{#if key != 'source' && key != 'rule'}
+							<SettingValue
+								setting={ns[key]}
+								rule={index > 0 ? ns.rule : null}
+								bind:collapsed={nodeCollapsed}
+							/>
+						{/if}
+					{/each}
+				{/each}
+				<div class="flex justify-center align-middle">
+					<Collapser bind:collapsed={nodeCollapsed} horizontal={true} />
+				</div>
+			</div>
+		</div>
+	{/if}
+
+	{#if recommendations.edgeSettings}
+		<div class="flex flex-wrap">
+			{#each recommendations.edgeSettings as es, index}
+				{#each Object.keys(es) as key}
+					{#if key != 'source' && key != 'rule'}
+						<SettingValue
+							setting={es[key]}
+							rule={index > 0 ? es.rule : null}
+							bind:collapsed={edgeCollapsed}
+						/>
+					{/if}
+				{/each}
+			{/each}
+			<div class="flex justify-center align-middle">
+				<Collapser bind:collapsed={edgeCollapsed} horizontal={true} />
+			</div>
+		</div>
+	{/if}
+</div>

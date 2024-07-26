@@ -132,7 +132,7 @@
 							}
 						]
 					},
-					"size": { "name": "size", "value": 1, "min": 1, "max": 10 },
+					"size": { "name": "size", "value": 2.423652341, "min": 1, "max": 10 },
 					"color": {
 						"name": "color",
 						"value": [[{ "r": 0, "g": 15, "b": 100, "a": 1 }, 1]]

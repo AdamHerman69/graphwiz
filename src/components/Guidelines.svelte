@@ -9,9 +9,12 @@
 	let guidelines: Guideline[] = getContext('guidelines') as Guideline[];
 </script>
 
-<div class="cardStack">
-	{#each guidelines as guideline}
-		<div class="{guideline.status?.applied === 'fully' ? 'cardInset' : 'card'} cardSpacing">
+<div>
+	{#each guidelines as guideline, index}
+		<div
+			class="{guideline.status?.applied === 'fully' ? 'cardInset' : 'card'} cardSpacing"
+			class:first={index === 0}
+		>
 			<GuidelineCard {guideline} />
 		</div>
 	{/each}
@@ -24,24 +27,7 @@
 </div>
 
 <style>
-	.cardStack {
-		height: 100%;
-		width: 100%;
-		overflow-y: scroll;
-		padding: 0px 40px 0px 40px;
-		margin: 0px -40px;
-		width: 380px;
-
-		scroll-behavior: smooth;
-		pointer-events: none;
-
-		/* Hide scrollbar for IE, Edge, and Firefox */
-		-ms-overflow-style: none; /* IE and Edge */
-		scrollbar-width: none; /* Firefox */
-
-		/* Hide scrollbar for Chrome, Safari, and Opera */
-		&::-webkit-scrollbar {
-			display: none;
-		}
+	.first {
+		margin-top: 10px;
 	}
 </style>

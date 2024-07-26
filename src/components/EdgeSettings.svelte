@@ -13,6 +13,9 @@
 	import SettingsSelect from './SettingsSelect.svelte';
 	import { getContext } from 'svelte';
 
+	let { side }: { side: 'left' | 'right' } = $props();
+	setContext('side', side);
+
 	let graphSettings: GraphSettingsClass = getContext('graphSettings');
 
 	let collapsed = $state(false);

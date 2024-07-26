@@ -32,3 +32,4 @@
 
 <button class="text-sm" onclick={() => applyGuideline(guideline, graphSettings)}>apply</button>
 <button class="text-sm" onclick={() => console.log($state.snapshot(guideline))}>log</button>
+<button class="text-sm" onclick={() => console.log($state.snapshot(guideline))}>expand</button>

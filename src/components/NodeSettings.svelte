@@ -10,11 +10,13 @@
 	import { availableAttributes } from '../utils/graph.svelte';
 	import { getContext } from 'svelte';
 
-	let graphSettings: GraphSettingsClass = getContext('graphSettings');
-
-	let collapsed = $state(false);
+	let { side }: { side: 'left' | 'right' } = $props();
+	setContext('side', side);
 
 	setContext('type', 'node');
+
+	let graphSettings: GraphSettingsClass = getContext('graphSettings');
+	let collapsed = $state(false);
 
 	function addRule() {
 		// todo priority and ID

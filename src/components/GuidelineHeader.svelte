@@ -7,6 +7,7 @@
 	import collapseAnimation from '../assets/animated_icons/alternating_arrow.json';
 	import lottie, { type AnimationItem } from 'lottie-web';
 	import { onMount } from 'svelte';
+	import { hoverPopup } from './GUI/HoverPopup.svelte';
 
 	let { guideline }: { guideline: Guideline } = $props();
 
@@ -38,7 +39,9 @@
 
 <div class="flex justify-between align-middle mb-1">
 	<div class="flex justify-center align-middle">
-		<div class="text-lg font-bold">{guideline.name}</div>
+		<div class="text-lg font-bold">
+			{guideline.name}
+		</div>
 	</div>
 	<div class="flex items-center">
 		<button bind:this={collapseButton} on:click={collapse} class="w-5 h-5" />
@@ -46,14 +49,14 @@
 	</div>
 </div>
 <ScoreBar score={guideline.score} />
-<div use:autoAnimate class="mt-1 labelContainer px-2">
+<div use:autoAnimate class="mt-1 labelContainer px-3">
 	{#if !collapsed}
-		<div class="py-2">
+		<div class="pb-1">
 			{#if isComposite(guideline.rootCondition.condition)}
 				{#each guideline.rootCondition.condition.conditions.sort((a, b) => b.scoreWeighted - a.scoreWeighted) as weightedCondition, index}
 					<WeightedCondition {weightedCondition} />
 					<div
-						class={`mx-1 ${index < guideline.rootCondition.condition.conditions.length - 1 ? 'border-b border-gray-200' : ''}`}
+						class={`${index < guideline.rootCondition.condition.conditions.length - 1 ? 'border-b border-gray-200' : ''}`}
 					/>
 				{/each}
 			{/if}

@@ -119,13 +119,13 @@
 <div class="flex h-full w-full" bind:clientWidth={fullWidth}>
 	{#if splitView.left}
 		<div class="h-full relative" style="width: {width.left}%">
-			<AppView side="left" />
+			<AppView side={splitView.right ? 'left' : 'full'} />
 		</div>
 	{/if}
 
 	{#if splitView.right}
 		<div class="h-full relative" style="width: {width.right}%">
-			<AppView side="right" />
+			<AppView side={splitView.left ? 'right' : 'full'} />
 		</div>
 	{/if}
 

@@ -9,7 +9,7 @@
 	let collapsed = $state(false);
 </script>
 
-<div use:autoAnimate={{ duration: 300 }} class="card cardSpacing mt-10">
+<div use:autoAnimate={{ duration: 300 }} class="card cardSpacing">
 	<SettingsHeader title="layout" bind:collapsed />
 	{#if !collapsed}
 		<div use:autoAnimate={{ duration: 300 }} class="flex mx-2 my-2">
@@ -22,3 +22,9 @@
 		</div>
 	{/if}
 </div>
+
+<style>
+	.cardSpacing.cardSpacing {
+		margin-top: 10px;
+	}
+</style>

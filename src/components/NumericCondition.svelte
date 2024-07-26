@@ -11,7 +11,7 @@
 </script>
 
 <div class="flex-col w-full">
-	<div class="flex justify-between w-full items-center">
+	<div class="flex justify-between w-full">
 		<div class="flex-col">
 			<div class="font-bold">{numericCondition.property}</div>
 			<div class="flex">
