@@ -102,6 +102,7 @@
 					onclick={() => toggleHidden('left')}
 					onmouseover={() => (hintSlideLeft = true)}
 					onmouseout={() => (hintSlideLeft = false)}
+					class:hintSlideInRight={hidden['left'] && hintSlideLeft}
 				>
 					<span class="material-symbols-outlined"
 						>{hidden.left ? 'chevron_right' : 'chevron_left'}</span
@@ -167,6 +168,7 @@
 					onclick={() => toggleHidden('right')}
 					onmouseover={() => (hintSlideRight = true)}
 					onmouseout={() => (hintSlideRight = false)}
+					class:hintSlideInLeft={hidden['right'] && hintSlideRight}
 				>
 					<span class="material-symbols-outlined"
 						>{hidden.right ? 'chevron_left' : 'chevron_right'}</span
@@ -301,6 +303,17 @@
 	.buttonContainer button {
 		margin-bottom: 5px;
 		pointer-events: auto;
+		transition:
+			padding-left 0.3s ease,
+			padding-right 0.3s ease;
+	}
+
+	.buttonContainer button.hintSlideInRight {
+		padding-left: 10px;
+	}
+
+	.buttonContainer button.hintSlideInLeft {
+		padding-right: 10px;
 	}
 
 	.settingToggleButtons {
