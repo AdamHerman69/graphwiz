@@ -99,7 +99,9 @@
 			<div class="buttonContainer" class:stackHidden={hidden['left']} use:autoAnimate>
 				<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 				<button
-					onclick={() => toggleHidden('left')}
+					onclick={() => {
+						toggleHidden('left');
+					}}
 					onmouseover={() => (hintSlideLeft = true)}
 					onmouseout={() => (hintSlideLeft = false)}
 					class:hintSlideInRight={hidden['left'] && hintSlideLeft}

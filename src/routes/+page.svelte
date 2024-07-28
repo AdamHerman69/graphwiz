@@ -16,6 +16,7 @@
 		type Guideline,
 		applyGuideline
 	} from '../utils/guideline.svelte';
+	import DynamicIslandCenter from '../components/DynamicIslandCenter.svelte';
 
 	// todo refactor elsewhere
 	let graph = loadSampleGraph();
@@ -114,6 +115,9 @@
 		const hoverCircle = document.getElementById('hoverCircle');
 		hoverCircle.style.visibility = 'hidden';
 	}
+
+	let stickyLeft = $state(false);
+	let stickyRight = $state(false);
 </script>
 
 <div class="flex h-full w-full" bind:clientWidth={fullWidth}>
@@ -179,6 +183,10 @@
 			</svg>
 		</div>
 	{/if}
+
+	<div class="absolute top-10 z-50 left-1/2 transform -translate-x-1/2 pointer-events-none">
+		<DynamicIslandCenter exportSVG={() => 'export svg'} bind:stickyLeft bind:stickyRight />
+	</div>
 </div>
 
 <style>

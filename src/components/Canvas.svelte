@@ -100,9 +100,9 @@
 		onmousemove={canvasHandler.detectHover}
 		onclick={canvasHandler.canvasClicked}
 	></canvas>
-	<div class="absolute top-10 left-1/2 transform -translate-x-1/2 pointer-events-none">
+	<!-- <div class="absolute top-10 left-1/2 transform -translate-x-1/2 pointer-events-none">
 		<DynamicIsland exportSVG={canvasHandler.exportSVG} bind:sticky={canvasHandler.sticky} />
-	</div>
+	</div> -->
 	<ReadabilityMetrics bind:readability={canvasHandler.readability} />
 
 	{#if canvasHandler.selectedNode}
