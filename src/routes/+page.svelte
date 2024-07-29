@@ -136,12 +136,12 @@
 	{#if splitView.left && splitView.right}
 		<div class="middleContainer" style="left: {width.left}%">
 			<div class="splitButtons">
-				<button onclick={() => toggleSplitView(true, false)}>
-					<span class="material-symbols-outlined"> splitscreen_left </span>
+				<button onclick={() => toggleSplitView(false, true)}>
+					<span class="material-symbols-outlined"> chevron_left </span>
 				</button>
 
-				<button onclick={() => toggleSplitView(false, true)}>
-					<span class="material-symbols-outlined"> splitscreen_right </span>
+				<button onclick={() => toggleSplitView(true, false)}>
+					<span class="material-symbols-outlined"> chevron_right </span>
 				</button>
 			</div>
 
@@ -211,11 +211,9 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		background-color: black;
-		color: white;
+		color: black;
 		border-radius: 20px;
-		margin-top: 50px; /* 65px is the height of the menu bar */
-		box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
+		margin-top: 100px; /* 65px is the height of the menu bar */
 	}
 
 	.splitButtons button {
