@@ -25,6 +25,7 @@
 		let g = getGraph();
 
 		untrack(() => {
+			console.log('----------------------canvasHandler init');
 			canvasHandler.initialize(canvas, width, height, g);
 
 			canvasHandler.startForceSimulation(
@@ -74,6 +75,7 @@
 	onMount(() => {
 		// initialize spring with the middle of canvas
 		selectedNodeSpring = spring({ x: width / 2, y: height / 2 }, { stiffness: 0.05, damping: 0.2 });
+		console.log('----------------canvas mounting');
 	});
 	$effect(() => {
 		if (canvasHandler.selectedNode && canvasHandler.selectedNodePosition) {
@@ -92,7 +94,7 @@
 
 <div class="relative h-full w-full">
 	<canvas
-		resize="true"
+		resize={true}
 		class="h-full w-full"
 		bind:this={canvas}
 		bind:clientWidth={width}

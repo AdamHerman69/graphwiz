@@ -23,7 +23,6 @@
 
 	initGraph();
 
-	//
 	let graphSettingsLeft = new GraphSettingsClass();
 	let graphSettingsRight: GraphSettingsClass = new GraphSettingsClass();
 
@@ -41,6 +40,7 @@
 	}
 
 	let splitView = $state({ left: true, right: false });
+
 	function toggleSplitView(left: boolean, right: boolean) {
 		// close right
 		if (left && !right) {
@@ -138,8 +138,8 @@
 		<div class="h-full relative" style="width: {width.left}%">
 			<AppView
 				side={splitView.right ? 'left' : 'full'}
-				graphSettings={graphSettingsLeft}
-				canvasHandler={leftCanvasHandler}
+				bind:graphSettings={graphSettingsLeft}
+				bind:canvasHandler={leftCanvasHandler}
 			/>
 		</div>
 	{/if}
@@ -148,8 +148,8 @@
 		<div class="h-full relative" style="width: {width.right}%">
 			<AppView
 				side={splitView.left ? 'right' : 'full'}
-				graphSettings={graphSettingsRight}
-				canvasHandler={rightCanvasHandler}
+				bind:graphSettings={graphSettingsRight}
+				bind:canvasHandler={rightCanvasHandler}
 			/>
 		</div>
 	{/if}

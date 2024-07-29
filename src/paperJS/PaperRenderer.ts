@@ -29,7 +29,8 @@ export interface Renderer {
 		inputNodes: NodePositionDatum[],
 		inputEdges: EdgeDatum[],
 		nodeStyles: Map<string, NodeStyle>,
-		edgeStyles: Map<string, EdgeStyle>
+		edgeStyles: Map<string, EdgeStyle>,
+		canvas?: HTMLCanvasElement
 	): void;
 	zoomed(zoomEvent: d3.ZoomBehavior<HTMLCanvasElement, any>): d3.ZoomTransform;
 	exportSVG(): string;
@@ -100,8 +101,13 @@ export class PaperRenderer implements Renderer {
 		inputNodes: NodePositionDatum[],
 		inputEdges: EdgeDatum[],
 		nodeStyles: Map<string, NodeStyle>,
-		edgeStyles: Map<string, EdgeStyle>
+		edgeStyles: Map<string, EdgeStyle>,
+		canvas?: HTMLCanvasElement
 	) {
+		if (canvas) {
+			this.paperScope = new Paper.PaperScope();
+			this.paperScope.setup(canvas);
+		}
 		this.paperScope.activate();
 		this.paperScope.project.clear();
 

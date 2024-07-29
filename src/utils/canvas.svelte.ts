@@ -48,7 +48,7 @@ export interface ICanvasHandler {
 	resize(width: number, height: number): void;
 	resetTransform(): void;
 
-	readablity: ReadabilityMetrics | undefined;
+	readablity?: ReadabilityMetrics | undefined;
 	selectedNode: D3Node | null;
 	selectedNodePosition: { x: number; y: number } | null;
 	sticky: boolean;
@@ -162,7 +162,8 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 				this.d3nodes as NodePositionDatum[],
 				this.d3links as EdgeDatum[],
 				nodeStyles,
-				edgeStyles
+				edgeStyles,
+				this.canvas
 			);
 		else
 			this.paperRenderer = new PaperRenderer(

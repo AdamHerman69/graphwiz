@@ -17,8 +17,8 @@
 
 	let {
 		side,
-		graphSettings,
-		canvasHandler
+		graphSettings = $bindable(),
+		canvasHandler = $bindable()
 	}: {
 		side: 'left' | 'right' | 'full';
 		graphSettings: GraphSettingsClass;
