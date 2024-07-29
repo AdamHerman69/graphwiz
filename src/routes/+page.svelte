@@ -17,14 +17,28 @@
 		applyGuideline
 	} from '../utils/guideline.svelte';
 	import DynamicIslandCenter from '../components/DynamicIslandCenter.svelte';
+	import type Graph from 'graphology';
+	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
+	import { type ICanvasHandler, WebWorkerCanvasHandler } from '../utils/canvas.svelte';
 
-	// todo refactor elsewhere
-	let graph = loadSampleGraph();
-	computeAttributes(getGraph());
-	recomputeCharacteristics(graph);
-	loadGuidelines();
+	initGraph();
+
+	//
+	let graphSettingsLeft = new GraphSettingsClass();
+	let graphSettingsRight: GraphSettingsClass = new GraphSettingsClass();
+
+	let leftCanvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
+	let rightCanvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
 
 	setContext('toggleSplitView', toggleSplitView);
+
+	function initGraph(): Graph {
+		let graph = loadSampleGraph();
+		computeAttributes(getGraph());
+		recomputeCharacteristics(graph);
+		loadGuidelines();
+		return graph;
+	}
 
 	let splitView = $state({ left: true, right: false });
 	function toggleSplitView(left: boolean, right: boolean) {
@@ -96,40 +110,45 @@
 		document.removeEventListener('mouseup', stopDrag);
 	}
 
-	function dividerHover(e: MouseEvent) {
-		const hoverCircle = document.getElementById('hoverCircle');
+	// function dividerHover(e: MouseEvent) {
+	// 	const hoverCircle = document.getElementById('hoverCircle');
 
-		const rect = e.currentTarget.getBoundingClientRect();
-		const y = e.clientY - rect.top; // x position within the element.
-		const x = e.clientX - rect.left; // y position within the element.
-		hoverCircle.setAttribute('cy', y.toString());
-		hoverCircle.setAttribute('cx', x.toString());
-	}
+	// 	const rect = e.currentTarget.getBoundingClientRect();
+	// 	const y = e.clientY - rect.top; // x position within the element.
+	// 	const x = e.clientX - rect.left; // y position within the element.
+	// 	hoverCircle.setAttribute('cy', y.toString());
+	// 	hoverCircle.setAttribute('cx', x.toString());
+	// }
 
-	function showCircle() {
-		const hoverCircle = document.getElementById('hoverCircle');
-		hoverCircle.style.visibility = 'visible';
-	}
+	// function showCircle() {
+	// 	const hoverCircle = document.getElementById('hoverCircle');
+	// 	hoverCircle.style.visibility = 'visible';
+	// }
 
-	function hideCircle() {
-		const hoverCircle = document.getElementById('hoverCircle');
-		hoverCircle.style.visibility = 'hidden';
-	}
-
-	let stickyLeft = $state(false);
-	let stickyRight = $state(false);
+	// function hideCircle() {
+	// 	const hoverCircle = document.getElementById('hoverCircle');
+	// 	hoverCircle.style.visibility = 'hidden';
+	// }
 </script>
 
 <div class="flex h-full w-full" bind:clientWidth={fullWidth}>
 	{#if splitView.left}
 		<div class="h-full relative" style="width: {width.left}%">
-			<AppView side={splitView.right ? 'left' : 'full'} />
+			<AppView
+				side={splitView.right ? 'left' : 'full'}
+				graphSettings={graphSettingsLeft}
+				canvasHandler={leftCanvasHandler}
+			/>
 		</div>
 	{/if}
 
 	{#if splitView.right}
 		<div class="h-full relative" style="width: {width.right}%">
-			<AppView side={splitView.left ? 'right' : 'full'} />
+			<AppView
+				side={splitView.left ? 'right' : 'full'}
+				graphSettings={graphSettingsRight}
+				canvasHandler={rightCanvasHandler}
+			/>
 		</div>
 	{/if}
 
@@ -147,16 +166,8 @@
 
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
-			<svg
-				class="divider"
-				onmousedown={dragStart}
-				onmouseover={dividerHover}
-				onmouseenter={showCircle}
-				onmouseleave={hideCircle}
-				height="100%"
-				width="30"
-			>
-				<defs>
+			<svg class="divider" onmousedown={dragStart} height="100%" width="19">
+				<!-- <defs>
 					<filter id="split-effect" width="400%" x="-150%" height="400%" y="-150%">
 						<feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
 						<feColorMatrix
@@ -169,23 +180,26 @@
 					<filter id="drop-shadow" x="-50%" y="-50%" width="200%" height="200%">
 						<feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="rgba(0,0,0,0.5)" />
 					</filter>
-				</defs>
+				</defs> -->
 				<!-- <g filter="url(#drop-shadow)">
 						<g filter="url(#split-effect)">
 							<rect width="100%" height="100%" fill="#000000"></rect>
 						</g>
 					</g> -->
-				<g filter="url(#split-effect)">
-					<rect x="12.3" width="5.4" height="100%" fill="black"></rect>
-					<circle id="hoverCircle" cx="-100" cy="-100" r="6" fill="black" visibility="hidden" />
-				</g>
-				<g><rect x="13.3" width="2" height="100%" fill="black"></rect></g>
+				<g><rect x="9" width="1" height="100%" fill="black"></rect></g>
 			</svg>
 		</div>
 	{/if}
 
 	<div class="absolute top-10 z-50 left-1/2 transform -translate-x-1/2 pointer-events-none">
-		<DynamicIslandCenter exportSVG={() => 'export svg'} bind:stickyLeft bind:stickyRight />
+		<DynamicIslandCenter
+			bind:stickyLeft={leftCanvasHandler.sticky}
+			bind:stickyRight={rightCanvasHandler.sticky}
+			bind:exportSVGLeft={leftCanvasHandler.exportSVG}
+			bind:exportSVGRight={rightCanvasHandler.exportSVG}
+			bind:graphSettingsLeft
+			bind:graphSettingsRight
+		/>
 	</div>
 </div>
 
@@ -214,6 +228,7 @@
 		color: black;
 		border-radius: 20px;
 		margin-top: 100px; /* 65px is the height of the menu bar */
+		transform: translateY(80%);
 	}
 
 	.splitButtons button {

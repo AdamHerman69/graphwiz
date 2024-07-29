@@ -17,7 +17,7 @@
 	let width: number = $state(0);
 	let height: number = $state(0);
 
-	let canvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
+	let canvasHandler: ICanvasHandler = getContext('canvasHandler');
 
 	// react to graph change
 	$effect(() => {
@@ -110,6 +110,10 @@
 			<NodeInfo nodeID={canvasHandler.selectedNode.id} />
 		</div>
 	{/if}
+
+	<div class="resetTransform">
+		<button onclick={canvasHandler.resetTransform}>reset transform</button>
+	</div>
 </div>
 
 <!-- State stack debug tool -->
@@ -130,5 +134,11 @@
 	.nodeInfo {
 		position: absolute;
 		transform: translate(-50%, 20px);
+	}
+
+	.resetTransform {
+		position: absolute;
+		bottom: 10px;
+		right: 10px;
 	}
 </style>

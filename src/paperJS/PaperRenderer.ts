@@ -34,6 +34,7 @@ export interface Renderer {
 	zoomed(zoomEvent: d3.ZoomBehavior<HTMLCanvasElement, any>): d3.ZoomTransform;
 	exportSVG(): string;
 	resize(width: number, height: number): void;
+	resetZoom(): void;
 }
 
 export class PaperRenderer implements Renderer {
@@ -157,6 +158,21 @@ export class PaperRenderer implements Renderer {
 		this.paperScope.view.center = newCenter;
 
 		return transform;
+	}
+
+	resetZoom(): void {
+		this.paperScope.activate();
+
+		// Reset zoom to default (1)
+		this.paperScope.view.zoom = 1;
+
+		// Reset the center of the view to the original center of the canvas
+		const originalCenter = new this.paperScope.Point(
+			this.paperScope.view.bounds.width / 2,
+			this.paperScope.view.bounds.height / 2
+		);
+
+		this.paperScope.view.center = originalCenter;
 	}
 
 	exportSVG() {

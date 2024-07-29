@@ -46,6 +46,7 @@ export interface ICanvasHandler {
 	exportSVG(): string;
 	changeLayout(layout: LayoutType): Promise<void>;
 	resize(width: number, height: number): void;
+	resetTransform(): void;
 
 	readablity: ReadabilityMetrics | undefined;
 	selectedNode: D3Node | null;
@@ -102,6 +103,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.detectHover = this.detectHover.bind(this);
 		this.canvasClicked = this.canvasClicked.bind(this);
 		this.exportSVG = this.exportSVG.bind(this);
+		this.resetTransform = this.resetTransform.bind(this);
 
 		if (canvas && width && height && graph) {
 			this.initialize(canvas, width, height, graph);
@@ -336,6 +338,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	}
 
 	resize(width: number, height: number): void {
+		// todo move all sticky points
 		this.paperRenderer.resize(width, height);
 		this.simulationWorker.postMessage({ type: 'resize', width, height });
 	}
@@ -383,6 +386,17 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			});
 			this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
 		}
+	}
+
+	resetTransform(): void {
+		// Reset the transform to the identity transform
+		this.transform = d3.zoomIdentity;
+
+		// Reset the zoom behavior
+		d3.select(this.canvas).call(d3.zoom().transform, d3.zoomIdentity);
+
+		// Reset the paper renderer's zoom and center
+		this.paperRenderer.resetZoom();
 	}
 }
 

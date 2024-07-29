@@ -5,14 +5,23 @@
 	import { blur } from 'svelte/transition';
 	import { getContext } from 'svelte';
 	import type { GraphSettingsClass } from '../utils/graphSettings.svelte';
-
-	let graphSettings: GraphSettingsClass = getContext('graphSettings');
+	import type { ICanvasHandler } from '../utils/canvas.svelte';
 
 	let {
 		stickyLeft = $bindable(),
 		stickyRight = $bindable(),
-		exportSVG
-	}: { stickyLeft: boolean; stickyRight: boolean; exportSVG: () => string } = $props();
+		exportSVGLeft = $bindable(),
+		exportSVGRight = $bindable(),
+		graphSettingsLeft = $bindable(),
+		graphSettingsRight = $bindable()
+	}: {
+		stickyLeft: boolean;
+		stickyRight: boolean | undefined;
+		exportSVGLeft: () => string;
+		exportSVGRight: () => string;
+		graphSettingsLeft: GraphSettingsClass;
+		graphSettingsRight: GraphSettingsClass;
+	} = $props();
 
 	let double = $state(false);
 
@@ -29,8 +38,13 @@
 	const SVG_HEIGHT = 220;
 
 	const singleViewButtons = [
-		{ icon: 'upload_file', action: () => (menuOpen = 'import'), label: 'Import' },
-		{ icon: 'download', action: () => (menuOpen = 'export'), label: 'Export' },
+		{
+			icon: 'keep',
+			action: () => (stickyLeft = !stickyLeft),
+			label: 'Sticky Right'
+		},
+		{ icon: 'undo', action: graphSettingsLeft.undo, label: 'Right Undo' },
+		{ icon: 'redo', action: graphSettingsLeft.redo, label: 'Right Redo' },
 		{
 			icon: 'splitscreen_vertical_add',
 			action: () => {
@@ -39,20 +53,27 @@
 			},
 			label: 'Split View'
 		},
-		{ icon: 'undo', action: () => console.log('undo'), label: 'Right Undo' },
-		{ icon: 'redo', action: () => console.log('redo'), label: 'Right Redo' },
-		{ icon: 'keep', action: () => (stickyRight = !stickyRight), label: 'Sticky Right' }
+		{ icon: 'upload_file', action: () => (menuOpen = 'import'), label: 'Import' },
+		{ icon: 'download', action: () => (menuOpen = 'export'), label: 'Export' }
 	];
 
 	const splitViewButtons = [
-		{ icon: 'keep', action: () => (stickyLeft = !stickyLeft), label: 'Sticky Left' },
-		{ icon: 'undo', action: () => console.log('left undo'), label: 'Left Undo' },
-		{ icon: 'redo', action: () => console.log('left redo'), label: 'Left Redo' },
+		{
+			icon: 'keep',
+			action: () => (stickyLeft = !stickyLeft),
+			label: 'Sticky Left'
+		},
+		{ icon: 'undo', action: graphSettingsLeft.undo, label: 'Left Undo' },
+		{ icon: 'redo', action: graphSettingsLeft.redo, label: 'Left Redo' },
 		{ icon: 'upload_file', action: () => (menuOpen = 'import'), label: 'Import' },
 		{ icon: 'download', action: () => (menuOpen = 'export'), label: 'Export' },
-		{ icon: 'undo', action: () => console.log('right undo'), label: 'Right Undo' },
-		{ icon: 'redo', action: () => console.log('right redo'), label: 'Right Redo' },
-		{ icon: 'keep', action: () => (stickyRight = !stickyRight), label: 'Sticky Right' }
+		{ icon: 'undo', action: graphSettingsRight.undo, label: 'Right Undo' },
+		{ icon: 'redo', action: graphSettingsRight.redo, label: 'Right Redo' },
+		{
+			icon: 'keep',
+			action: () => (stickyRight = !stickyRight),
+			label: 'Sticky Right'
+		}
 	];
 
 	let buttons = $derived(double ? splitViewButtons : singleViewButtons);
@@ -74,6 +95,7 @@
 	const ISLAND_X_MARGIN = 17;
 	const ISLAND_EXPANDED_WIDTH = 400;
 	const ISLAND_EXPANDED_HEIGHT = 200;
+
 	let island_width = $derived.by(() => {
 		if (menuOpen) {
 			return ISLAND_EXPANDED_WIDTH;
@@ -277,6 +299,7 @@
 				<feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="rgba(0,0,0,0.5)" />
 			</filter>
 		</defs>
+		<!-- DEBUG -->
 		<!-- <rect x={island_x} y={Y + 50} width={3} height={3} fill="red" />
 		<rect x={STICKY_LEFT_INSIDE_X} y={Y + 50} width={3} height={3} fill="green" />
 		<rect x={STICKY_RIGHT_INSIDE_X} y={Y + 50} width={3} height={3} fill="blue" /> -->
@@ -291,20 +314,21 @@
 					rx="16"
 					fill="black"
 				/>
+
 				<rect
-					x={$rightStickyStyles.x}
-					y={$rightStickyStyles.y}
-					width={$rightStickyStyles.width}
-					height={$rightStickyStyles.height}
+					x={$leftStickyStyles.x}
+					y={$leftStickyStyles.y}
+					width={$leftStickyStyles.width}
+					height={$leftStickyStyles.height}
 					rx="16"
 					fill="black"
 				/>
 				{#if double}
 					<rect
-						x={$leftStickyStyles.x}
-						y={$leftStickyStyles.y}
-						width={$leftStickyStyles.width}
-						height={$leftStickyStyles.height}
+						x={$rightStickyStyles.x}
+						y={$rightStickyStyles.y}
+						width={$rightStickyStyles.width}
+						height={$rightStickyStyles.height}
 						rx="16"
 						fill="black"
 					/>
@@ -316,7 +340,7 @@
 		{#if !menuOpen}
 			{#if !double}
 				{#each buttons as button, index}
-					{#if index != buttons.length - 1 && (!double || index != 0)}
+					{#if index != 0}
 						<button
 							transition:blur
 							onclick={button.action}
@@ -343,7 +367,7 @@
 		{/if}
 
 		<!-- Sticky Right -->
-		{#if stickyRight || !menuOpen}
+		{#if double && (stickyRight || !menuOpen)}
 			<button
 				transition:blur
 				onclick={() => (stickyRight = !stickyRight)}
@@ -353,7 +377,7 @@
 			</button>
 		{/if}
 		<!-- Sticky Left -->
-		{#if double && (stickyLeft || !menuOpen)}
+		{#if stickyLeft || !menuOpen}
 			<button
 				transition:blur
 				onclick={() => (stickyLeft = !stickyLeft)}

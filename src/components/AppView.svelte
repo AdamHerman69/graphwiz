@@ -13,16 +13,24 @@
 	import autoAnimate from '@formkit/auto-animate';
 	import SideBarSwitch from './GUI/SideBarSwitch.svelte';
 	import { hoverPopup } from './GUI/hoverPopup.svelte';
+	import type { ICanvasHandler } from '../utils/canvas.svelte';
 
-	const graphSettings = new GraphSettingsClass();
-	console.log('created GS', graphSettings.stateIndex);
+	let {
+		side,
+		graphSettings,
+		canvasHandler
+	}: {
+		side: 'left' | 'right' | 'full';
+		graphSettings: GraphSettingsClass;
+		canvasHandler: ICanvasHandler;
+	} = $props();
+
 	setContext<GraphSettingsClass>('graphSettings', graphSettings);
+	setContext<ICanvasHandler>('canvasHandler', canvasHandler);
 
 	const guidelines = $state(newGuidelineSet(graphSettings));
 	sortGuidelines(guidelines, getGraph());
 	setContext<Guideline[]>('guidelines', guidelines);
-
-	let { side }: { side: 'left' | 'right' | 'full' } = $props();
 
 	type PanelState = {
 		left: 'guidelines' | 'settings';
