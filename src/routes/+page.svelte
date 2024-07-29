@@ -44,6 +44,7 @@
 	function toggleSplitView(left: boolean, right: boolean) {
 		// close right
 		if (left && !right) {
+			rightCanvasHandler.sticky = false;
 			gsap.to(width, {
 				duration: 0.15,
 				left: 100,
@@ -72,6 +73,7 @@
 			});
 		} else if (!left && right) {
 			// close left
+			leftCanvasHandler.sticky = false;
 			gsap.to(width, {
 				duration: 0.15,
 				left: 0,
@@ -199,6 +201,7 @@
 			bind:exportSVGRight={rightCanvasHandler.exportSVG}
 			bind:graphSettingsLeft
 			bind:graphSettingsRight
+			bind:splitView
 		/>
 	</div>
 </div>

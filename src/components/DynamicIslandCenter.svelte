@@ -13,7 +13,8 @@
 		exportSVGLeft = $bindable(),
 		exportSVGRight = $bindable(),
 		graphSettingsLeft = $bindable(),
-		graphSettingsRight = $bindable()
+		graphSettingsRight = $bindable(),
+		splitView = $bindable()
 	}: {
 		stickyLeft: boolean;
 		stickyRight: boolean | undefined;
@@ -21,9 +22,15 @@
 		exportSVGRight: () => string;
 		graphSettingsLeft: GraphSettingsClass;
 		graphSettingsRight: GraphSettingsClass;
+		splitView: { left: boolean; right: boolean };
 	} = $props();
 
-	let double = $state(false);
+	let view = $derived.by(() => {
+		if (splitView.left && splitView.right) return 'double';
+		if (splitView.left && !splitView.right) return 'left';
+		if (!splitView.left && splitView.right) return 'right';
+		else throw new Error("both sides can't be closed at the same time");
+	});
 
 	let menuOpen: 'import' | 'export' | null = $state(null);
 
@@ -37,46 +44,62 @@
 	const SVG_WIDTH = 520;
 	const SVG_HEIGHT = 220;
 
-	const singleViewButtons = [
-		{
-			icon: 'keep',
-			action: () => (stickyLeft = !stickyLeft),
-			label: 'Sticky Right'
-		},
-		{ icon: 'undo', action: graphSettingsLeft.undo, label: 'Right Undo' },
-		{ icon: 'redo', action: graphSettingsLeft.redo, label: 'Right Redo' },
-		{
-			icon: 'splitscreen_vertical_add',
-			action: () => {
-				double = true;
-				toggleSplitView(true, true);
+	const buttons = {
+		left: [
+			{
+				icon: 'keep',
+				action: () => (stickyLeft = !stickyLeft),
+				label: 'Sticky Right'
 			},
-			label: 'Split View'
-		},
-		{ icon: 'upload_file', action: () => (menuOpen = 'import'), label: 'Import' },
-		{ icon: 'download', action: () => (menuOpen = 'export'), label: 'Export' }
-	];
-
-	const splitViewButtons = [
-		{
-			icon: 'keep',
-			action: () => (stickyLeft = !stickyLeft),
-			label: 'Sticky Left'
-		},
-		{ icon: 'undo', action: graphSettingsLeft.undo, label: 'Left Undo' },
-		{ icon: 'redo', action: graphSettingsLeft.redo, label: 'Left Redo' },
-		{ icon: 'upload_file', action: () => (menuOpen = 'import'), label: 'Import' },
-		{ icon: 'download', action: () => (menuOpen = 'export'), label: 'Export' },
-		{ icon: 'undo', action: graphSettingsRight.undo, label: 'Right Undo' },
-		{ icon: 'redo', action: graphSettingsRight.redo, label: 'Right Redo' },
-		{
-			icon: 'keep',
-			action: () => (stickyRight = !stickyRight),
-			label: 'Sticky Right'
-		}
-	];
-
-	let buttons = $derived(double ? splitViewButtons : singleViewButtons);
+			{ icon: 'undo', action: graphSettingsLeft.undo, label: 'Right Undo' },
+			{ icon: 'redo', action: graphSettingsLeft.redo, label: 'Right Redo' },
+			{
+				icon: 'splitscreen_vertical_add',
+				action: () => {
+					toggleSplitView(true, true);
+				},
+				label: 'Split View'
+			},
+			{ icon: 'upload_file', action: () => (menuOpen = 'import'), label: 'Import' },
+			{ icon: 'download', action: () => (menuOpen = 'export'), label: 'Export' }
+		],
+		right: [
+			{
+				icon: 'splitscreen_vertical_add',
+				action: () => {
+					toggleSplitView(true, true);
+				},
+				label: 'Split View'
+			},
+			{ icon: 'upload_file', action: () => (menuOpen = 'import'), label: 'Import' },
+			{ icon: 'download', action: () => (menuOpen = 'export'), label: 'Export' },
+			{ icon: 'undo', action: graphSettingsLeft.undo, label: 'Right Undo' },
+			{ icon: 'redo', action: graphSettingsLeft.redo, label: 'Right Redo' },
+			{
+				icon: 'keep',
+				action: () => (stickyLeft = !stickyLeft),
+				label: 'Sticky Right'
+			}
+		],
+		double: [
+			{
+				icon: 'keep',
+				action: () => (stickyLeft = !stickyLeft),
+				label: 'Sticky Left'
+			},
+			{ icon: 'undo', action: graphSettingsLeft.undo, label: 'Left Undo' },
+			{ icon: 'redo', action: graphSettingsLeft.redo, label: 'Left Redo' },
+			{ icon: 'upload_file', action: () => (menuOpen = 'import'), label: 'Import' },
+			{ icon: 'download', action: () => (menuOpen = 'export'), label: 'Export' },
+			{ icon: 'undo', action: graphSettingsRight.undo, label: 'Right Undo' },
+			{ icon: 'redo', action: graphSettingsRight.redo, label: 'Right Redo' },
+			{
+				icon: 'keep',
+				action: () => (stickyRight = !stickyRight),
+				label: 'Sticky Right'
+			}
+		]
+	};
 
 	function getButtonPosition(index: number) {
 		const stickyLeftCompensation = stickyLeft ? 1 : 0;
@@ -91,7 +114,7 @@
 	// ISLAND DIMS
 	const BUTTON_WIDTH = 24;
 	const BUTTON_SPACING = 10;
-	const BUTTON_COUNT = $derived(buttons.length);
+	const BUTTON_COUNT = $derived(buttons[view].length);
 	const ISLAND_X_MARGIN = 17;
 	const ISLAND_EXPANDED_WIDTH = 400;
 	const ISLAND_EXPANDED_HEIGHT = 200;
@@ -314,16 +337,17 @@
 					rx="16"
 					fill="black"
 				/>
-
-				<rect
-					x={$leftStickyStyles.x}
-					y={$leftStickyStyles.y}
-					width={$leftStickyStyles.width}
-					height={$leftStickyStyles.height}
-					rx="16"
-					fill="black"
-				/>
-				{#if double}
+				{#if view === 'left' || view === 'double'}
+					<rect
+						x={$leftStickyStyles.x}
+						y={$leftStickyStyles.y}
+						width={$leftStickyStyles.width}
+						height={$leftStickyStyles.height}
+						rx="16"
+						fill="black"
+					/>
+				{/if}
+				{#if view === 'right' || view === 'double'}
 					<rect
 						x={$rightStickyStyles.x}
 						y={$rightStickyStyles.y}
@@ -338,8 +362,8 @@
 	</svg>
 	<div class="menuBarButtons">
 		{#if !menuOpen}
-			{#if !double}
-				{#each buttons as button, index}
+			{#if view === 'left'}
+				{#each buttons['left'] as button, index}
 					{#if index != 0}
 						<button
 							transition:blur
@@ -351,9 +375,22 @@
 					{/if}
 				{/each}
 			{/if}
-			{#if double}
-				{#each buttons as button, index}
-					{#if index != buttons.length - 1 && (!double || index != 0)}
+			{#if view === 'right'}
+				{#each buttons['right'] as button, index}
+					{#if index != buttons['right'].length - 1}
+						<button
+							transition:blur
+							onclick={button.action}
+							style={`left: ${getButtonPosition(index)}px`}
+						>
+							<span class="material-symbols-outlined">{button.icon}</span>
+						</button>
+					{/if}
+				{/each}
+			{/if}
+			{#if view === 'double'}
+				{#each buttons['double'] as button, index}
+					{#if index != buttons['double'].length - 1 && index != 0}
 						<button
 							transition:blur
 							onclick={button.action}
@@ -367,7 +404,7 @@
 		{/if}
 
 		<!-- Sticky Right -->
-		{#if double && (stickyRight || !menuOpen)}
+		{#if (view === 'right' || view === 'double') && (stickyRight || !menuOpen)}
 			<button
 				transition:blur
 				onclick={() => (stickyRight = !stickyRight)}
@@ -377,7 +414,7 @@
 			</button>
 		{/if}
 		<!-- Sticky Left -->
-		{#if stickyLeft || !menuOpen}
+		{#if (view === 'left' || view === 'double') && (stickyLeft || !menuOpen)}
 			<button
 				transition:blur
 				onclick={() => (stickyLeft = !stickyLeft)}

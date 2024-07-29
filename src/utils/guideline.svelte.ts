@@ -139,10 +139,6 @@ const evaluateRangeCondition = (condition: RangeCondition): number => {
 const evaluateNumericCondition = (condition: NumericCondition): number => {
 	const value: number = graphCharacteristics[condition.property].value as number;
 
-	console.log('condition:', condition);
-	console.log('characteristic:', graphCharacteristics[condition.property]);
-	console.log(value);
-
 	// Check if value is within range
 	if (condition.min !== undefined && value < condition.min) return 0;
 	if (condition.max !== undefined && value > condition.max) return 0;
@@ -173,25 +169,17 @@ const evaluateNumericCondition = (condition: NumericCondition): number => {
 };
 
 const evaluateStringCondition = (condition: StringCondition): number => {
-	console.log(condition);
-	console.log(graphCharacteristics[condition.property].value);
-	console.log(condition.value);
 	return graphCharacteristics[condition.property].value === condition.value ? 1 : 0;
 };
 
 const evaluateBooleanCondition = (condition: BooleanCondition): number => {
-	console.log(condition);
-	console.log(graphCharacteristics[condition.property].value);
-	console.log(condition.value);
 	return graphCharacteristics[condition.property].value === condition.value ? 1 : 0;
 };
 
 const evaluateCompositeCondition = (condition: CompositeCondition): number => {
 	const normalizedConditions = normalizeWeights(condition.conditions);
 	return normalizedConditions.reduce((sum, wc) => {
-		console.log('wc', wc);
 		wc.score = evaluateCondition(wc.condition);
-		console.log('wc.score', wc.score);
 		wc.scoreWeighted = wc.score * wc.weightNormalized!;
 		return sum + wc.scoreWeighted;
 	}, 0);
@@ -225,7 +213,6 @@ export function computeGuidelineStatuses(
 	guidelines: Guideline[],
 	graphSettings: GraphSettingsClass
 ): void {
-	console.log('guidelines:', guidelines);
 	guidelines.forEach((guideline) => {
 		guideline.status = getGuidelineStatus(guideline, graphSettings);
 	});
@@ -294,18 +281,6 @@ function getGuidelineStatus(
 		status.applied = 'partially';
 	}
 
-	console.log(
-		'guideline id:',
-		guideline.id,
-		'status:',
-		status,
-		'appliedCount:',
-		appliedCount,
-		'totalRecommendations:',
-		totalRecommendations
-	);
-	console.log('recommendations:', JSON.stringify(guideline.recommendations, null, 2));
-
 	return status;
 }
 
@@ -337,8 +312,6 @@ function checkSettings(
 		const currentSetting = currentSettings.find((s) =>
 			areRulesEqual(s.rule, recommendedSetting.rule)
 		);
-
-		console.log('guideline: ', guidelineId, 'currentSetting: ', currentSetting);
 
 		if (currentSetting) {
 			if (currentSetting.source === guidelineId) {
@@ -415,10 +388,8 @@ export function applyGuideline(guideline: Guideline, graphSettings: GraphSetting
 
 function addSourceToSettings(guidelines: Guideline[]): void {
 	// todo layout
-	console.log('source guidelines:', $state.snapshot(guidelines));
 	guidelines.forEach((guideline) => {
 		guideline.recommendations.nodeSettings?.forEach((nodeSetting: NodeSettings) => {
-			console.log(guideline.name, nodeSetting);
 			nodeSetting.source = guideline.id;
 			if (nodeSetting.size) nodeSetting.size.source = guideline.id;
 			if (nodeSetting.color) nodeSetting.color.source = guideline.id;
@@ -428,7 +399,6 @@ function addSourceToSettings(guidelines: Guideline[]): void {
 				nodeSetting.labels.forEach((label) => {
 					label.source = guideline.id;
 				});
-			console.log(guideline.name, nodeSetting);
 		});
 
 		guideline.recommendations.edgeSettings?.forEach((edgeSetting) => {
@@ -463,15 +433,12 @@ function addGuidelineIDs(guidelines: Guideline[], graphSettings: GraphSettingsCl
 }
 
 const calculateApplicability = (guideline: Guideline): number => {
-	console.log('calculate applicability: condition:', guideline.rootCondition.condition);
 	guideline.score = evaluateCondition(guideline.rootCondition.condition);
 	return guideline.score;
 };
 
 export const sortGuidelines = (guidelines: Guideline[], graph: Graph): Guideline[] => {
 	guidelines.forEach((guideline) => {
-		console.log('rootCondition', guideline.rootCondition);
-		$inspect(guideline);
 		calculateApplicability(guideline);
 	});
 	guidelines.sort((a, b) => b.score! - a.score!);
