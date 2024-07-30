@@ -89,6 +89,7 @@
 	// todo throttle?
 	$effect(() => {
 		canvasHandler.resize(width, height);
+		console.log('resize called: ', width, height);
 	});
 </script>
 

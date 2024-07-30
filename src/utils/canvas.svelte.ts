@@ -71,7 +71,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	paperRenderer: Renderer;
 
 	sticky: boolean = $state(false);
-	staticPosition: boolean = false;
+	staticPosition: boolean = $state(false);
 
 	hoveredNodeKey: string | undefined = $state(undefined);
 	selectedNode: D3Node | null = $state(null);
@@ -340,8 +340,11 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 
 	resize(width: number, height: number): void {
 		// todo move all sticky points
+		this.width = width;
+		this.height = height;
 		this.paperRenderer.resize(width, height);
 		this.simulationWorker.postMessage({ type: 'resize', width, height });
+		console.log('resize');
 	}
 
 	async changeLayout(layout: LayoutType) {
@@ -361,6 +364,9 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 				this.width,
 				this.height
 			);
+
+			this.staticPosition = true;
+			this.sticky = true;
 
 			this.d3nodes.forEach((node, index) => {
 				let elkNode = elkNodes.find((n) => n.id === node.id);
@@ -386,6 +392,16 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 				}
 			});
 			this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
+
+			// update the worker with the new graph positions - waiting for the animation to be over
+			setTimeout(
+				() =>
+					this.simulationWorker.postMessage({
+						type: 'changePositions',
+						nodes: $state.snapshot(this.d3nodes)
+					}),
+				1100
+			);
 		}
 	}
 
@@ -401,248 +417,248 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	}
 }
 
-export class CanvasHandler implements ICanvasHandler {
-	canvas: HTMLCanvasElement;
-	width: number;
-	height: number;
+// export class CanvasHandler implements ICanvasHandler {
+// 	canvas: HTMLCanvasElement;
+// 	width: number;
+// 	height: number;
 
-	d3nodes: D3Node[] = $state([]);
-	d3links: (d3.SimulationLinkDatum<D3Node> & { id: string })[];
-	simulation: d3.Simulation<D3Node, d3.SimulationLinkDatum<D3Node>> | undefined;
-	transform: d3.ZoomTransform = $state(d3.zoomIdentity);
+// 	d3nodes: D3Node[] = $state([]);
+// 	d3links: (d3.SimulationLinkDatum<D3Node> & { id: string })[];
+// 	simulation: d3.Simulation<D3Node, d3.SimulationLinkDatum<D3Node>> | undefined;
+// 	transform: d3.ZoomTransform = $state(d3.zoomIdentity);
 
-	nodeStyles: NodeStyles;
-	edgeStyles: EdgeStyles;
+// 	nodeStyles: NodeStyles;
+// 	edgeStyles: EdgeStyles;
 
-	paperRenderer: Renderer;
+// 	paperRenderer: Renderer;
 
-	sticky: boolean = $state(false);
-	staticPosition: boolean = false;
+// 	sticky: boolean = $state(false);
+// 	staticPosition: boolean = false;
 
-	hoveredNodeKey: string | undefined = $state(undefined);
-	selectedNode: D3Node | null = $state(null);
-	selectedNodePosition: { x: number; y: number } | null = $derived.by(() => {
-		if (this.selectedNode) {
-			return {
-				x: this.selectedNode.fx
-					? this.transform.applyX(this.selectedNode.fx)
-					: this.transform.applyX(this.selectedNode.x!),
-				y: this.selectedNode.fy
-					? this.transform.applyY(this.selectedNode.fy)
-					: this.transform.applyY(this.selectedNode.y!)
-			};
-		}
-		return null;
-	});
+// 	hoveredNodeKey: string | undefined = $state(undefined);
+// 	selectedNode: D3Node | null = $state(null);
+// 	selectedNodePosition: { x: number; y: number } | null = $derived.by(() => {
+// 		if (this.selectedNode) {
+// 			return {
+// 				x: this.selectedNode.fx
+// 					? this.transform.applyX(this.selectedNode.fx)
+// 					: this.transform.applyX(this.selectedNode.x!),
+// 				y: this.selectedNode.fy
+// 					? this.transform.applyY(this.selectedNode.fy)
+// 					: this.transform.applyY(this.selectedNode.y!)
+// 			};
+// 		}
+// 		return null;
+// 	});
 
-	readability: ReadabilityMetrics | undefined = $state(undefined);
+// 	readability: ReadabilityMetrics | undefined = $state(undefined);
 
-	lastTickTimestamp: number | undefined;
+// 	lastTickTimestamp: number | undefined;
 
-	constructor(canvas?: HTMLCanvasElement, width?: number, height?: number, graph?: Graph) {
-		this.getD3Node = this.getD3Node.bind(this);
-		this.dragStarted = this.dragStarted.bind(this);
-		this.dragged = this.dragged.bind(this);
-		this.dragEnded = this.dragEnded.bind(this);
-		this.detectHover = this.detectHover.bind(this);
-		this.canvasClicked = this.canvasClicked.bind(this);
-		this.exportSVG = this.exportSVG.bind(this);
+// 	constructor(canvas?: HTMLCanvasElement, width?: number, height?: number, graph?: Graph) {
+// 		this.getD3Node = this.getD3Node.bind(this);
+// 		this.dragStarted = this.dragStarted.bind(this);
+// 		this.dragged = this.dragged.bind(this);
+// 		this.dragEnded = this.dragEnded.bind(this);
+// 		this.detectHover = this.detectHover.bind(this);
+// 		this.canvasClicked = this.canvasClicked.bind(this);
+// 		this.exportSVG = this.exportSVG.bind(this);
 
-		if (canvas && width && height && graph) {
-			this.initialize(canvas, width, height, graph);
-		}
-	}
+// 		if (canvas && width && height && graph) {
+// 			this.initialize(canvas, width, height, graph);
+// 		}
+// 	}
 
-	initialize(canvas: HTMLCanvasElement, width: number, height: number, graph: Graph): void {
-		this.canvas = canvas;
-		this.width = width;
-		this.height = height;
-		this.simulation = undefined;
+// 	initialize(canvas: HTMLCanvasElement, width: number, height: number, graph: Graph): void {
+// 		this.canvas = canvas;
+// 		this.width = width;
+// 		this.height = height;
+// 		this.simulation = undefined;
 
-		this.d3nodes = graph.mapNodes((node: string) => ({
-			id: node,
-			v: node,
-			value: {
-				width: nodeSettingsDefaults.size?.value,
-				height: nodeSettingsDefaults.size?.value
-			}
-		}));
-		this.d3links = graph.mapEdges(
-			(edgeKey: string, edgeAttributes: object, source: string, target: string) => ({
-				id: edgeKey,
-				source: source,
-				target: target,
-				v: source,
-				w: target
-			})
-		);
-	}
+// 		this.d3nodes = graph.mapNodes((node: string) => ({
+// 			id: node,
+// 			v: node,
+// 			value: {
+// 				width: nodeSettingsDefaults.size?.value,
+// 				height: nodeSettingsDefaults.size?.value
+// 			}
+// 		}));
+// 		this.d3links = graph.mapEdges(
+// 			(edgeKey: string, edgeAttributes: object, source: string, target: string) => ({
+// 				id: edgeKey,
+// 				source: source,
+// 				target: target,
+// 				v: source,
+// 				w: target
+// 			})
+// 		);
+// 	}
 
-	computeReadability() {
-		this.readability = greadability(this.d3nodes, this.d3links);
-	}
+// 	computeReadability() {
+// 		this.readability = greadability(this.d3nodes, this.d3links);
+// 	}
 
-	startForceSimulation(nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void {
-		this.nodeStyles = nodeStyles;
-		this.edgeStyles = edgeStyles;
-		if (this.paperRenderer)
-			this.paperRenderer.restart(
-				this.d3nodes as NodePositionDatum[],
-				this.d3links as EdgeDatum[],
-				nodeStyles,
-				edgeStyles
-			);
-		else
-			this.paperRenderer = new PaperRenderer(
-				this.canvas,
-				this.d3nodes as NodePositionDatum[],
-				this.d3links as EdgeDatum[],
-				nodeStyles,
-				edgeStyles
-			);
+// 	startForceSimulation(nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void {
+// 		this.nodeStyles = nodeStyles;
+// 		this.edgeStyles = edgeStyles;
+// 		if (this.paperRenderer)
+// 			this.paperRenderer.restart(
+// 				this.d3nodes as NodePositionDatum[],
+// 				this.d3links as EdgeDatum[],
+// 				nodeStyles,
+// 				edgeStyles
+// 			);
+// 		else
+// 			this.paperRenderer = new PaperRenderer(
+// 				this.canvas,
+// 				this.d3nodes as NodePositionDatum[],
+// 				this.d3links as EdgeDatum[],
+// 				nodeStyles,
+// 				edgeStyles
+// 			);
 
-		// start d3-force
-		this.simulation = d3
-			.forceSimulation(this.d3nodes)
-			.force(
-				'link',
-				d3.forceLink(this.d3links).id((d3node) => (d3node as D3Node).id)
-			)
-			.force('charge', d3.forceManyBody())
-			.force('center', d3.forceCenter(this.width / 2, this.height / 2))
-			.on('tick', () => {
-				// measure tick time
-				// const now = performance.now();
+// 		// start d3-force
+// 		this.simulation = d3
+// 			.forceSimulation(this.d3nodes)
+// 			.force(
+// 				'link',
+// 				d3.forceLink(this.d3links).id((d3node) => (d3node as D3Node).id)
+// 			)
+// 			.force('charge', d3.forceManyBody())
+// 			.force('center', d3.forceCenter(this.width / 2, this.height / 2))
+// 			.on('tick', () => {
+// 				// measure tick time
+// 				// const now = performance.now();
 
-				// if (this.lastTickTimestamp !== undefined) {
-				// 	const timeSinceLastTick = now - this.lastTickTimestamp;
-				// 	console.log(`Time since last tick: ${timeSinceLastTick} milliseconds`);
-				// }
+// 				// if (this.lastTickTimestamp !== undefined) {
+// 				// 	const timeSinceLastTick = now - this.lastTickTimestamp;
+// 				// 	console.log(`Time since last tick: ${timeSinceLastTick} milliseconds`);
+// 				// }
 
-				// this.lastTickTimestamp = now;
+// 				// this.lastTickTimestamp = now;
 
-				// const start = performance.now();
-				this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]); // todo if simRunning?
-				// const end = performance.now();
-				// console.log('updatePositions took', end - start, 'ms');
-				// if (tickCount++ > 100) {
-				// 	tickCount = 0;
-				// }
-				// updateSelectedNode();
-			})
-			.on('end', () => {
-				// readability = greadability(d3nodes, d3links);
-			});
+// 				// const start = performance.now();
+// 				this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]); // todo if simRunning?
+// 				// const end = performance.now();
+// 				// console.log('updatePositions took', end - start, 'ms');
+// 				// if (tickCount++ > 100) {
+// 				// 	tickCount = 0;
+// 				// }
+// 				// updateSelectedNode();
+// 			})
+// 			.on('end', () => {
+// 				// readability = greadability(d3nodes, d3links);
+// 			});
 
-		// styles should persist
+// 		// styles should persist
 
-		// drag and zoom
-		d3.select(this.canvas)
-			.call(
-				d3
-					.drag<HTMLCanvasElement, unknown>()
-					.container(this.canvas as d3.DragContainerElement)
-					.subject(this.getD3Node)
-					.on('start', this.dragStarted)
-					.on('drag', this.dragged)
-					.on('end', this.dragEnded)
-			)
-			.call(
-				d3
-					.zoom<HTMLCanvasElement, unknown>()
-					.scaleExtent([1 / 10, 8])
-					.on('zoom', (zoomEvent) => {
-						this.transform = this.paperRenderer.zoomed(zoomEvent);
-					})
-			);
-	}
+// 		// drag and zoom
+// 		d3.select(this.canvas)
+// 			.call(
+// 				d3
+// 					.drag<HTMLCanvasElement, unknown>()
+// 					.container(this.canvas as d3.DragContainerElement)
+// 					.subject(this.getD3Node)
+// 					.on('start', this.dragStarted)
+// 					.on('drag', this.dragged)
+// 					.on('end', this.dragEnded)
+// 			)
+// 			.call(
+// 				d3
+// 					.zoom<HTMLCanvasElement, unknown>()
+// 					.scaleExtent([1 / 10, 8])
+// 					.on('zoom', (zoomEvent) => {
+// 						this.transform = this.paperRenderer.zoomed(zoomEvent);
+// 					})
+// 			);
+// 	}
 
-	updateNodeStyles(nodeStyles: NodeStyles): void {
-		this.paperRenderer.updateNodeStyles(nodeStyles);
-		this.nodeStyles = nodeStyles;
-	}
+// 	updateNodeStyles(nodeStyles: NodeStyles): void {
+// 		this.paperRenderer.updateNodeStyles(nodeStyles);
+// 		this.nodeStyles = nodeStyles;
+// 	}
 
-	updateEdgeStyles(edgeStyles: EdgeStyles): void {
-		this.paperRenderer.updateEdgeStyles(edgeStyles);
-		this.edgeStyles = edgeStyles;
-	}
+// 	updateEdgeStyles(edgeStyles: EdgeStyles): void {
+// 		this.paperRenderer.updateEdgeStyles(edgeStyles);
+// 		this.edgeStyles = edgeStyles;
+// 	}
 
-	getD3Node(mouseEvent: MouseEvent) {
-		const node = this.simulation?.find(
-			this.transform.invertX(mouseEvent.x),
-			this.transform.invertY(mouseEvent.y),
-			CLICK_RADIUS
-		);
+// 	getD3Node(mouseEvent: MouseEvent) {
+// 		const node = this.simulation?.find(
+// 			this.transform.invertX(mouseEvent.x),
+// 			this.transform.invertY(mouseEvent.y),
+// 			CLICK_RADIUS
+// 		);
 
-		return node;
-	}
+// 		return node;
+// 	}
 
-	dragStarted(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
-		if (!dragEvent.active) this.simulation?.alphaTarget(0.3).restart();
-		let draggedNode = dragEvent.subject;
+// 	dragStarted(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
+// 		if (!dragEvent.active) this.simulation?.alphaTarget(0.3).restart();
+// 		let draggedNode = dragEvent.subject;
 
-		// draggedNode.fx = transform.invertX(dragEvent.x!);
-		// draggedNode.fy = transform.invertY(dragEvent.y!);
-	}
+// 		// draggedNode.fx = transform.invertX(dragEvent.x!);
+// 		// draggedNode.fy = transform.invertY(dragEvent.y!);
+// 	}
 
-	dragged(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
-		let draggedNode = dragEvent.subject;
+// 	dragged(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
+// 		let draggedNode = dragEvent.subject;
 
-		let rect = this.canvas.getBoundingClientRect();
-		let x = dragEvent.sourceEvent.clientX - rect.left;
-		let y = dragEvent.sourceEvent.clientY - rect.top;
+// 		let rect = this.canvas.getBoundingClientRect();
+// 		let x = dragEvent.sourceEvent.clientX - rect.left;
+// 		let y = dragEvent.sourceEvent.clientY - rect.top;
 
-		draggedNode.fx = this.transform.invertX(x);
-		draggedNode.fy = this.transform.invertY(y);
-	}
+// 		draggedNode.fx = this.transform.invertX(x);
+// 		draggedNode.fy = this.transform.invertY(y);
+// 	}
 
-	dragEnded(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
-		let draggedNode = dragEvent.subject;
-		if (!dragEvent.active) {
-			this.simulation?.alphaTarget(0);
-		}
+// 	dragEnded(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
+// 		let draggedNode = dragEvent.subject;
+// 		if (!dragEvent.active) {
+// 			this.simulation?.alphaTarget(0);
+// 		}
 
-		if (!this.sticky && !this.staticPosition) {
-			draggedNode.fx = null;
-			draggedNode.fy = null;
-		}
-	}
+// 		if (!this.sticky && !this.staticPosition) {
+// 			draggedNode.fx = null;
+// 			draggedNode.fy = null;
+// 		}
+// 	}
 
-	detectHover(event: MouseEvent) {
-		let hoveredNode = this.getD3Node(event);
-		this.handleHover(hoveredNode?.id);
-	}
+// 	detectHover(event: MouseEvent) {
+// 		let hoveredNode = this.getD3Node(event);
+// 		this.handleHover(hoveredNode?.id);
+// 	}
 
-	handleHover(nodeKey: string | undefined) {
-		if (this.hoveredNodeKey && this.hoveredNodeKey != nodeKey) {
-			// cancel old shadow
-			this.nodeStyles.get(this.hoveredNodeKey)!.shadow = false;
-			this.paperRenderer.updateNodeStyle(
-				this.hoveredNodeKey,
-				this.nodeStyles.get(this.hoveredNodeKey)!
-			);
-		}
+// 	handleHover(nodeKey: string | undefined) {
+// 		if (this.hoveredNodeKey && this.hoveredNodeKey != nodeKey) {
+// 			// cancel old shadow
+// 			this.nodeStyles.get(this.hoveredNodeKey)!.shadow = false;
+// 			this.paperRenderer.updateNodeStyle(
+// 				this.hoveredNodeKey,
+// 				this.nodeStyles.get(this.hoveredNodeKey)!
+// 			);
+// 		}
 
-		if (nodeKey && this.hoveredNodeKey != nodeKey) {
-			// apply shadow
-			let nodeStyle = this.nodeStyles.get(nodeKey);
-			nodeStyle!.shadow = true;
-			this.paperRenderer.updateNodeStyle(nodeKey, nodeStyle!);
-		}
+// 		if (nodeKey && this.hoveredNodeKey != nodeKey) {
+// 			// apply shadow
+// 			let nodeStyle = this.nodeStyles.get(nodeKey);
+// 			nodeStyle!.shadow = true;
+// 			this.paperRenderer.updateNodeStyle(nodeKey, nodeStyle!);
+// 		}
 
-		this.hoveredNodeKey = nodeKey;
-	}
+// 		this.hoveredNodeKey = nodeKey;
+// 	}
 
-	canvasClicked(event: MouseEvent) {
-		let clickedNode = this.getD3Node(event);
-		if (clickedNode && this.selectedNode?.id != clickedNode.id) {
-			this.selectedNode = clickedNode;
-		} else {
-			this.selectedNode = null;
-		}
-	}
+// 	canvasClicked(event: MouseEvent) {
+// 		let clickedNode = this.getD3Node(event);
+// 		if (clickedNode && this.selectedNode?.id != clickedNode.id) {
+// 			this.selectedNode = clickedNode;
+// 		} else {
+// 			this.selectedNode = null;
+// 		}
+// 	}
 
-	exportSVG(): string {
-		return this.paperRenderer.exportSVG();
-	}
-}
+// 	exportSVG(): string {
+// 		return this.paperRenderer.exportSVG();
+// 	}
+// }

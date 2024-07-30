@@ -107,9 +107,10 @@ export class PaperRenderer implements Renderer {
 		if (canvas) {
 			this.paperScope = new Paper.PaperScope();
 			this.paperScope.setup(canvas);
+		} else {
+			this.paperScope.activate();
+			this.paperScope.project.clear();
 		}
-		this.paperScope.activate();
-		this.paperScope.project.clear();
 
 		this.nodes = new Map<string, IPNode>();
 		this.edges = new Map<string, PEdge>();

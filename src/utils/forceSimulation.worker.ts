@@ -5,6 +5,8 @@ let simulation: d3.Simulation<D3Node, d3.SimulationLinkDatum<D3Node>>;
 let d3nodes: D3Node[];
 let d3links: (d3.SimulationLinkDatum<D3Node> & { id: string })[];
 let simRunning = false;
+let currentWidth: number;
+let currentHeight: number;
 
 function log(message: string) {
 	postMessage({
@@ -20,6 +22,8 @@ function startSimulation(
 	width: number,
 	height: number
 ) {
+	currentWidth = width;
+	currentHeight = height;
 	simulation = d3
 		.forceSimulation(d3nodes)
 		.force(
@@ -36,6 +40,20 @@ function startSimulation(
 				links: d3links
 			});
 		});
+}
+
+// Function to update node positions based on new center
+function updateNodePositions(width: number, height: number) {
+	const dx = (width - currentWidth) / 2;
+	const dy = (height - currentHeight) / 2;
+	d3nodes.forEach((node) => {
+		if (node.x !== undefined && node.y !== undefined) {
+			node.x += dx;
+			node.y += dy;
+		}
+	});
+	currentWidth = width;
+	currentHeight = height;
 }
 
 // Message handler for receiving data and commands from the main thread
@@ -69,13 +87,27 @@ onmessage = function (event) {
 			simRunning = true;
 			break;
 		case 'dragStarted':
-			simulation.alphaTarget(0.3).restart();
+			if (simRunning) {
+				simulation.alphaTarget(0.3).restart();
+			}
 			break;
 		case 'dragged':
 			let draggedNode = d3nodes.find((node) => node.id === nodeId);
 			if (draggedNode) {
 				draggedNode.fx = position.fx;
 				draggedNode.fy = position.fy;
+			}
+			// if we're paused the positions won't update on next tick
+			if (!simRunning) {
+				if (draggedNode) {
+					draggedNode.x = position.fx;
+					draggedNode.y = position.fy;
+				}
+				postMessage({
+					type: 'tick',
+					nodes: d3nodes,
+					links: d3links
+				});
 			}
 			break;
 		case 'dragEnded':
@@ -93,6 +125,9 @@ onmessage = function (event) {
 			simulation.stop();
 			simRunning = false;
 			break;
+		case 'changePositions':
+			d3nodes = nodes;
+			break;
 		case 'resume':
 			if (!simRunning) {
 				simulation.nodes().forEach((simNode) => {
@@ -104,7 +139,16 @@ onmessage = function (event) {
 			}
 			break;
 		case 'resize':
-			simulation.force('center', d3.forceCenter(width / 2, height / 2));
+			updateNodePositions(width, height);
+			if (simRunning) {
+				simulation.force('center', d3.forceCenter(width / 2, height / 2));
+				simulation.alpha(0.3).restart();
+			}
+			postMessage({
+				type: 'tick',
+				nodes: d3nodes,
+				links: d3links
+			});
 			break;
 		default:
 			console.error('Unknown message type:', type);
