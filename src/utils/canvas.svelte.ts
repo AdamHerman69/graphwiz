@@ -367,7 +367,6 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.height = height;
 		this.paperRenderer.resize(width, height);
 		this.simulationWorker.postMessage({ type: 'resize', width, height });
-		console.log('resize');
 	}
 
 	async changeLayout(layout: LayoutType) {

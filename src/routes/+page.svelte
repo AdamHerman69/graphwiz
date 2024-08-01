@@ -55,7 +55,10 @@
 					splitView.right = false;
 				}
 			});
+			leftCanvasHandler.resetTransform();
 		} else if (left && right) {
+			if (splitView.left) leftCanvasHandler.resetTransform();
+			if (splitView.right) rightCanvasHandler.resetTransform();
 			// open both
 			splitView.right = true;
 			splitView.left = true;
@@ -84,6 +87,7 @@
 					splitView.left = false;
 				}
 			});
+			rightCanvasHandler.resetTransform();
 		}
 	}
 

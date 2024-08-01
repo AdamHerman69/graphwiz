@@ -9,6 +9,7 @@
 	import NodeInfo from './NodeInfo.svelte';
 	import { computeGuidelineStatuses } from '../utils/guideline.svelte';
 	import { type Guideline } from '../utils/guideline.svelte';
+	import { blur } from 'svelte/transition';
 
 	let graphSettings: GraphSettingsClass = getContext('graphSettings');
 	let guidelines = getContext('guidelines') as Guideline[];
@@ -108,7 +109,11 @@
 	<ReadabilityMetrics bind:readability={canvasHandler.readability} />
 
 	{#if canvasHandler.selectedNode}
-		<div class="nodeInfo" style="left: {$selectedNodeSpring.x}px; top: {$selectedNodeSpring.y}px;">
+		<div
+			class="nodeInfo"
+			style="left: {$selectedNodeSpring.x}px; top: {$selectedNodeSpring.y}px;"
+			transition:blur
+		>
 			<NodeInfo nodeID={canvasHandler.selectedNode.id} />
 		</div>
 	{/if}
