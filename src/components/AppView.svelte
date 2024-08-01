@@ -43,6 +43,7 @@
 	} as PanelState);
 
 	let hidden = $state({ left: false, right: false });
+	let manuallyToggled = $state({ left: false, right: false });
 
 	type SettingsState = {
 		layout: boolean;
@@ -62,8 +63,18 @@
 		graphSettings.saveState();
 	});
 
+	let viewWidth = $state(0);
+	$effect(() => {
+		const LARGE_SCREEN_WIDTH = 1200;
+		if (viewWidth < LARGE_SCREEN_WIDTH) {
+			if (!manuallyToggled['left']) hidden.left = true;
+			if (!manuallyToggled['right']) hidden.right = true;
+		}
+	});
+
 	function toggleHidden(side: 'left' | 'right') {
 		hidden[side] = !hidden[side];
+		manuallyToggled[side] = true;
 	}
 
 	function togglePanel(side: 'left' | 'right') {
@@ -80,140 +91,142 @@
 
 <Canvas />
 
-{#if side === 'full' || side === 'left'}
-	<!-- Left panel -->
-	<div class="sideContainer leftContainer">
-		<div class="panelContent">
-			<div class="cardStackContainer" class:hintSlideLeft use:autoAnimate>
-				{#if !hidden.left && panelState.left === 'guidelines'}
-					<div class="cardStack">
-						<Guidelines />
-					</div>
-				{:else if !hidden.left && panelState.left === 'settings'}
-					<div class="cardStack" use:autoAnimate>
-						{#if settingsState.left.layout}
-							<LayoutSettings />
-						{/if}
-						{#if settingsState.left.node}
-							<NodeSettings side="left" />
-						{/if}
-						{#if settingsState.left.edge}
-							<EdgeSettings side="left" />
-						{/if}
-					</div>
-				{/if}
-			</div>
-
-			<div class="buttonContainer" class:stackHidden={hidden['left']} use:autoAnimate>
-				<!-- svelte-ignore a11y_mouse_events_have_key_events -->
-				<button
-					onclick={() => {
-						toggleHidden('left');
-					}}
-					onmouseover={() => (hintSlideLeft = true)}
-					onmouseout={() => (hintSlideLeft = false)}
-					class:hintSlideInRight={hidden['left'] && hintSlideLeft}
-				>
-					<span class="material-symbols-outlined"
-						>{hidden.left ? 'chevron_right' : 'chevron_left'}</span
-					>
-				</button>
-				{#if !hidden.left}
-					<SideBarSwitch bind:selected={panelState.left} />
-					{#if panelState.left === 'settings'}
-						<div class="settingToggleButtons">
-							<button
-								onclick={() => toggleSetting('layout', 'left')}
-								class:on={settingsState.left.layout}
-							>
-								<span class="material-symbols-outlined"> linked_services </span>
-							</button>
-							<button
-								onclick={() => toggleSetting('node', 'left')}
-								class:on={settingsState.left.node}
-							>
-								<span class="material-symbols-outlined"> masked_transitions </span>
-							</button>
-							<button
-								onclick={() => toggleSetting('edge', 'left')}
-								class:on={settingsState.left.edge}
-							>
-								<span class="material-symbols-outlined"> diagonal_line </span>
-							</button>
+<div bind:clientWidth={viewWidth}>
+	{#if side === 'full' || side === 'left'}
+		<!-- Left panel -->
+		<div class="sideContainer leftContainer">
+			<div class="panelContent">
+				<div class="cardStackContainer" class:hintSlideLeft use:autoAnimate>
+					{#if !hidden.left && panelState.left === 'guidelines'}
+						<div class="cardStack">
+							<Guidelines />
+						</div>
+					{:else if !hidden.left && panelState.left === 'settings'}
+						<div class="cardStack" use:autoAnimate>
+							{#if settingsState.left.layout}
+								<LayoutSettings />
+							{/if}
+							{#if settingsState.left.node}
+								<NodeSettings side="left" />
+							{/if}
+							{#if settingsState.left.edge}
+								<EdgeSettings side="left" />
+							{/if}
 						</div>
 					{/if}
-				{/if}
+				</div>
+
+				<div class="buttonContainer" class:stackHidden={hidden['left']} use:autoAnimate>
+					<!-- svelte-ignore a11y_mouse_events_have_key_events -->
+					<button
+						onclick={() => {
+							toggleHidden('left');
+						}}
+						onmouseover={() => (hintSlideLeft = true)}
+						onmouseout={() => (hintSlideLeft = false)}
+						class:hintSlideInRight={hidden['left'] && hintSlideLeft}
+					>
+						<span class="material-symbols-outlined"
+							>{hidden.left ? 'chevron_right' : 'chevron_left'}</span
+						>
+					</button>
+					{#if !hidden.left}
+						<SideBarSwitch bind:selected={panelState.left} />
+						{#if panelState.left === 'settings'}
+							<div class="settingToggleButtons">
+								<button
+									onclick={() => toggleSetting('layout', 'left')}
+									class:on={settingsState.left.layout}
+								>
+									<span class="material-symbols-outlined"> linked_services </span>
+								</button>
+								<button
+									onclick={() => toggleSetting('node', 'left')}
+									class:on={settingsState.left.node}
+								>
+									<span class="material-symbols-outlined"> masked_transitions </span>
+								</button>
+								<button
+									onclick={() => toggleSetting('edge', 'left')}
+									class:on={settingsState.left.edge}
+								>
+									<span class="material-symbols-outlined"> diagonal_line </span>
+								</button>
+							</div>
+						{/if}
+					{/if}
+				</div>
 			</div>
 		</div>
-	</div>
-{/if}
+	{/if}
 
-<!-- Right panel -->
-{#if side === 'full' || side === 'right'}
-	<div class="sideContainer rightContainer">
-		<div class="panelContent">
-			<div class="cardStackContainer" class:hintSlideRight use:autoAnimate>
-				{#if !hidden.right && panelState.right === 'guidelines'}
-					<div class="cardStack">
-						<Guidelines />
-					</div>
-				{:else if !hidden.right && panelState.right === 'settings'}
-					<div class="cardStack" use:autoAnimate>
-						{#if settingsState.right.layout}
-							<LayoutSettings />
-						{/if}
-						{#if settingsState.right.node}
-							<NodeSettings side="right" />
-						{/if}
-						{#if settingsState.right.edge}
-							<EdgeSettings side="right" />
-						{/if}
-					</div>
-				{/if}
-			</div>
-
-			<div class="buttonContainer" class:stackHidden={hidden['right']} use:autoAnimate>
-				<!-- svelte-ignore a11y_mouse_events_have_key_events -->
-				<button
-					onclick={() => toggleHidden('right')}
-					onmouseover={() => (hintSlideRight = true)}
-					onmouseout={() => (hintSlideRight = false)}
-					class:hintSlideInLeft={hidden['right'] && hintSlideRight}
-				>
-					<span class="material-symbols-outlined"
-						>{hidden.right ? 'chevron_left' : 'chevron_right'}</span
-					>
-				</button>
-				{#if !hidden.right}
-					<SideBarSwitch bind:selected={panelState.right} />
-
-					{#if panelState.right === 'settings'}
-						<div class="settingToggleButtons">
-							<button
-								onclick={() => toggleSetting('layout', 'right')}
-								class:on={settingsState.right.layout}
-							>
-								<span class="material-symbols-outlined"> linked_services </span>
-							</button>
-							<button
-								onclick={() => toggleSetting('node', 'right')}
-								class:on={settingsState.right.node}
-							>
-								<span class="material-symbols-outlined"> masked_transitions </span>
-							</button>
-							<button
-								onclick={() => toggleSetting('edge', 'right')}
-								class:on={settingsState.right.edge}
-							>
-								<span class="material-symbols-outlined"> diagonal_line </span>
-							</button>
+	<!-- Right panel -->
+	{#if side === 'full' || side === 'right'}
+		<div class="sideContainer rightContainer">
+			<div class="panelContent">
+				<div class="cardStackContainer" class:hintSlideRight use:autoAnimate>
+					{#if !hidden.right && panelState.right === 'guidelines'}
+						<div class="cardStack">
+							<Guidelines />
+						</div>
+					{:else if !hidden.right && panelState.right === 'settings'}
+						<div class="cardStack" use:autoAnimate>
+							{#if settingsState.right.layout}
+								<LayoutSettings />
+							{/if}
+							{#if settingsState.right.node}
+								<NodeSettings side="right" />
+							{/if}
+							{#if settingsState.right.edge}
+								<EdgeSettings side="right" />
+							{/if}
 						</div>
 					{/if}
-				{/if}
+				</div>
+
+				<div class="buttonContainer" class:stackHidden={hidden['right']} use:autoAnimate>
+					<!-- svelte-ignore a11y_mouse_events_have_key_events -->
+					<button
+						onclick={() => toggleHidden('right')}
+						onmouseover={() => (hintSlideRight = true)}
+						onmouseout={() => (hintSlideRight = false)}
+						class:hintSlideInLeft={hidden['right'] && hintSlideRight}
+					>
+						<span class="material-symbols-outlined"
+							>{hidden.right ? 'chevron_left' : 'chevron_right'}</span
+						>
+					</button>
+					{#if !hidden.right}
+						<SideBarSwitch bind:selected={panelState.right} />
+
+						{#if panelState.right === 'settings'}
+							<div class="settingToggleButtons">
+								<button
+									onclick={() => toggleSetting('layout', 'right')}
+									class:on={settingsState.right.layout}
+								>
+									<span class="material-symbols-outlined"> linked_services </span>
+								</button>
+								<button
+									onclick={() => toggleSetting('node', 'right')}
+									class:on={settingsState.right.node}
+								>
+									<span class="material-symbols-outlined"> masked_transitions </span>
+								</button>
+								<button
+									onclick={() => toggleSetting('edge', 'right')}
+									class:on={settingsState.right.edge}
+								>
+									<span class="material-symbols-outlined"> diagonal_line </span>
+								</button>
+							</div>
+						{/if}
+					{/if}
+				</div>
 			</div>
 		</div>
-	</div>
-{/if}
+	{/if}
+</div>
 
 <style>
 	.sideContainer {

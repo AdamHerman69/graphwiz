@@ -235,7 +235,6 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	}
 
 	getD3NodeRegardlessCanvas(mouseEvent: MouseEvent) {
-		// console.log(this.transform);
 		const mouseX = this.transform.invertX(mouseEvent.x);
 		const mouseY = this.transform.invertY(mouseEvent.y);
 
@@ -326,7 +325,6 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	detectHover(event: MouseEvent) {
 		let hoveredNode = this.getD3Node(event);
 		this.handleHover(hoveredNode?.id);
-		console.log('detect hover, node:', hoveredNode);
 	}
 
 	handleHover(nodeKey: string | undefined) {
