@@ -97,6 +97,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 
 	constructor(canvas?: HTMLCanvasElement, width?: number, height?: number, graph?: Graph) {
 		this.getD3Node = this.getD3Node.bind(this);
+		this.getD3NodeRegardlessCanvas = this.getD3NodeRegardlessCanvas.bind(this);
 		this.dragStarted = this.dragStarted.bind(this);
 		this.dragged = this.dragged.bind(this);
 		this.dragEnded = this.dragEnded.bind(this);
@@ -208,7 +209,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 				d3
 					.drag<HTMLCanvasElement, unknown>()
 					.container(this.canvas as d3.DragContainerElement)
-					.subject(this.getD3Node)
+					.subject(this.getD3NodeRegardlessCanvas)
 					.on('start', this.dragStarted)
 					.on('drag', this.dragged)
 					.on('end', this.dragEnded)
@@ -233,9 +234,32 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.edgeStyles = edgeStyles;
 	}
 
-	getD3Node(mouseEvent: MouseEvent) {
+	getD3NodeRegardlessCanvas(mouseEvent: MouseEvent) {
+		// console.log(this.transform);
 		const mouseX = this.transform.invertX(mouseEvent.x);
 		const mouseY = this.transform.invertY(mouseEvent.y);
+
+		let closestNode = null;
+		let minDistanceSquared = CLICK_RADIUS * CLICK_RADIUS; // Use squared CLICK_RADIUS for comparison
+
+		for (const node of this.d3nodes) {
+			const dx = mouseX - node.x;
+			const dy = mouseY - node.y;
+			const distanceSquared = dx * dx + dy * dy; // No need for Math.sqrt
+
+			if (distanceSquared < minDistanceSquared) {
+				closestNode = node;
+				minDistanceSquared = distanceSquared;
+			}
+		}
+
+		return closestNode;
+	}
+
+	getD3Node(mouseEvent: MouseEvent) {
+		const canvasRect = this.canvas.getBoundingClientRect();
+		const mouseX = this.transform.invertX(mouseEvent.x - canvasRect.left);
+		const mouseY = this.transform.invertY(mouseEvent.y - canvasRect.top);
 
 		let closestNode = null;
 		let minDistanceSquared = CLICK_RADIUS * CLICK_RADIUS; // Use squared CLICK_RADIUS for comparison
@@ -302,6 +326,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	detectHover(event: MouseEvent) {
 		let hoveredNode = this.getD3Node(event);
 		this.handleHover(hoveredNode?.id);
+		console.log('detect hover, node:', hoveredNode);
 	}
 
 	handleHover(nodeKey: string | undefined) {
