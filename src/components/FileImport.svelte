@@ -1,13 +1,14 @@
 <script lang="ts">
 	import Dropzone from '$lib/fileDropZone/src/lib/components/Dropzone.svelte';
-	import { isValidSettings } from '../utils/graphSettings.svelte';
+	import { isValidSettings, type GraphSettings } from '../utils/graphSettings.svelte';
 	import { isValidGraph, importGraphJSON, importGraphOther } from '../utils/graph.svelte';
 	import { parse } from 'svelte/compiler';
 	import { getContext } from 'svelte';
 
-	let importState: () => void = getContext('graphSettings').importState;
-
-	let { closeMenu }: { closeMenu: () => void } = $props();
+	let {
+		importState,
+		closeMenu
+	}: { importState: (graphSettings: GraphSettings) => void; closeMenu: () => void } = $props();
 
 	// TODO: fix flow and error handeling
 	async function handleFile(e: Event) {

@@ -427,19 +427,53 @@
 
 	<!-- Import Menu -->
 	{#if menuOpen === 'import'}
-		<div
-			transition:blur
-			class="importDiv"
-			style={`width: ${ISLAND_EXPANDED_WIDTH - 2 * ISLAND_X_MARGIN}px; height: ${
-				ISLAND_EXPANDED_HEIGHT - 2 * ISLAND_X_MARGIN
-			}px; left: ${island_x + ISLAND_X_MARGIN}px; top: ${Y + ISLAND_X_MARGIN}px`}
-		>
-			<FileImport closeMenu={() => (menuOpen = null)} />
+		{#if view != 'double'}
+			<div
+				transition:blur
+				class="importDiv"
+				style={`width: ${ISLAND_EXPANDED_WIDTH - 2 * ISLAND_X_MARGIN}px; height: ${
+					ISLAND_EXPANDED_HEIGHT - 2 * ISLAND_X_MARGIN
+				}px; left: ${island_x + ISLAND_X_MARGIN}px; top: ${Y + ISLAND_X_MARGIN}px`}
+			>
+				<FileImport
+					importState={view === 'left'
+						? graphSettingsLeft.importState
+						: graphSettingsRight.importState}
+					closeMenu={() => (menuOpen = null)}
+				/>
 
-			<button class="closeExpanded" onclick={() => (menuOpen = null)}>
-				<span class="material-symbols-outlined">close</span>
-			</button>
-		</div>
+				<button class="closeExpanded" onclick={() => (menuOpen = null)}>
+					<span class="material-symbols-outlined">close</span>
+				</button>
+			</div>
+		{:else}
+			<div
+				transition:blur
+				class="importDiv"
+				style={`width: ${ISLAND_EXPANDED_WIDTH - 2 * ISLAND_X_MARGIN}px; height: ${
+					ISLAND_EXPANDED_HEIGHT - 2 * ISLAND_X_MARGIN
+				}px; left: ${island_x + ISLAND_X_MARGIN}px; top: ${Y + ISLAND_X_MARGIN}px`}
+			>
+				<div class="flex h-full">
+					<div class="flex-1">
+						<FileImport
+							importState={graphSettingsLeft.importState}
+							closeMenu={() => (menuOpen = null)}
+						/>
+					</div>
+					<div class="flex-1">
+						<FileImport
+							importState={graphSettingsRight.importState}
+							closeMenu={() => (menuOpen = null)}
+						/>
+					</div>
+				</div>
+
+				<button class="closeExpanded" onclick={() => (menuOpen = null)}>
+					<span class="material-symbols-outlined">close</span>
+				</button>
+			</div>
+		{/if}
 	{/if}
 	{#if menuOpen === 'export'}
 		<div
