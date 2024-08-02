@@ -129,6 +129,8 @@ onmessage = function (event) {
 			d3nodes = nodes;
 			break;
 		case 'resume':
+			currentWidth = width;
+			currentHeight = height;
 			if (!simRunning) {
 				simulation.nodes().forEach((simNode) => {
 					simNode.x = nodes.find((node) => node.id === simNode.id)?.x;

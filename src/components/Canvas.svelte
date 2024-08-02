@@ -29,7 +29,8 @@
 			console.log('----------------------canvasHandler init');
 			canvasHandler.initialize(canvas, width, height, g);
 
-			canvasHandler.startForceSimulation(
+			canvasHandler.start(
+				graphSettings.graphSettings.layout.value,
 				graphSettings.computeNodeStyles(),
 				graphSettings.computeEdgeStyles()
 			);
@@ -141,6 +142,7 @@
 	.nodeInfo {
 		position: absolute;
 		transform: translate(-50%, 20px);
+		z-index: 100;
 	}
 
 	.resetTransform {

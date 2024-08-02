@@ -36,7 +36,7 @@ export type ReadabilityMetrics = {
 const CLICK_RADIUS = 10;
 
 export interface ICanvasHandler {
-	startForceSimulation(nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void;
+	start(layout: LayoutType, nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void;
 	updateNodeStyles(nodeStyles: NodeStyles): void;
 	updateEdgeStyles(edgeStyles: EdgeStyles): void;
 	initialize(canvas: HTMLCanvasElement, width: number, height: number, graph: Graph): void;
@@ -65,6 +65,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	simulationWorker: Worker;
 	elkLayoutProvider: ILayoutProvieder;
 
+	currentLayout: LayoutType;
 	nodeStyles: NodeStyles;
 	edgeStyles: EdgeStyles;
 
@@ -77,6 +78,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	selectedNode: D3Node | null = $state(null);
 	selectedNodePosition: { x: number; y: number } | null = $derived.by(() => {
 		if (this.selectedNode) {
+			console.log('updating position');
 			return {
 				x: this.selectedNode.fx
 					? this.transform.applyX(this.selectedNode.fx)
@@ -154,10 +156,11 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		};
 	}
 
-	startForceSimulation(nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void {
+	start(layout: LayoutType, nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void {
 		this.nodeStyles = nodeStyles;
 		this.edgeStyles = edgeStyles;
 
+		// renderer
 		if (this.paperRenderer)
 			this.paperRenderer.restart(
 				this.d3nodes as NodePositionDatum[],
@@ -174,34 +177,6 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 				nodeStyles,
 				edgeStyles
 			);
-
-		this.simulationWorker = new Worker();
-		this.simulationWorker.postMessage({
-			type: 'startSimulation',
-			nodes: $state.snapshot(this.d3nodes),
-			links: this.d3links,
-			width: this.width,
-			height: this.height
-		});
-
-		this.simulationWorker.onmessage = (event) => {
-			const { type, nodes, links, message } = event.data;
-			if (type === 'tick') {
-				this.paperRenderer.updatePositions(nodes as NodePositionDatum[]);
-				this.d3nodes = nodes as D3Node[];
-				if (links) this.d3links = links; // only there on first tick, needed by greadability
-				if (!this.readabilityWorker) this.initReadabilityWorker();
-				else if (this.computeNextReadability) {
-					this.readabilityWorker.postMessage({
-						nodes: $state.snapshot(this.d3nodes),
-						links: this.d3links
-					});
-					this.computeNextReadability = false;
-				}
-			} else if (type === 'log') {
-				console.log('worker log:', message);
-			}
-		};
 
 		// drag and zoom
 		d3.select(this.canvas)
@@ -222,6 +197,47 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 						this.transform = this.paperRenderer.zoomed(zoomEvent);
 					})
 			);
+		this.changeLayout(layout);
+	}
+
+	startForceSimulation() {
+		if (!this.simulationWorker) {
+			this.simulationWorker = new Worker();
+			this.simulationWorker.postMessage({
+				type: 'startSimulation',
+				nodes: $state.snapshot(this.d3nodes),
+				links: this.d3links,
+				width: this.width,
+				height: this.height
+			});
+		} else {
+			this.simulationWorker.postMessage({
+				type: 'resume',
+				nodes: $state.snapshot(this.d3nodes),
+				links: this.d3links,
+				width: this.width,
+				height: this.height
+			});
+		}
+
+		this.simulationWorker.onmessage = (event) => {
+			const { type, nodes, links, message } = event.data;
+			if (type === 'tick') {
+				this.paperRenderer.updatePositions(nodes as NodePositionDatum[]);
+				this.d3nodes = nodes as D3Node[];
+				if (links) this.d3links = links; // only there on first tick, needed by greadability
+				if (!this.readabilityWorker) this.initReadabilityWorker();
+				else if (this.computeNextReadability) {
+					this.readabilityWorker.postMessage({
+						nodes: $state.snapshot(this.d3nodes),
+						links: this.d3links
+					});
+					this.computeNextReadability = false;
+				}
+			} else if (type === 'log') {
+				console.log('worker log:', message);
+			}
+		};
 	}
 
 	updateNodeStyles(nodeStyles: NodeStyles): void {
@@ -278,6 +294,11 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	}
 
 	dragStarted(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
+		if (this.currentLayout === 'force-graph') this.dragStartedWorker(dragEvent);
+		else this.dragStartedLocal(dragEvent);
+	}
+
+	dragStartedWorker(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
 		// sets the alpha target to a small value to restart the simulation
 		if (!dragEvent.active)
 			this.simulationWorker.postMessage({
@@ -285,7 +306,20 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			});
 	}
 
+	dragStartedLocal(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
+		// sets the alpha target to a small value to restart the simulation
+		// if (!dragEvent.active)
+		// 	this.simulationWorker.postMessage({
+		// 		type: 'dragStarted'
+		// 	});
+	}
 	dragged(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
+		if (this.currentLayout === 'force-graph') {
+			this.draggedWorker(dragEvent);
+		} else this.draggedLocal(dragEvent);
+	}
+
+	draggedWorker(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
 		let draggedNode = dragEvent.subject;
 
 		let rect = this.canvas.getBoundingClientRect();
@@ -295,6 +329,11 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		draggedNode.fx = this.transform.invertX(x);
 		draggedNode.fy = this.transform.invertY(y);
 
+		if (this.selectedNode?.id === draggedNode.id) {
+			this.selectedNode = draggedNode;
+			// to update the selectedNodePosition
+		}
+
 		this.simulationWorker.postMessage({
 			type: 'dragged',
 			nodeId: draggedNode.id,
@@ -302,11 +341,27 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		});
 	}
 
-	dragEnded(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
+	draggedLocal(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
 		let draggedNode = dragEvent.subject;
-		if (!dragEvent.active) {
-			this.simulation?.alphaTarget(0);
-		}
+
+		let rect = this.canvas.getBoundingClientRect();
+		let x = dragEvent.sourceEvent.clientX - rect.left;
+		let y = dragEvent.sourceEvent.clientY - rect.top;
+
+		draggedNode.x = this.transform.invertX(x);
+		draggedNode.y = this.transform.invertY(y);
+
+		this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
+		// todo readability
+	}
+
+	dragEnded(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
+		if (this.currentLayout === 'force-graph') this.dragEndedWorker(dragEvent);
+		else this.dragEndedLocal(dragEvent);
+	}
+
+	dragEndedWorker(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
+		let draggedNode = dragEvent.subject;
 
 		// clear the fixed position
 		if (!this.sticky && !this.staticPosition) {
@@ -320,6 +375,10 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			zeroAlphaTarget: !dragEvent.active,
 			resetFixedPosition: !this.sticky && !this.staticPosition
 		});
+	}
+
+	dragEndedLocal(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
+		// we don't have to do anything here
 	}
 
 	detectHover(event: MouseEvent) {
@@ -370,61 +429,61 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	}
 
 	async changeLayout(layout: LayoutType) {
+		if (this.currentLayout === layout) return;
+
 		if (layout === 'force-graph') {
-			$inspect(this.d3nodes);
-			this.simulationWorker.postMessage({
-				type: 'resume',
-				nodes: $state.snapshot(this.d3nodes),
-				links: this.d3links,
-				width: this.width,
-				height: this.height
-			});
-		} else {
-			this.simulationWorker.postMessage({ type: 'pause' });
-			let elkNodes = await this.elkLayoutProvider.layout(
-				{ 'elk.algorithm': layout, 'elk.edgeRouting': 'ORTHOGONAL' },
-				this.width,
-				this.height
-			);
-
-			this.staticPosition = true;
-			this.sticky = true;
-
-			this.d3nodes.forEach((node, index) => {
-				let elkNode = elkNodes.find((n) => n.id === node.id);
-
-				if (elkNode) {
-					if (ANIMATE_LAYOUT) {
-						gsap.to(node, {
-							duration: 1,
-							x: elkNode.x,
-							y: elkNode.y,
-							ease: 'power2.inOut',
-							onUpdate: () => {
-								this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
-							},
-							onComplete: () => {
-								delete node._gsap;
-							}
-						});
-					} else {
-						node.x = elkNode.x;
-						node.y = elkNode.y;
-					}
-				}
-			});
-			this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
-
-			// update the worker with the new graph positions - waiting for the animation to be over
-			setTimeout(
-				() =>
-					this.simulationWorker.postMessage({
-						type: 'changePositions',
-						nodes: $state.snapshot(this.d3nodes)
-					}),
-				1100
-			);
+			this.startForceSimulation();
+			this.currentLayout = layout;
+			return;
 		}
+		if (this.currentLayout === 'force-graph') {
+			this.simulationWorker.postMessage({ type: 'pause' });
+		}
+
+		let elkNodes = await this.elkLayoutProvider.layout(
+			{ 'elk.algorithm': layout, 'elk.edgeRouting': 'ORTHOGONAL' },
+			this.width,
+			this.height
+		);
+
+		this.staticPosition = true;
+		this.sticky = true;
+
+		this.d3nodes.forEach((node, index) => {
+			let elkNode = elkNodes.find((n) => n.id === node.id);
+
+			if (elkNode) {
+				if (ANIMATE_LAYOUT) {
+					gsap.to(node, {
+						duration: 1,
+						x: elkNode.x,
+						y: elkNode.y,
+						ease: 'power2.inOut',
+						onUpdate: () => {
+							this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
+						},
+						onComplete: () => {
+							delete node._gsap;
+						}
+					});
+				} else {
+					node.x = elkNode.x;
+					node.y = elkNode.y;
+				}
+			}
+		});
+		this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
+
+		// update the worker with the new graph positions - waiting for the animation to be over
+		setTimeout(
+			() =>
+				this.simulationWorker.postMessage({
+					type: 'changePositions',
+					nodes: $state.snapshot(this.d3nodes)
+				}),
+			1100
+		);
+		this.currentLayout = layout;
 	}
 
 	resetTransform(): void {
