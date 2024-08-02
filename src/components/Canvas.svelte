@@ -119,9 +119,13 @@
 		</div>
 	{/if}
 
-	<div class="resetTransform">
-		<button onclick={canvasHandler.resetTransform}>reset transform</button>
-	</div>
+	{#if canvasHandler.zoomed}
+		<div class="resetTransform" transition:blur>
+			<button onclick={canvasHandler.resetTransform}>
+				<span class="material-symbols-outlined"> reset_focus </span>
+			</button>
+		</div>
+	{/if}
 </div>
 
 <!-- State stack debug tool -->

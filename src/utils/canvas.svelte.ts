@@ -52,6 +52,7 @@ export interface ICanvasHandler {
 	selectedNode: D3Node | null;
 	selectedNodePosition: { x: number; y: number } | null;
 	sticky: boolean;
+	zoomed: boolean;
 }
 
 export class WebWorkerCanvasHandler implements ICanvasHandler {
@@ -94,6 +95,8 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	readability: ReadabilityMetrics | undefined = $state(undefined);
 	readabilityWorker: ReadabilityWorker;
 	computeNextReadability: boolean = false;
+
+	zoomed: boolean = $derived(this.transform != d3.zoomIdentity);
 
 	lastTickTimestamp: number | undefined;
 
