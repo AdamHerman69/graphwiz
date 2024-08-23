@@ -32,6 +32,15 @@
 		else throw new Error("both sides can't be closed at the same time");
 	});
 
+	// $effect(() => {
+	// 	if (graphSettingsLeft.graphSettings.layout.value != 'force-graph') {
+	// 		stickyLeft = true;
+	// 	}
+	// 	if (graphSettingsRight.graphSettings.layout.value != 'force-graph') {
+	// 		stickyRight = true;
+	// 	}
+	// });
+
 	let menuOpen: 'import' | 'export' | null = $state(null);
 
 	const toggleSplitView: (left: boolean, right: boolean) => void = getContext('toggleSplitView');
@@ -409,6 +418,7 @@
 				transition:blur
 				onclick={() => (stickyRight = !stickyRight)}
 				style={`left: ${RIGHT_STICKY_X_MIDDLE - BUTTON_WIDTH / 2}px;`}
+				disabled={graphSettingsRight.graphSettings.layout.value != 'force-graph'}
 			>
 				<span class="material-symbols-outlined"> {stickyRight ? 'keep_off' : 'keep'}</span>
 			</button>
@@ -419,6 +429,7 @@
 				transition:blur
 				onclick={() => (stickyLeft = !stickyLeft)}
 				style={`left: ${LEFT_STICKY_X_MIDDLE - BUTTON_WIDTH / 2}px;`}
+				disabled={graphSettingsLeft.graphSettings.layout.value != 'force-graph'}
 			>
 				<span class="material-symbols-outlined"> {stickyLeft ? 'keep_off' : 'keep'}</span>
 			</button>

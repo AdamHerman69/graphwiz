@@ -15,6 +15,12 @@ export type Setting<T> = {
 
 export type SelectSetting<T> = Setting<T> & {
 	readonly values: T[];
+	condition?: string;
+};
+
+export type SelectCondition<T> = {
+	selectSettingName: string;
+	valuesNotAccepted: T[];
 };
 
 export type NumericalSetting = Setting<number> & {

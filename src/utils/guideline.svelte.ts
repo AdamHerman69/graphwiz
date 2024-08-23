@@ -21,6 +21,20 @@ export type GuidelineStatus = {
 	conflicts: Conflict[];
 };
 
+export type Task = {
+	name: string;
+	description: string;
+	icon?: string;
+};
+
+export const tasks: Task[] = [
+	{ name: 'Path Finding', description: 'neco' },
+	{ name: 'Cluster Detection', description: 'neco' },
+	{ name: 'Other task', description: 'neco' }
+];
+
+export let selectedTask: Task = $state(tasks[0]);
+
 type Conflict = {
 	type: 'layout' | 'nodeSetting' | 'edgeSetting';
 	property?: string;
@@ -109,6 +123,7 @@ export type Guideline = StaticGuideline & {
 	id: number;
 	score: number;
 	status: GuidelineStatus;
+	expanded: boolean;
 };
 
 const normalizeWeights = (conditions: WeightedCondition[]): WeightedCondition[] => {
@@ -451,6 +466,10 @@ export function newGuidelineSet(graphSettings: GraphSettingsClass): Guideline[] 
 	const newGuidelineSet = $state.snapshot(defaultGuidelines) as Guideline[];
 	addGuidelineIDs(newGuidelineSet, graphSettings);
 	addSourceToSettings(newGuidelineSet);
+
+	newGuidelineSet.forEach((guideline) => {
+		guideline.expanded = false;
+	});
 
 	return newGuidelineSet;
 }

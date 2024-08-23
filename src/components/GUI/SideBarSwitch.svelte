@@ -7,7 +7,7 @@
 	}
 </script>
 
-<button class="container" on:click={toggle}>
+<button class="container" onclick={toggle}>
 	<div class="switch-circle" class:move-down={selected === 'settings'}></div>
 	<div class="icon-container">
 		<span class="material-symbols-outlined" class:selected={selected === 'guidelines'}>

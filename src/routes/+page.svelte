@@ -14,7 +14,10 @@
 		loadGuidelines,
 		sortGuidelines,
 		type Guideline,
-		applyGuideline
+		applyGuideline,
+		selectedTask,
+		type Task,
+		tasks
 	} from '../utils/guideline.svelte';
 	import DynamicIslandCenter from '../components/DynamicIslandCenter.svelte';
 	import type Graph from 'graphology';
@@ -208,9 +211,34 @@
 			bind:splitView
 		/>
 	</div>
+	<div class="tasks">
+		<span class="material-symbols-outlined"> task_alt </span>
+		<select bind:value={selectedTask} onchange={recomputeCharacteristics}>
+			{#each tasks as task}
+				<option>{task.name}</option>
+			{/each}
+		</select>
+	</div>
 </div>
 
 <style>
+	.tasks {
+		position: absolute;
+		top: 90px;
+		left: 50%;
+		transform: translate(-50%);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: small;
+	}
+
+	.tasks select {
+		background-color: transparent;
+		outline: none;
+		text-transform: capitalize;
+	}
+
 	.divider {
 		cursor: ew-resize;
 		height: 80%;
