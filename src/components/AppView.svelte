@@ -89,6 +89,28 @@
 	let hintSlideRight = $state(false);
 </script>
 
+{#snippet settingButtons(side: 'left' | 'right')}
+	<div class="settingToggleButtons">
+		<button onclick={() => toggleSetting('layout', side)} class:on={settingsState[side].layout}>
+			<span class="material-symbols-outlined"> linked_services </span>
+		</button>
+		<button onclick={() => toggleSetting('node', side)} class:on={settingsState[side].node}>
+			<span class="material-symbols-outlined"> masked_transitions </span>
+		</button>
+		<button onclick={() => toggleSetting('edge', side)} class:on={settingsState[side].edge}>
+			<span class="material-symbols-outlined"> diagonal_line </span>
+		</button>
+	</div>
+{/snippet}
+
+{#snippet guidelineButtons(side: 'left' | 'right')}
+	<div class="settingToggleButtons">
+		<button onclick={() => console.log('add guideline')}>
+			<span class="material-symbols-outlined"> add </span>
+		</button>
+	</div>
+{/snippet}
+
 <Canvas />
 
 <div bind:clientWidth={viewWidth}>
@@ -133,26 +155,9 @@
 					{#if !hidden.left}
 						<SideBarSwitch bind:selected={panelState.left} />
 						{#if panelState.left === 'settings'}
-							<div class="settingToggleButtons">
-								<button
-									onclick={() => toggleSetting('layout', 'left')}
-									class:on={settingsState.left.layout}
-								>
-									<span class="material-symbols-outlined"> linked_services </span>
-								</button>
-								<button
-									onclick={() => toggleSetting('node', 'left')}
-									class:on={settingsState.left.node}
-								>
-									<span class="material-symbols-outlined"> masked_transitions </span>
-								</button>
-								<button
-									onclick={() => toggleSetting('edge', 'left')}
-									class:on={settingsState.left.edge}
-								>
-									<span class="material-symbols-outlined"> diagonal_line </span>
-								</button>
-							</div>
+							{@render settingButtons('left')}
+						{:else}
+							{@render guidelineButtons('left')}
 						{/if}
 					{/if}
 				</div>
@@ -200,26 +205,9 @@
 						<SideBarSwitch bind:selected={panelState.right} />
 
 						{#if panelState.right === 'settings'}
-							<div class="settingToggleButtons">
-								<button
-									onclick={() => toggleSetting('layout', 'right')}
-									class:on={settingsState.right.layout}
-								>
-									<span class="material-symbols-outlined"> linked_services </span>
-								</button>
-								<button
-									onclick={() => toggleSetting('node', 'right')}
-									class:on={settingsState.right.node}
-								>
-									<span class="material-symbols-outlined"> masked_transitions </span>
-								</button>
-								<button
-									onclick={() => toggleSetting('edge', 'right')}
-									class:on={settingsState.right.edge}
-								>
-									<span class="material-symbols-outlined"> diagonal_line </span>
-								</button>
-							</div>
+							{@render settingButtons('right')}
+						{:else}
+							{@render guidelineButtons('right')}
 						{/if}
 					{/if}
 				</div>

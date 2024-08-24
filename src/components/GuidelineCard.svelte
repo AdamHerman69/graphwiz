@@ -25,6 +25,7 @@
 <div
 	bind:this={parentDiv}
 	class="{guideline.status?.applied === 'fully' ? 'cardInset' : 'card'} cardSpacing"
+	class:expanded={guideline.expanded}
 	class:first={first === true}
 >
 	<GuidelineHeader {guideline} />
@@ -53,5 +54,9 @@
 <style>
 	.first {
 		margin-top: 10px;
+	}
+
+	.expanded {
+		height: 100%;
 	}
 </style>

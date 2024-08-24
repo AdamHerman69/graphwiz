@@ -86,7 +86,11 @@
 <div use:autoAnimate>
 	{#each guidelines as guideline, index (guideline.id)}
 		{#if !guideline.expanded || isClosing}
-			<GuidelineCard {guideline} first={index === 0} {expand} />
+			<GuidelineCard
+				{guideline}
+				first={index === 0 || (index === 1 && guidelines[0].expanded)}
+				{expand}
+			/>
 		{/if}
 	{/each}
 	<div class="card cardSpacing">
