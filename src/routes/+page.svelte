@@ -32,8 +32,6 @@
 	let leftCanvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
 	let rightCanvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
 
-	setContext('toggleSplitView', toggleSplitView);
-
 	function initGraph(): Graph {
 		let graph = loadSampleGraph();
 		computeAttributes(getGraph());
@@ -44,7 +42,12 @@
 
 	let splitView = $state({ left: true, right: false });
 
+	setContext('toggleSplitView', toggleSplitView);
+	setContext('splitView', splitView);
+
 	function toggleSplitView(left: boolean, right: boolean) {
+		if (splitView.left === left && splitView.right === right) return;
+
 		// close right
 		if (left && !right) {
 			rightCanvasHandler.sticky = false;
@@ -147,6 +150,7 @@
 				side={splitView.right ? 'left' : 'full'}
 				bind:graphSettings={graphSettingsLeft}
 				bind:canvasHandler={leftCanvasHandler}
+				bind:neighborGraphSettings={graphSettingsRight}
 			/>
 		</div>
 	{/if}
@@ -157,6 +161,7 @@
 				side={splitView.left ? 'right' : 'full'}
 				bind:graphSettings={graphSettingsRight}
 				bind:canvasHandler={rightCanvasHandler}
+				bind:neighborGraphSettings={graphSettingsLeft}
 			/>
 		</div>
 	{/if}

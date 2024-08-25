@@ -14,19 +14,24 @@
 	import SideBarSwitch from './GUI/SideBarSwitch.svelte';
 	import { hoverPopup } from './GUI/hoverPopup.svelte';
 	import type { ICanvasHandler } from '../utils/canvas.svelte';
+	import type Graph from 'graphology';
 
 	let {
 		side,
 		graphSettings = $bindable(),
-		canvasHandler = $bindable()
+		canvasHandler = $bindable(),
+		neighborGraphSettings = $bindable()
 	}: {
 		side: 'left' | 'right' | 'full';
 		graphSettings: GraphSettingsClass;
 		canvasHandler: ICanvasHandler;
+		neighborGraphSettings: GraphSettingsClass;
 	} = $props();
 
 	setContext<GraphSettingsClass>('graphSettings', graphSettings);
 	setContext<ICanvasHandler>('canvasHandler', canvasHandler);
+	setContext<GraphSettingsClass>('neighborGraphSettings', neighborGraphSettings);
+	setContext<'left' | 'right' | 'full'>('side', side);
 
 	const guidelines = $state(newGuidelineSet(graphSettings));
 	sortGuidelines(guidelines, getGraph());
@@ -107,6 +112,9 @@
 	<div class="settingToggleButtons">
 		<button onclick={() => console.log('add guideline')}>
 			<span class="material-symbols-outlined"> add </span>
+		</button>
+		<button onclick={() => console.log('save guidelines')}>
+			<span class="material-symbols-outlined"> download </span>
 		</button>
 	</div>
 {/snippet}
