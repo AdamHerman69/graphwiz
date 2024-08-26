@@ -12,6 +12,7 @@
 	let expandedGuideline: Guideline | null = $state(null);
 	let expandedGuidelineOriginalDims: DOMRect | null = $state(null);
 	let expandedCardElement: HTMLElement;
+	let graphSettings: GraphSettingsClass = getContext('graphSettings');
 	let isClosing = $state(false);
 
 	$effect(() => {
@@ -27,16 +28,48 @@
 		console.log('sorted');
 	});
 
-	function expand(guideline: Guideline, div: HTMLDivElement) {
+	function expand(guideline: Guideline) {
 		if (guideline.expanded) {
 			isClosing = true;
 			animateClose();
 		} else {
-			expandedGuidelineOriginalDims = div.getBoundingClientRect();
+			expandedGuidelineOriginalDims = guideline.parentDiv!.getBoundingClientRect();
 			expandedGuideline = guideline;
 			guideline.expanded = true;
 			isClosing = false;
 		}
+	}
+
+	function newGuideline(): Guideline {
+		let newG = $state({
+			name: 'Guideline name',
+			description: 'Guideline description',
+			literature: [],
+			rootCondition: {
+				weight: 1,
+				condition: {
+					type: 'numeric',
+					property: 'nodeCount',
+					ideal: 69,
+					tolerance: 33
+				}
+			},
+			recommendations: {},
+			id: graphSettings.newGUIID(),
+			score: 0,
+			status: { applied: 'notApplied', conflicts: [] },
+			expanded: false
+		});
+		return newG;
+	}
+
+	export function addGuideline() {
+		console.log('guideeeeline add');
+		let newG = newGuideline();
+		guidelines.push(newG);
+		setTimeout(() => {
+			expand(newG);
+		}, 50);
 	}
 
 	function animateClose() {
@@ -102,14 +135,27 @@
 </div>
 
 {#if expandedGuideline || isClosing}
-	<div class="expanded" bind:this={expandedCardElement}>
+	<div class="expandedGuideline" bind:this={expandedCardElement}>
 		<GuidelineCard guideline={expandedGuideline!} {expand} />
 	</div>
+	<div class="overlay" onclick={() => expand(expandedGuideline)}></div>
 {/if}
 
 <style>
-	.expanded {
+	.expandedGuideline {
 		position: fixed;
-		z-index: 1000;
+		z-index: 10000000;
+	}
+
+	.overlay {
+		position: fixed;
+		backdrop-filter: blur(10px);
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 100000;
+		pointer-events: all;
+		overflow: hidden;
 	}
 </style>

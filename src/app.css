@@ -179,20 +179,25 @@ body {
 
 .hover-popup-bottom {
 	transform-origin: top center;
-	animation: popupShowBottom 0.3s ease forwards;
+	animation: popupShowBottom 0.1s ease forwards;
 }
 
 .hover-popup-top {
 	transform-origin: bottom center;
-	animation: popupShowTop 0.3s ease forwards;
+	animation: popupShowTop 0.1s ease forwards;
 }
 
 .hover-popup-left {
 	transform-origin: right center;
-	animation: popupShowLeft 0.3s ease forwards;
+	animation: popupShowLeft 0.1s ease forwards;
 }
 
 .hover-popup-right {
 	transform-origin: left center;
-	animation: popupShowRight 0.3s ease forwards;
+	animation: popupShowRight 0.1s ease forwards;
+}
+
+html,
+body {
+	overflow: hidden;
 }

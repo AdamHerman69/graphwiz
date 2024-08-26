@@ -15,6 +15,7 @@
 	import { hoverPopup } from './GUI/hoverPopup.svelte';
 	import type { ICanvasHandler } from '../utils/canvas.svelte';
 	import type Graph from 'graphology';
+	import type { SvelteComponent } from 'svelte';
 
 	let {
 		side,
@@ -59,6 +60,12 @@
 	let settingsState = $state({
 		left: { layout: true, node: true, edge: true },
 		right: { layout: true, node: true, edge: true }
+	});
+
+	let leftGuidelinesExports, rightGuidelinesExports;
+	let guidelineExports = $derived({
+		left: leftGuidelinesExports,
+		right: rightGuidelinesExports
 	});
 
 	onMount(() => {
@@ -110,7 +117,7 @@
 
 {#snippet guidelineButtons(side: 'left' | 'right')}
 	<div class="settingToggleButtons">
-		<button onclick={() => console.log('add guideline')}>
+		<button onclick={guidelineExports[side]!.addGuideline}>
 			<span class="material-symbols-outlined"> add </span>
 		</button>
 		<button onclick={() => console.log('save guidelines')}>
@@ -129,7 +136,7 @@
 				<div class="cardStackContainer" class:hintSlideLeft use:autoAnimate>
 					{#if !hidden.left && panelState.left === 'guidelines'}
 						<div class="cardStack">
-							<Guidelines />
+							<Guidelines bind:this={leftGuidelinesExports} />
 						</div>
 					{:else if !hidden.left && panelState.left === 'settings'}
 						<div class="cardStack" use:autoAnimate>
@@ -180,7 +187,7 @@
 				<div class="cardStackContainer" class:hintSlideRight use:autoAnimate>
 					{#if !hidden.right && panelState.right === 'guidelines'}
 						<div class="cardStack">
-							<Guidelines />
+							<Guidelines bind:this={rightGuidelinesExports} />
 						</div>
 					{:else if !hidden.right && panelState.right === 'settings'}
 						<div class="cardStack" use:autoAnimate>
@@ -231,13 +238,13 @@
 		height: 100%;
 		font-size: 0.875rem;
 		line-height: 1.25rem;
-		z-index: 10;
 		/* width: 450px; */
 		pointer-events: none;
 	}
 
 	.leftContainer {
 		left: 0px;
+		z-index: 10; /* for the overlay to work, needs to be higher than the right one */
 	}
 
 	.rightContainer {
@@ -261,6 +268,8 @@
 		&::-webkit-scrollbar {
 			display: none;
 		}
+
+		overscroll-behavior-y: auto;
 
 		transition: transform 0.3s ease;
 	}
@@ -361,5 +370,6 @@
 	/* Adjust the layout for the right container */
 	.rightContainer .panelContent {
 		flex-direction: row-reverse;
+		z-index: 9; /* for the overlay to work, needs to be lower than the left one */
 	}
 </style>

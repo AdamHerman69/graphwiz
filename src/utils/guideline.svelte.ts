@@ -124,6 +124,7 @@ export type Guideline = StaticGuideline & {
 	score: number;
 	status: GuidelineStatus;
 	expanded: boolean;
+	parentDiv?: HTMLDivElement;
 };
 
 const normalizeWeights = (conditions: WeightedCondition[]): WeightedCondition[] => {

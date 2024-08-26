@@ -551,6 +551,7 @@
 	.menuBarButtons button {
 		position: absolute;
 		top: 14px;
+		z-index: 100;
 	}
 	.importDiv,
 	.exportDiv {

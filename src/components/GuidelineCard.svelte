@@ -8,6 +8,8 @@
 	import GuidelineHeader from './GuidelineHeader.svelte';
 	import GuidelineSettings from './GuidelineSettings.svelte';
 	import autoAnimate from '@formkit/auto-animate';
+	import { blur } from 'svelte/transition';
+	import { hoverPopup } from './GUI/hoverPopup.svelte';
 
 	let {
 		guideline,
@@ -21,7 +23,7 @@
 
 	let graphSettings = getContext('graphSettings') as GraphSettingsClass;
 	let neighborGraphSettings = getContext('neighborGraphSettings') as GraphSettingsClass;
-	let parentDiv: HTMLDivElement;
+	// let parentDiv: HTMLDivElement;
 
 	let showConflicts: boolean = $state(false);
 	let applyHovered: boolean = $state(false);
@@ -35,7 +37,7 @@
 </script>
 
 <div
-	bind:this={parentDiv}
+	bind:this={guideline.parentDiv}
 	class="card cardSpacing"
 	class:expanded={guideline.expanded}
 	class:first={first === true}
@@ -58,14 +60,19 @@
 		{/if}
 	{/if}
 
-	<button class="text-sm" onclick={() => expand(guideline, parentDiv)}>expand</button>
+	<button class="text-sm" onclick={() => expand(guideline, guideline.parentDiv!)}>expand</button>
 
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div class="bottomRow" onmouseleave={() => (applyHovered = false)}>
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div onmouseenter={() => (applyHovered = true)} class="flex">
-			{#if applyHovered}
-				<button onclick={applyInSplitView} class="card splitButton">
+			{#if applyHovered && guideline.status?.applied != 'fully'}
+				<button
+					onclick={applyInSplitView}
+					class="card splitButton"
+					transition:blur={{ duration: 100 }}
+					use:hoverPopup={{ text: 'open in split view', delay: 400, position: 'left' }}
+				>
 					<span class="material-symbols-outlined"> splitscreen_right </span>
 				</button>
 			{/if}
@@ -139,6 +146,7 @@
 	.splitButton {
 		display: flex;
 		align-items: center;
+		margin: 0px 5px;
 	}
 
 	.splitButton span {
