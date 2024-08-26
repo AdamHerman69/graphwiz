@@ -14,6 +14,7 @@
 	let expandedCardElement: HTMLElement;
 	let graphSettings: GraphSettingsClass = getContext('graphSettings');
 	let isClosing = $state(false);
+	let blurActive = $state(false);
 
 	$effect(() => {
 		guidelines.sort((a, b) => {
@@ -31,12 +32,16 @@
 	function expand(guideline: Guideline) {
 		if (guideline.expanded) {
 			isClosing = true;
+			blurActive = false;
 			animateClose();
 		} else {
 			expandedGuidelineOriginalDims = guideline.parentDiv!.getBoundingClientRect();
 			expandedGuideline = guideline;
 			guideline.expanded = true;
 			isClosing = false;
+			setTimeout(() => {
+				blurActive = true;
+			}, 10);
 		}
 	}
 
@@ -138,7 +143,7 @@
 	<div class="expandedGuideline" bind:this={expandedCardElement}>
 		<GuidelineCard guideline={expandedGuideline!} {expand} />
 	</div>
-	<div class="overlay" onclick={() => expand(expandedGuideline)}></div>
+	<div class="overlay" class:active={blurActive} onclick={() => expand(expandedGuideline)}></div>
 {/if}
 
 <style>
@@ -149,7 +154,7 @@
 
 	.overlay {
 		position: fixed;
-		backdrop-filter: blur(10px);
+		backdrop-filter: blur(0px);
 		top: 0;
 		left: 0;
 		width: 100%;
@@ -157,5 +162,10 @@
 		z-index: 100000;
 		pointer-events: all;
 		overflow: hidden;
+		transition: backdrop-filter 0.7s ease;
+	}
+
+	.overlay.active {
+		backdrop-filter: blur(15px);
 	}
 </style>
