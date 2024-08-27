@@ -8,16 +8,28 @@
 	} from '../utils/graphSettings.svelte';
 	import type { Rule } from '../utils/rules.svelte';
 	import { hoverPopup } from './GUI/hoverPopup.svelte';
+	import type { Conflict, Guideline } from '../utils/guideline.svelte';
+	import { getContext } from 'svelte';
+	import RuleDisplay from './RuleDisplay.svelte';
+	import autoAnimate from '@formkit/auto-animate';
 
 	let {
 		setting,
 		rule = null,
-		collapsed = $bindable(true)
+		collapsed = $bindable(true),
+		conflict = undefined
 	}: {
 		setting: SelectSetting<any> | NumericalSetting | ColorSetting | DecoratorSetting;
 		rule: Rule | null;
 		collapsed: boolean;
+		conflict?: Conflict;
 	} = $props();
+
+	let guidelines = getContext('guidelines') as Guideline[];
+
+	const conflictingGuidelineName = $derived(
+		guidelines.find((g) => g.id === conflict?.conflictingGuidelineId)?.name
+	);
 
 	let hovered = $state(false);
 	let valueDisplayWidth = $state(0);
@@ -28,6 +40,8 @@
 		}
 		return setting.value;
 	});
+
+	let showRule = $state(false);
 
 	const settingIcons = {
 		size: 'open_in_full',
@@ -68,7 +82,9 @@
 	}}
 	class="settingDisplay"
 	class:hovered={hovered || !collapsed}
-	style="width: {hovered || !collapsed ? expandedWidth : '30px'};"
+	style="width: {hovered || !collapsed ? expandedWidth : '30px'}; {conflict
+		? 'background-color: #ffcccc;'
+		: ''}"
 	onmouseenter={() => {
 		if (collapsed) hovered = true;
 	}}
@@ -92,12 +108,26 @@
 		{#if settingTypes[setting.name] === 'decorators'}
 			<div>{setting.value.length}</div>
 		{/if}
+
 		{#if rule != null}
-			<div class="iconWrapper pl-2">
-				<span class="material-symbols-outlined"> flaky </span>
+			<div class="iconWrapper pl-2" use:hoverPopup={{ text: 'show rule', position: 'top' }}>
+				<button onclick={() => (showRule = !showRule)} class="flex items-center justify-center">
+					<span class="material-symbols-outlined"> flaky </span>
+				</button>
 			</div>
 		{/if}
+		{#if conflict}
+			<div class="iconWrapper {settingTypes[setting.name] === 'color' ? 'pl-2' : ''}">
+				<span class="material-symbols-outlined"> priority_high </span>
+			</div>
+			<div>{conflictingGuidelineName}</div>
+		{/if}
 	</div>
+</div>
+<div use:autoAnimate>
+	{#if rule != null && showRule}
+		<RuleDisplay {rule} type="node" />
+	{/if}
 </div>
 
 <style>
@@ -107,7 +137,7 @@
 		transition: width 0.3s ease;
 		border-radius: 20px;
 		padding: 2px;
-		margin: 0px 2px;
+		margin: 2px 2px;
 		background-color: #f0f0f0;
 		display: flex;
 		justify-content: flex-start;

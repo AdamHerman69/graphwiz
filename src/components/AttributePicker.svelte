@@ -4,9 +4,13 @@
 
 	let {
 		selectedAttribute = $bindable(),
-		filter
-	}: { selectedAttribute: Attribute | undefined; filter: (attribute: Attribute) => boolean } =
-		$props();
+		filter,
+		disabled = false
+	}: {
+		selectedAttribute: Attribute | undefined;
+		filter: (attribute: Attribute) => boolean;
+		disabled: boolean;
+	} = $props();
 
 	let filteredAttributes = $derived(availableAttributes.filter(filter));
 
@@ -28,7 +32,7 @@
 	});
 </script>
 
-<select bind:this={select} onchange={handleChange} class="bg-transparent">
+<select bind:this={select} onchange={handleChange} class="bg-transparent" {disabled}>
 	{#each filteredAttributes as attribute}
 		<option value={attribute.name}>{attribute.name}</option>
 	{/each}

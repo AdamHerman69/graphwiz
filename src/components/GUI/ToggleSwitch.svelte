@@ -1,5 +1,6 @@
 <script lang="ts">
-	let { selected = $bindable() }: { selected: string } = $props();
+	let { selected = $bindable(), disabled = false }: { selected: string; disabled: boolean } =
+		$props();
 
 	let checked = $state(false);
 
@@ -9,7 +10,7 @@
 </script>
 
 <label class="switch">
-	<input type="checkbox" bind:checked />
+	<input type="checkbox" bind:checked {disabled} />
 	<span class="slider" />
 </label>
 

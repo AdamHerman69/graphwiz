@@ -243,5 +243,77 @@
 				}
 			]
 		}
+	},
+	{
+		"name": "guideline_0025",
+		"description": "Visualization guideline for large trees (RULES)",
+		"literature": [],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"weight": 6,
+						"condition": {
+							"type": "boolean",
+							"property": "isDAG",
+							"value": true
+						}
+					},
+					{
+						"weight": 4,
+						"condition": {
+							"type": "numeric",
+							"property": "nodeCount",
+							"ideal": 100,
+							"tolerance": 50
+						}
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"nodeSettings": [
+				{
+					"color": {
+						"name": "color",
+						"value": [[{ "r": 240, "g": 15, "b": 100, "a": 1 }, 1]]
+					},
+					"strokeWidth": { "name": "strokeWidth", "value": 0, "min": 0, "max": 10 }
+				},
+				{
+					"rule": {
+						"operator": "AND",
+						"rules": [
+							{
+								"operator": ">",
+								"type": "number",
+								"target": "node",
+								"value": "3",
+								"property": { "name": "degree", "type": "number", "owner": "node", "general": true }
+							},
+							{
+								"operator": "<",
+								"type": "number",
+								"target": "node",
+								"value": 1,
+								"property": {
+									"name": "inDegree",
+									"type": "number",
+									"owner": "node",
+									"general": true
+								}
+							}
+						]
+					},
+					"size": { "name": "size", "value": 2.423652341, "min": 1, "max": 10 },
+					"color": {
+						"name": "color",
+						"value": [[{ "r": 0, "g": 15, "b": 100, "a": 1 }, 1]]
+					}
+				}
+			]
+		}
 	}
 ]

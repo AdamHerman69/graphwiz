@@ -3,12 +3,12 @@
 	import type { Attribute } from '../utils/graph.svelte';
 	import AttributePicker from './AttributePicker.svelte';
 
-	let { rule }: { rule: AtomicRule } = $props();
+	let { rule, disabled = false }: { rule: AtomicRule; disabled: boolean } = $props();
 </script>
 
 <div class="flex justify-between">
 	<!-- Select rule target -->
-	<select class="flex-auto bg-transparent w-1/4" bind:value={rule.target}>
+	<select class="flex-auto bg-transparent w-1/4" bind:value={rule.target} {disabled}>
 		<option value="edge">edge</option>
 		<option value="source">source</option>
 		<option value="target">target</option>
@@ -19,11 +19,12 @@
 	<AttributePicker
 		bind:selectedAttribute={rule.property}
 		filter={(attribute: Attribute) => (attribute.owner === (rule.target === 'edge' ? 'edge' : 'node'))}
+		{disabled}
 	/>
 
 	<!-- Numerical Operator -->
 	{#if rule.type === 'number'}
-		<select class="bg-transparent w-1/4" bind:value={rule.operator}>
+		<select class="bg-transparent w-1/4" bind:value={rule.operator} {disabled}>
 			<option value="=">=</option>
 			<option value=">">&gt</option>
 			<option value="<">&lt</option>

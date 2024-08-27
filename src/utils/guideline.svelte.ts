@@ -35,11 +35,12 @@ export const tasks: Task[] = [
 
 export let selectedTask: Task = $state(tasks[0]);
 
-type Conflict = {
+export type Conflict = {
 	type: 'layout' | 'nodeSetting' | 'edgeSetting';
 	property?: string;
 	index?: number;
 	conflictingGuidelineId: number;
+	conflictingGuidelineName?: string;
 };
 
 export type NumericCondition = {

@@ -25,7 +25,6 @@
 	let neighborGraphSettings = getContext('neighborGraphSettings') as GraphSettingsClass;
 	// let parentDiv: HTMLDivElement;
 
-	let showConflicts: boolean = $state(false);
 	let applyHovered: boolean = $state(false);
 
 	let toggleSplitView: (left: boolean, right: boolean) => void = getContext('toggleSplitView');
@@ -45,19 +44,13 @@
 	<GuidelineHeader {guideline} />
 	<div class="text-sm my-2">{guideline.description}</div>
 
-	<GuidelineSettings recommendations={guideline.recommendations} />
+	<GuidelineSettings
+		recommendations={guideline.recommendations}
+		conflicts={guideline.status?.conflicts}
+	/>
 
 	{#if guideline.status}
 		<div class="text-sm">{guideline.status.applied}</div>
-
-		<br />
-		{#if guideline.status.conflicts.length > 0 && showConflicts}
-			<div class="text-sm">Conflicts:</div>
-
-			{#each guideline.status.conflicts as conflict}
-				<div class="text-sm">{conflict.property} with {conflict.conflictingGuidelineId}</div>
-			{/each}
-		{/if}
 	{/if}
 
 	<button class="text-sm" onclick={() => expand(guideline, guideline.parentDiv!)}>expand</button>
@@ -92,7 +85,7 @@
 		</div>
 
 		{#if guideline.status?.conflicts.length > 0}
-			<button class="conflictButton" onclick={() => (showConflicts = !showConflicts)}>
+			<button class="conflictButton">
 				<span class="material-symbols-outlined"> error </span>
 			</button>
 		{/if}
@@ -130,7 +123,7 @@
 	}
 
 	.conflictButton::before {
-		content: 'show conflicts';
+		content: 'overrides conflicting guidelines';
 		padding: 5px;
 		white-space: nowrap;
 		opacity: 0;

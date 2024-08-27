@@ -7,15 +7,18 @@
 	} from '../utils/graphSettings.svelte';
 	import SettingValue from './SettingValue.svelte';
 	import Collapser from './GUI/Collapser.svelte';
+	import type { Conflict } from '../utils/guideline.svelte';
 
 	let {
-		recommendations
+		recommendations,
+		conflicts
 	}: {
 		recommendations: {
 			layout?: LayoutType;
 			edgeSettings?: EdgeSettings[];
 			nodeSettings?: NodeSettings[];
 		};
+		conflicts: Conflict[];
 	} = $props();
 
 	let nodeCollapsed = $state(true);
@@ -44,6 +47,7 @@
 								setting={ns[key]}
 								rule={index > 0 ? ns.rule : null}
 								bind:collapsed={nodeCollapsed}
+								conflict={conflicts?.find((c) => c.property === key)}
 							/>
 						{/if}
 					{/each}
@@ -68,9 +72,15 @@
 					{/if}
 				{/each}
 			{/each}
-			<div class="flex justify-center align-middle">
+			<div class="flex justify-center align-middle collapserDiv">
 				<Collapser bind:collapsed={edgeCollapsed} horizontal={true} />
 			</div>
 		</div>
 	{/if}
 </div>
+
+<style>
+	.collapserDiv {
+		font-size: 4px;
+	}
+</style>

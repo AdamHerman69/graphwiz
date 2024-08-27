@@ -3,8 +3,11 @@
 	import lottie, { type AnimationItem } from 'lottie-web';
 	import collapseAnimation from '../../assets/animated_icons/alternating_arrow.json';
 
-	let { collapsed = $bindable(), horizontal = false }: { collapsed: boolean; horizontal: boolean } =
-		$props();
+	let {
+		collapsed = $bindable(),
+		horizontal = false,
+		size = 20
+	}: { collapsed: boolean; horizontal: boolean; size: number } = $props();
 
 	let collapseAnimationInstance: AnimationItem;
 	let collapseButton: HTMLButtonElement;
@@ -31,7 +34,15 @@
 	}
 </script>
 
-<button bind:this={collapseButton} on:click={collapse} class:rotate={horizontal} />
+<div class="flex justify-center items-center">
+	<button
+		bind:this={collapseButton}
+		on:click={collapse}
+		class:rotate={horizontal}
+		style="width: {size}px;
+	height: {size}px;"
+	></button>
+</div>
 
 <style>
 	.rotate {

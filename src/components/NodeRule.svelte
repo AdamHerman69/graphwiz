@@ -3,7 +3,7 @@
 	import type { Attribute } from '../utils/graph.svelte';
 	import AttributePicker from './AttributePicker.svelte';
 
-	let { rule }: { rule: AtomicRule } = $props();
+	let { rule, disabled = false }: { rule: AtomicRule; disabled: boolean } = $props();
 </script>
 
 <div class="flex justify-between">
@@ -11,11 +11,12 @@
 	<AttributePicker
 		bind:selectedAttribute={rule.property}
 		filter={(attribute: Attribute) => (attribute.owner === 'node')}
+		{disabled}
 	/>
 
 	<!-- Numerical Operator -->
 	{#if rule.property?.type === 'number'}
-		<select class="bg-transparent w-1/4" bind:value={rule.operator}>
+		<select class="bg-transparent w-1/4" bind:value={rule.operator} {disabled}>
 			<option value="=">=</option>
 			<option value=">">&gt</option>
 			<option value="<">&lt</option>
@@ -23,10 +24,10 @@
 			<option value="<=">≤</option>
 		</select>
 		<!-- <RadialSelector bind:selected={rule.operator} options={['=', '>', '<', '≥', '≤']} width={25} /> -->
-		<input type="number" class="bg-transparent w-1/4" bind:value={rule.value} />
+		<input type="number" class="bg-transparent w-1/4" bind:value={rule.value} {disabled} />
 	{:else}
 		is
-		<input type="string" class="bg-transparent mx-1 w-1/2" bind:value={rule.value} />
+		<input type="string" class="bg-transparent mx-1 w-1/2" bind:value={rule.value} {disabled} />
 	{/if}
 </div>
 
