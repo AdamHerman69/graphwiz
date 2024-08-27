@@ -45,6 +45,9 @@
 	setContext('toggleSplitView', toggleSplitView);
 	setContext('splitView', splitView);
 
+	let overlay = $state({ on: false });
+	setContext('overlay', overlay);
+
 	function toggleSplitView(left: boolean, right: boolean) {
 		if (splitView.left === left && splitView.right === right) return;
 
@@ -143,9 +146,9 @@
 	// }
 </script>
 
-<div class="flex h-full w-full z-50" bind:clientWidth={fullWidth}>
+<div class="flex h-full w-full" bind:clientWidth={fullWidth}>
 	{#if splitView.left}
-		<div class="h-full relative z-50" style="width: {width.left}%">
+		<div class="h-full relative" style="width: {width.left}%">
 			<AppView
 				side={splitView.right ? 'left' : 'full'}
 				bind:graphSettings={graphSettingsLeft}
@@ -156,7 +159,7 @@
 	{/if}
 
 	{#if splitView.right}
-		<div class="h-full relative z-50" style="width: {width.right}%">
+		<div class="h-full relative" style="width: {width.right}%">
 			<AppView
 				side={splitView.left ? 'right' : 'full'}
 				bind:graphSettings={graphSettingsRight}
@@ -205,7 +208,11 @@
 		</div>
 	{/if}
 
-	<div class="fixed top-10 z-20 left-1/2 transform -translate-x-1/2 pointer-events-none">
+	<div
+		class="fixed top-10 left-1/2 transform -translate-x-1/2 pointer-events-none {overlay.on
+			? ''
+			: 'z-20'}"
+	>
 		<DynamicIslandCenter
 			bind:stickyLeft={leftCanvasHandler.sticky}
 			bind:stickyRight={rightCanvasHandler.sticky}

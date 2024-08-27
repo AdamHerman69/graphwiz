@@ -15,6 +15,7 @@
 	let graphSettings: GraphSettingsClass = getContext('graphSettings');
 	let isClosing = $state(false);
 	let blurActive = $state(false);
+	let overlay = getContext('overlay');
 
 	$effect(() => {
 		guidelines.sort((a, b) => {
@@ -34,7 +35,9 @@
 			isClosing = true;
 			blurActive = false;
 			animateClose();
+			setTimeout(() => (overlay.on = false), 700);
 		} else {
+			overlay.on = true;
 			expandedGuidelineOriginalDims = guideline.parentDiv!.getBoundingClientRect();
 			expandedGuideline = guideline;
 			guideline.expanded = true;

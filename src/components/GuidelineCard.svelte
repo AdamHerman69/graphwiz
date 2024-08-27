@@ -123,7 +123,7 @@
 	}
 
 	.conflictButton::before {
-		content: 'overrides conflicting guidelines';
+		content: 'overrides conflicts';
 		padding: 5px;
 		white-space: nowrap;
 		opacity: 0;
