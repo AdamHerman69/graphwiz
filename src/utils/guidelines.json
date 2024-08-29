@@ -2,7 +2,7 @@
 	{
 		"name": "guideline_001",
 		"description": "Visualization guideline for sparse, undirected graphs",
-		"literature": [],
+		"literature": ["10.1109/IV.2006.130"],
 		"rootCondition": {
 			"weight": 1,
 			"condition": {
@@ -144,7 +144,7 @@
 	{
 		"name": "guideline_003",
 		"description": "Visualization guideline for small graphs (EDGE)",
-		"literature": [],
+		"literature": ["10.1038/502295a"],
 		"rootCondition": {
 			"weight": 1,
 			"condition": {

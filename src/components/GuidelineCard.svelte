@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { type Guideline, isComposite, applyGuideline } from '../utils/guideline.svelte';
 	import { type GraphSettingsClass } from '../utils/graphSettings.svelte';
-	import { getContext } from 'svelte';
+	import { getContext, onMount } from 'svelte';
 	import Score from './Score.svelte';
 	import ScoreBar from './GUI/ScoreBar.svelte';
 	import WeightedCondition from './WeightedCondition.svelte';
@@ -10,6 +10,7 @@
 	import autoAnimate from '@formkit/auto-animate';
 	import { blur } from 'svelte/transition';
 	import { hoverPopup } from './GUI/hoverPopup.svelte';
+	import { type Citation, getCitationInfo } from '../utils/citation.svelte';
 
 	let {
 		guideline,
@@ -33,6 +34,18 @@
 		toggleSplitView(true, true);
 		applyGuideline(guideline, neighborGraphSettings);
 	}
+
+	// let citations = guideline.literature.map((citation) => {
+	// 	return getCitationInfo(citation);
+	// });
+
+	let citationsPromise: Promise<Citation[]> = Promise.all(
+		guideline.literature.map(getCitationInfo)
+	);
+
+	// onMount(async () => {
+	// 	citations = await Promise.all(guideline.literature.map(getCitationInfo));
+	// });
 </script>
 
 <div
@@ -49,11 +62,28 @@
 		conflicts={guideline.status?.conflicts}
 	/>
 
+	<button onclick={() => console.log(guideline)}>loggg</button>
+
 	{#if guideline.status}
 		<div class="text-sm">{guideline.status.applied}</div>
 	{/if}
 
 	<button class="text-sm" onclick={() => expand(guideline, guideline.parentDiv!)}>expand</button>
+
+	{#await citationsPromise}
+		<div>Loading...</div>
+	{:then citations}
+		<div class="literature">
+			{#each citations as citation}
+				<div class="text-xs">
+					{#each citation.authors as author}
+						{author.given} {author.family},
+					{/each} ({citation.created.toDateString()}). {citation.title}
+					<button onclick={() => window.open(citation.URL)}>{citation.URL}</button>
+				</div>
+			{/each}
+		</div>
+	{/await}
 
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div class="bottomRow" onmouseleave={() => (applyHovered = false)}>

@@ -9,12 +9,7 @@ import {
 import guidelinesFile from './guidelines.json';
 import { graphCharacteristics } from './graph.svelte';
 import { areRulesEqual } from './rules.svelte';
-
-export type Literature = {
-	title: string;
-	authors: string[];
-	year: number;
-};
+import { getCitationInfo, type Citation } from './citation.svelte';
 
 export type GuidelineStatus = {
 	applied: 'fully' | 'partially' | 'notApplied';
@@ -111,7 +106,7 @@ export type WeightedCondition = {
 export type StaticGuideline = {
 	name: string;
 	description: string;
-	literature: Literature[];
+	literature: Citation[] | string[]; // DOIs before load
 	rootCondition: WeightedCondition;
 	recommendations: {
 		layout?: LayoutType;
@@ -476,8 +471,11 @@ export function newGuidelineSet(graphSettings: GraphSettingsClass): Guideline[] 
 	return newGuidelineSet;
 }
 
-export function loadGuidelines() {
+export async function loadGuidelines() {
 	// todo check format
 	let guidelinesFromFile = guidelinesFile as StaticGuideline[];
 	defaultGuidelines = structuredClone(guidelinesFromFile) as StaticGuideline[];
+	for (let guideline of defaultGuidelines) {
+		await Promise.all(guideline.literature.map((doi) => getCitationInfo(doi)));
+	}
 }
