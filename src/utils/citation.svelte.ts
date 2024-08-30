@@ -6,6 +6,7 @@ export type Citation = {
 	authors: Author[];
 	created: Date;
 	title: string;
+	subtitle?: string;
 	abstract: string;
 	URL: string;
 };
@@ -26,6 +27,8 @@ export async function getCitationInfo(DOI: string): Promise<Citation> {
 		const cite = await Cite.async(DOI);
 		const data = cite.data[0];
 
+		console.log('data:', data);
+
 		let citation: Citation = {
 			DOI: DOI,
 			authors: data.author?.map((author: any) => {
@@ -33,6 +36,7 @@ export async function getCitationInfo(DOI: string): Promise<Citation> {
 			}),
 			created: new Date(data.created['date-time']),
 			title: data.title,
+			subtitle: data.subtitle[0],
 			abstract: data.abstract,
 			URL: data.URL
 		};
