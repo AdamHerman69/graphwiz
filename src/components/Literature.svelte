@@ -90,7 +90,7 @@
 				{/each}
 
 				{#if editable}
-					<div class="p-2 flex inputDoi">
+					<form class="p-2 flex inputDoi">
 						<input bind:value={newCitationDoi} placeholder="DOI" class="flex-1" />
 						<button
 							class="text-xs"
@@ -99,7 +99,7 @@
 								newCitationDoi = '';
 							}}><span class="material-symbols-outlined"> add </span></button
 						>
-					</div>
+					</form>
 				{/if}
 
 				{#if !editable}
