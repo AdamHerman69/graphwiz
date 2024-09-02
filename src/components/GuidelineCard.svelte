@@ -62,9 +62,7 @@
 		<GuidelineHeader {guideline} />
 		<div class="text-sm my-2">{guideline.description}</div>
 
-		{#if guideline.literature.length > 0}
-			<Literature literature={guideline.literature} />
-		{/if}
+		<Literature literature={guideline.literature} />
 
 		<GuidelineSettings
 			recommendations={guideline.recommendations}

@@ -9,77 +9,109 @@
 
 	let expanded = $state(false);
 
-	let citationPromises: Promise<Citation[]> = $state(Promise.all(literature.map(getCitationInfo)));
+	//let citationPromises: Promise<Citation>[] = $state(Promise.all(literature.map(getCitationInfo)));
 
 	function deleteCitation(DOI: string) {
 		literature = literature.filter((doi) => DOI !== doi);
 	}
 
-	$effect.pre(() => {
-		citationPromises = Promise.all(literature.map(getCitationInfo));
-	});
+	let newCitationDoi = $state('');
 </script>
 
+{#snippet citationMini(DOI: string, last: boolean = false)}
+	{#await getCitationInfo(DOI)}
+		<div>{DOI}</div>
+	{:then citation}
+		{citation.authors ? citation.authors[0].family : 'unknown'} ({citation.created.getFullYear()})
+	{:catch}
+		<div>{DOI}</div>
+	{/await}
+	{last ? '' : ', '}
+{/snippet}
+
+{#snippet citationExpanded(DOI: string, last: boolean)}
+	{#await getCitationInfo(DOI)}
+		<div class="p-2 flex items-center">loading {DOI}...</div>
+	{:then citation}
+		<div class={last && !editable ? 'px-2 pt-2' : 'p-2'}>
+			<div class="header">
+				<div class="title">
+					{citation.title} ({citation.created.getFullYear()})
+					{#if citation.subtitle}
+						<span class="subtitle"> : {citation.subtitle}</span>
+					{/if}
+				</div>
+
+				<div class="link">
+					<button onclick={() => window.open(citation.URL)}
+						><span class="material-symbols-outlined"> open_in_new </span></button
+					>
+				</div>
+			</div>
+			<div class="flex">
+				<div class="authors flex-1">
+					{#each citation.authors as author, index}
+						{author.given} {author.family}{index < citation.authors.length - 1 ? ', ' : ''}
+					{/each}
+				</div>
+				{#if editable}
+					<button class="deleteButton" onclick={() => deleteCitation(citation.DOI)}>
+						<span class="material-symbols-outlined">close</span>
+					</button>
+				{/if}
+			</div>
+			<div class="abstract">{citation.abstract}</div>
+		</div>
+	{:catch}
+		<div class="p-2">
+			<div class="font-bold w-full">{DOI}</div>
+			<div>failed to load</div>
+		</div>
+	{/await}
+	<div class={`mx-3 ${last && !editable ? '' : 'border-b border-gray-200'}`}></div>
+{/snippet}
+
 <div class="literature" use:autoAnimate>
-	{#await citationPromises}
-		<div>Loading...</div>
-	{:then citations}
-		{#if !expanded}
+	{#if literature.length > 0}
+		{#if !expanded && !editable}
 			<div class="minimized text-xs" onclick={() => (expanded = true)}>
 				<span class="material-symbols-outlined"> book_5 </span>
 				<div class="papers">
-					{#each citations as citation, index}
-						{citation.authors ? citation.authors[0].family : 'unknown'} ({citation.created.getFullYear()}){index <
-						citations.length - 1
-							? ', '
-							: ''}
+					{#each literature as DOI, index}
+						{@render citationMini(DOI, index === literature.length - 1)}
 					{/each}
 				</div>
 				<Collapser bind:collapsed={expanded} />
 			</div>
 		{:else}
 			<div class="expanded labelContainer w-full" use:autoAnimate>
-				{#each citations as citation, index (citation.DOI)}
-					<div class={index < citations.length - 1 ? 'p-2' : 'px-2 pt-2'}>
-						<div class="header">
-							<div class="title">
-								{citation.title} ({citation.created.getFullYear()})
-								{#if citation.subtitle}
-									<span class="subtitle"> : {citation.subtitle}</span>
-								{/if}
-							</div>
-
-							<div class="link">
-								<button onclick={() => window.open(citation.URL)}
-									><span class="material-symbols-outlined"> open_in_new </span></button
-								>
-							</div>
-						</div>
-						<div class="flex">
-							<div class="authors">
-								{#each citation.authors as author, index}
-									{author.given} {author.family}{index < citation.authors.length - 1 ? ', ' : ''}
-								{/each}
-							</div>
-							{#if editable}
-								<button class="text-xs" onclick={() => deleteCitation(citation.DOI)}>
-									<span class="material-symbols-outlined">close</span>
-								</button>
-							{/if}
-						</div>
-						<div class="abstract">{citation.abstract}</div>
-					</div>
-					<div class={`mx-3 ${index < citations.length - 1 ? 'border-b border-gray-200' : ''}`} />
+				{#each literature as DOI, index (DOI)}
+					{@render citationExpanded(DOI, index === literature.length - 1)}
 				{/each}
 
-				<div class="closeDiv flex justify-end">
-					<button class="text-xs" onclick={() => (expanded = false)}>
-						<span class="material-symbols-outlined">close</span>
-					</button>
-				</div>
+				{#if editable}
+					<div class="p-2 flex inputDoi">
+						<input bind:value={newCitationDoi} placeholder="DOI" class="flex-1" />
+						<button
+							class="text-xs"
+							onclick={() => {
+								literature = [...literature, newCitationDoi];
+								newCitationDoi = '';
+							}}><span class="material-symbols-outlined"> add </span></button
+						>
+					</div>
+				{/if}
+
+				{#if !editable}
+					<div class="closeDiv flex justify-end">
+						<button class="text-xs" onclick={() => (expanded = false)}>
+							<span class="material-symbols-outlined">close</span>
+						</button>
+					</div>
+				{/if}
 			</div>
 		{/if}
-	{/await}
+	{/if}
 </div>
 
 <style>
@@ -118,7 +150,7 @@
 	.expanded {
 	}
 
-	.expanded .title {
+	.title {
 		font-size: 12px;
 		font-weight: bold;
 		line-height: 120%;
@@ -126,12 +158,12 @@
 		flex: 1;
 	}
 
-	.expanded .subtitle {
+	.subtitle {
 		font-weight: bold;
 		font-style: italic;
 	}
 
-	.expanded .authors {
+	.authors {
 		font-size: 10px;
 		line-height: 120%;
 	}
@@ -150,12 +182,37 @@
 		margin-bottom: 8px;
 	}
 
-	.closeDiv span {
+	.closeDiv span,
+	.deleteButton span {
 		font-size: 16px;
 	}
 
-	.closeDiv button {
+	.closeDiv button,
+	.inputDoi button {
 		display: flex;
 		align-items: center;
+	}
+
+	.deleteButton {
+		display: flex;
+		align-items: end;
+	}
+
+	.inputDoi {
+	}
+
+	.inputDoi input {
+		border: none;
+		border-radius: 0;
+		/* border-bottom: 1px solid #e2e8f0; */
+		padding: 2px;
+		margin-right: 5px;
+		background-color: transparent;
+		user-select: none; /* Disable text selection */
+		outline: none; /* Remove outline on focus */
+	}
+
+	.inputDoi span {
+		font-size: 17px;
 	}
 </style>
