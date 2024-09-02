@@ -109,7 +109,7 @@ const edgeTypes = ['straight', 'orthogonal', 'conical'] as const;
 export type EdgeType = (typeof edgeTypes)[number];
 
 // todo layout specific settings in a layout object. swich layouts based on this object, not other
-const layoutTypes = [
+export const layoutTypes = [
 	'force-graph',
 	'layered',
 	'stress',
@@ -162,6 +162,13 @@ export const nodeSettingsDefaults: NodeProperties = {
 	labels: []
 } as const;
 
+export const layoutSettingsDefaults: SelectSetting<LayoutType> = {
+	name: 'layout',
+	values: Array.from(layoutTypes),
+	value: 'force-graph',
+	source: null
+};
+
 // let guiID = $state(0);
 
 export type GraphSettings = {
@@ -184,12 +191,7 @@ export class GraphSettingsClass {
 
 	graphSettings: GraphSettings = $state({
 		guiID: 1,
-		layout: {
-			name: 'layout',
-			values: Array.from(layoutTypes),
-			value: 'force-graph',
-			source: null
-		},
+		layout: structuredClone(layoutSettingsDefaults),
 		nodeSettings: [
 			{
 				...structuredClone(nodeSettingsDefaults),

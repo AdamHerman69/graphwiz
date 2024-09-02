@@ -12,6 +12,7 @@
 	import { hoverPopup } from './GUI/hoverPopup.svelte';
 	import { type Citation, getCitationInfo } from '../utils/citation.svelte';
 	import Literature from './Literature.svelte';
+	import GuidelineEditor from './GuidelineEditor.svelte';
 
 	let {
 		guideline,
@@ -36,17 +37,17 @@
 		applyGuideline(guideline, neighborGraphSettings);
 	}
 
-	// let citations = guideline.literature.map((citation) => {
-	// 	return getCitationInfo(citation);
-	// });
-
 	let citationsPromise: Promise<Citation[]> = Promise.all(
 		guideline.literature.map(getCitationInfo)
 	);
 
-	// onMount(async () => {
-	// 	citations = await Promise.all(guideline.literature.map(getCitationInfo));
-	// });
+	let editing = $state(false);
+	let editedGuideline: Guideline | null = $state(null);
+
+	function edit() {
+		editedGuideline = $state.snapshot(guideline);
+		editing = true;
+	}
 </script>
 
 <div
@@ -55,59 +56,60 @@
 	class:expanded={guideline.expanded}
 	class:first={first === true}
 >
-	<GuidelineHeader {guideline} />
-	<div class="text-sm my-2">{guideline.description}</div>
+	{#if editing}
+		<GuidelineEditor bind:guideline={editedGuideline!} />
+	{:else}
+		<GuidelineHeader {guideline} />
+		<div class="text-sm my-2">{guideline.description}</div>
 
-	{#if guideline.literature.length > 0}
-		{#await citationsPromise}
-			<div>Loading...</div>
-		{:then citations}
-			<Literature {citations} />
-		{/await}
-	{/if}
+		{#if guideline.literature.length > 0}
+			<Literature literature={guideline.literature} />
+		{/if}
 
-	<GuidelineSettings
-		recommendations={guideline.recommendations}
-		conflicts={guideline.status?.conflicts}
-	/>
+		<GuidelineSettings
+			recommendations={guideline.recommendations}
+			conflicts={guideline.status?.conflicts}
+		/>
 
-	<button class="text-sm" onclick={() => expand(guideline, guideline.parentDiv!)}>expand</button>
+		<button class="text-sm" onclick={() => expand(guideline, guideline.parentDiv!)}>expand</button>
+		<button class="text-sm" onclick={edit}>edit</button>
 
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="bottomRow" onmouseleave={() => (applyHovered = false)}>
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div onmouseenter={() => (applyHovered = true)} class="flex">
-			{#if applyHovered && guideline.status?.applied != 'fully'}
+		<div class="bottomRow" onmouseleave={() => (applyHovered = false)}>
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<div onmouseenter={() => (applyHovered = true)} class="flex">
+				{#if applyHovered && guideline.status?.applied != 'fully'}
+					<button
+						onclick={applyInSplitView}
+						class="card splitButton"
+						transition:blur={{ duration: 100 }}
+						use:hoverPopup={{ text: 'open in split view', delay: 400, position: 'left' }}
+					>
+						<span class="material-symbols-outlined"> splitscreen_right </span>
+					</button>
+				{/if}
+
 				<button
-					onclick={applyInSplitView}
-					class="card splitButton"
-					transition:blur={{ duration: 100 }}
-					use:hoverPopup={{ text: 'open in split view', delay: 400, position: 'left' }}
+					onclick={() => applyGuideline(guideline, graphSettings)}
+					class={guideline.status?.applied === 'fully' ? 'cardInset' : 'card'}
 				>
-					<span class="material-symbols-outlined"> splitscreen_right </span>
+					{#if guideline.status?.applied === 'fully'}
+						applied
+					{:else if guideline.status?.applied === 'partially'}
+						reapply
+					{:else}
+						apply
+					{/if}
+				</button>
+			</div>
+
+			{#if guideline.status?.conflicts.length > 0}
+				<button class="conflictButton">
+					<span class="material-symbols-outlined"> error </span>
 				</button>
 			{/if}
-
-			<button
-				onclick={() => applyGuideline(guideline, graphSettings)}
-				class={guideline.status?.applied === 'fully' ? 'cardInset' : 'card'}
-			>
-				{#if guideline.status?.applied === 'fully'}
-					applied
-				{:else if guideline.status?.applied === 'partially'}
-					reapply
-				{:else}
-					apply
-				{/if}
-			</button>
 		</div>
-
-		{#if guideline.status?.conflicts.length > 0}
-			<button class="conflictButton">
-				<span class="material-symbols-outlined"> error </span>
-			</button>
-		{/if}
-	</div>
+	{/if}
 </div>
 
 <style>

@@ -106,7 +106,7 @@ export type WeightedCondition = {
 export type StaticGuideline = {
 	name: string;
 	description: string;
-	literature: Citation[] | string[]; // DOIs before load
+	literature: string[]; // DOI
 	rootCondition: WeightedCondition;
 	recommendations: {
 		layout?: LayoutType;

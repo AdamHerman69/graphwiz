@@ -1,6 +1,6 @@
 [
 	{
-		"name": "guideline_001",
+		"name": "Sparse undirected graphs",
 		"description": "Visualization guideline for sparse, undirected graphs",
 		"literature": [
 			"10.1109/IV.2006.130",
@@ -74,7 +74,7 @@
 		}
 	},
 	{
-		"name": "guideline_002",
+		"name": "Large trees",
 		"description": "Visualization guideline for large trees (RULES)",
 		"literature": ["10.1007/3-540-31190-4"],
 		"rootCondition": {

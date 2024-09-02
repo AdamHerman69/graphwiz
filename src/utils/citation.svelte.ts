@@ -31,8 +31,6 @@ async function fetchCitation(DOI: string): Promise<Citation> {
 		const cite = await Cite.async(DOI);
 		const data = cite.data[0];
 
-		console.log('data:', data);
-
 		return {
 			DOI: DOI,
 			authors: data.author?.map((author: any) => ({
