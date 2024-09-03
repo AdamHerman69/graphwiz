@@ -10,6 +10,7 @@
 	import { computeGuidelineStatuses } from '../utils/guideline.svelte';
 	import { type Guideline } from '../utils/guideline.svelte';
 	import { blur } from 'svelte/transition';
+	import { hoverPopup } from './GUI/hoverPopup.svelte';
 
 	let graphSettings: GraphSettingsClass = getContext('graphSettings');
 	let guidelines = getContext('guidelines') as Guideline[];
@@ -121,7 +122,10 @@
 
 	{#if canvasHandler.zoomed}
 		<div class="resetTransform" transition:blur>
-			<button onclick={canvasHandler.resetTransform}>
+			<button
+				onclick={canvasHandler.resetTransform}
+				use:hoverPopup={{ text: 'reset zoom', delay: 300, position: 'left' }}
+			>
 				<span class="material-symbols-outlined"> reset_focus </span>
 			</button>
 		</div>

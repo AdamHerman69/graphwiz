@@ -16,6 +16,11 @@
 	}
 
 	let newCitationDoi = $state('');
+	function newCitation() {
+		if (newCitationDoi === '') return;
+		literature = [...literature, newCitationDoi];
+		newCitationDoi = '';
+	}
 </script>
 
 {#snippet citationMini(DOI: string, last: boolean = false)}
@@ -92,12 +97,8 @@
 				{#if editable}
 					<form class="p-2 flex inputDoi">
 						<input bind:value={newCitationDoi} placeholder="DOI" class="flex-1" />
-						<button
-							class="text-xs"
-							onclick={() => {
-								literature = [...literature, newCitationDoi];
-								newCitationDoi = '';
-							}}><span class="material-symbols-outlined"> add </span></button
+						<button class="text-xs" onclick={newCitation}
+							><span class="material-symbols-outlined"> add </span></button
 						>
 					</form>
 				{/if}

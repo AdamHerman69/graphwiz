@@ -21,7 +21,7 @@
 		console.log(nodeSettings);
 	}
 
-	let showRules = $state(nodeSettings.map(() => false));
+	let showRules = $state(nodeSettings.map((ns) => ns.rule !== undefined));
 </script>
 
 {#snippet nodeSettingsEditor(nodeSettings: NodeSettings, showRule: boolean)}

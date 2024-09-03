@@ -2,15 +2,17 @@
 	import type { AtomicRule } from '../utils/rules.svelte';
 	import type { Attribute } from '../utils/graph.svelte';
 	import AttributePicker from './AttributePicker.svelte';
+	import { getContext } from 'svelte';
 
 	let { rule, disabled = false }: { rule: AtomicRule; disabled: boolean } = $props();
+	let isGuidelineEditor = getContext('isGuidelineEditor');
 </script>
 
 <div class="flex justify-between">
 	<!-- todo proper filter -->
 	<AttributePicker
 		bind:selectedAttribute={rule.property}
-		filter={(attribute: Attribute) => (attribute.owner === 'node')}
+		filter={(attribute: Attribute) => (attribute.owner === 'node' && attribute.general === isGuidelineEditor)}
 		{disabled}
 	/>
 

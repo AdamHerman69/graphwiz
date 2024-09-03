@@ -9,6 +9,7 @@
 	import { getContext } from 'svelte';
 
 	let newGUIID = getContext('graphSettings').newGUIID;
+	let isGuidelineEditor = getContext('isGuidelineEditor');
 
 	let {
 		rule,
@@ -25,7 +26,9 @@
 			type: 'number',
 			target: type,
 			value: 0,
-			property: availableAttributes.filter((attribute) => attribute.owner === owner)[0]
+			property: availableAttributes.filter(
+				(attribute) => attribute.owner === owner && attribute.general === isGuidelineEditor
+			)[0]
 		});
 	}
 

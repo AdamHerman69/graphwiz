@@ -10,6 +10,7 @@ import guidelinesFile from './guidelines.json';
 import { graphCharacteristics } from './graph.svelte';
 import { areRulesEqual } from './rules.svelte';
 import { getCitationInfo, type Citation } from './citation.svelte';
+import { assignIDsToRules } from './rules.svelte';
 
 export type GuidelineStatus = {
 	applied: 'fully' | 'partially' | 'notApplied';
@@ -441,6 +442,12 @@ function addSourceToSettings(guidelines: Guideline[]): void {
 function addGuidelineIDs(guidelines: Guideline[], graphSettings: GraphSettingsClass): void {
 	guidelines.forEach((guideline) => {
 		guideline.id = graphSettings.newGUIID();
+		guideline.recommendations.nodeSettings?.forEach((nodeSetting) => {
+			if (nodeSetting.rule) assignIDsToRules(nodeSetting.rule, graphSettings.newGUIID);
+		});
+		guideline.recommendations.edgeSettings?.forEach((edgeSetting) => {
+			if (edgeSetting.rule) assignIDsToRules(edgeSetting.rule, graphSettings.newGUIID);
+		});
 	});
 }
 

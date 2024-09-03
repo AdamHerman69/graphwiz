@@ -16,8 +16,10 @@
 	import { layoutTypes, type LayoutType } from '../utils/graphSettings.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import Literature from './Literature.svelte';
+	import { setContext } from 'svelte';
 
 	let { guideline = $bindable() }: { guideline: Guideline } = $props();
+	setContext('isGuidelineEditor', true);
 
 	type SettingType = 'layout' | 'nodeSettings' | 'edgeSettings';
 
@@ -73,7 +75,7 @@
 	}
 </script>
 
-<div class="guideline-editor">
+<div class="guideline-editor" use:autoAnimate>
 	<input bind:value={guideline.name} placeholder="Guideline name" />
 	<textarea bind:value={guideline.description} placeholder="Guideline description" />
 
@@ -85,28 +87,38 @@
 
 	<h3>Recommendations</h3>
 
-	<button onclick={() => toggleSettings('layout')}>layout</button>
-	<button onclick={() => toggleSettings('nodeSettings')}>node</button>
-	<button onclick={() => toggleSettings('edgeSettings')}>edge</button>
-
-	{#if guideline.recommendations.layout}
-		<div use:autoAnimate={{ duration: 300 }} class="flex mx-2 my-2">
-			<div>ALGORITHM</div>
-			<select bind:value={guideline.recommendations.layout} class="bg-transparent ml-auto">
-				{#each layoutTypes as layoutType}
-					<option value={layoutType}>{layoutType}</option>
-				{/each}
-			</select>
+	<div class="labelContainer" use:autoAnimate>
+		<div class="ruleToggleSettings">
+			<button onclick={() => toggleSettings('layout')}
+				><span class="material-symbols-outlined"> linked_services </span></button
+			>
+			<button onclick={() => toggleSettings('nodeSettings')}
+				><span class="material-symbols-outlined"> masked_transitions </span></button
+			>
+			<button onclick={() => toggleSettings('edgeSettings')}
+				><span class="material-symbols-outlined"> diagonal_line </span></button
+			>
 		</div>
-	{/if}
 
-	{#if guideline.recommendations.nodeSettings}
-		<NodeRecommendations nodeSettings={guideline.recommendations.nodeSettings!} />
-	{/if}
+		{#if guideline.recommendations.layout}
+			<div use:autoAnimate={{ duration: 300 }} class="flex mx-2 my-2">
+				<div>ALGORITHM</div>
+				<select bind:value={guideline.recommendations.layout} class="bg-transparent ml-auto">
+					{#each layoutTypes as layoutType}
+						<option value={layoutType}>{layoutType}</option>
+					{/each}
+				</select>
+			</div>
+		{/if}
 
-	{#if guideline.recommendations.edgeSettings}
-		<EdgeRecommendations edgeSettings={guideline.recommendations.edgeSettings!} />
-	{/if}
+		{#if guideline.recommendations.nodeSettings}
+			<NodeRecommendations nodeSettings={guideline.recommendations.nodeSettings!} />
+		{/if}
+
+		{#if guideline.recommendations.edgeSettings}
+			<EdgeRecommendations edgeSettings={guideline.recommendations.edgeSettings!} />
+		{/if}
+	</div>
 
 	<!-- Literature -->
 	<h3>Literature</h3>
@@ -131,15 +143,15 @@
 		padding: 0.5rem;
 	}
 
-	button {
+	/* button {
 		padding: 0.5rem 1rem;
 		background-color: #f0f0f0;
 		border: none;
 		border-radius: 4px;
 		cursor: pointer;
-	}
-
+	} */
+	/* 
 	button:hover {
 		background-color: #e0e0e0;
-	}
+	} */
 </style>

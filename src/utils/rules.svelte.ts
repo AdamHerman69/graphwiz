@@ -160,3 +160,20 @@ export function areRulesEqual(rule1: Rule | AtomicRule, rule2: Rule | AtomicRule
 	// If we reach here, the rules are not equal
 	return false;
 }
+
+export function assignIDsToRules(
+	rule: Rule | AtomicRule,
+	newGUID: () => number
+): Rule | AtomicRule {
+	// Assign a new ID to the current rule
+	rule.id = newGUID();
+
+	// If it's not an atomic rule, recursively assign IDs to nested rules
+	if (!isAtomic(rule)) {
+		(rule as Rule).rules = (rule as Rule).rules.map((nestedRule) =>
+			assignIDsToRules(nestedRule, newGUID)
+		);
+	}
+
+	return rule;
+}

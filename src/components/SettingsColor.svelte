@@ -11,7 +11,10 @@
 	import type { Guideline } from '../utils/guideline.svelte';
 	import GuidelineSource from './GUI/GuidelineSource.svelte';
 
-	let { colorSetting }: { colorSetting: ColorSetting } = $props();
+	let {
+		colorSetting,
+		isGuidelineEditor = false
+	}: { colorSetting: ColorSetting; guidelineEditor: boolean } = $props();
 	const owner = getContext('type');
 	let guidelines: Guideline[] = getContext('guidelines');
 

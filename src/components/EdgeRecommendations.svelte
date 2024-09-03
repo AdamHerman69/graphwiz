@@ -99,38 +99,6 @@
 			</div>
 		{/if}
 	</div>
-
-	<div use:autoAnimate={{ duration: 300 }} class="settingsContainer">
-		{#if edgeSettings.size}
-			<div>
-				<SettingsSlider numSettings={edgeSettings.size} />
-			</div>
-		{/if}
-
-		{#if edgeSettings.strokeWidth}
-			<div>
-				<SettingsSlider numSettings={edgeSettings.strokeWidth} />
-			</div>
-		{/if}
-
-		{#if edgeSettings.color}
-			<div>
-				<SettingsColor colorSetting={edgeSettings.color} />
-			</div>
-		{/if}
-
-		{#if edgeSettings.strokeColor}
-			<div>
-				<SettingsColor colorSetting={edgeSettings.strokeColor} />
-			</div>
-		{/if}
-
-		{#if edgeSettings.labels}
-			<div>
-				<SettingsEdgeLabel labels={edgeSettings.labels} />
-			</div>
-		{/if}
-	</div>
 {/snippet}
 
 <div class="relative">
