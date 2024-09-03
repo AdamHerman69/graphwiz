@@ -19,7 +19,6 @@
 	let collapsed = $state(false);
 
 	function addRule() {
-		// todo priority and ID
 		graphSettings.graphSettings.nodeSettings.push({
 			id: graphSettings.newGUIID(),
 			priority: graphSettings.graphSettings.nodeSettings.length + 1,

@@ -7,6 +7,7 @@
 	import SettingsColor from './SettingsColor.svelte';
 	import SettingsEdgeLabel from './SettingsEdgeLabel.svelte';
 	import SettingsSliderMultiple from './SettingsSliderMultiple.svelte';
+	import { edge } from 'graphology-metrics';
 
 	let { edgeSettings }: { edgeSettings: EdgeSettings[] } = $props();
 
@@ -19,13 +20,11 @@
 			: structuredClone(edgeSettingsDefaults[setting]);
 		console.log(edgeSettings);
 	}
-
-	let showRules = $state(edgeSettings.map(() => false));
 </script>
 
-{#snippet edgeSettingsEditor(edgeSettings: EdgeSettings, showRule: boolean)}
+{#snippet edgeSettingsEditor(edgeSettings: EdgeSettings, deleteFunction: () => void)}
 	<div>
-		{#if showRule}
+		{#if edgeSettings.rule}
 			<Rules rule={edgeSettings.rule} type="edge" />
 		{/if}
 	</div>
@@ -99,11 +98,15 @@
 			</div>
 		{/if}
 	</div>
+
+	<div>
+		<button onclick={deleteFunction}><span class="material-symbols-outlined"> close </span></button>
+	</div>
 {/snippet}
 
-<div class="relative">
-	{#each edgeSettings as ns, index}
-		{@render edgeSettingsEditor(ns, showRules[index])}
+<div class="relative" use:autoAnimate>
+	{#each edgeSettings as es, index (es.id)}
+		{@render edgeSettingsEditor(es, () => edgeSettings.splice(index, 1))}
 	{/each}
 </div>
 

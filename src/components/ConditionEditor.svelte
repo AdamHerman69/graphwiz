@@ -35,7 +35,7 @@
 	}
 </script>
 
-<div class="condition-editor">
+<div class="condition-editor labelContainer">
 	<select
 		bind:value={weightedCondition.condition.type}
 		on:change={(e) => updateConditionType(e.target.value)}

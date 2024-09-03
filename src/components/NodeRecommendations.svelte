@@ -20,13 +20,11 @@
 			: structuredClone(nodeSettingsDefaults[setting]);
 		console.log(nodeSettings);
 	}
-
-	let showRules = $state(nodeSettings.map((ns) => ns.rule !== undefined));
 </script>
 
-{#snippet nodeSettingsEditor(nodeSettings: NodeSettings, showRule: boolean)}
+{#snippet nodeSettingsEditor(nodeSettings: NodeSettings, deleteFunction: () => void)}
 	<div>
-		{#if showRule}
+		{#if nodeSettings.rule}
 			<Rules rule={nodeSettings.rule} type="node" />
 		{/if}
 	</div>
@@ -95,11 +93,14 @@
 			</div>
 		{/if}
 	</div>
+	<div>
+		<button onclick={deleteFunction}><span class="material-symbols-outlined"> close </span></button>
+	</div>
 {/snippet}
 
-<div class="relative">
-	{#each nodeSettings as ns, index}
-		{@render nodeSettingsEditor(ns, showRules[index])}
+<div class="relative" use:autoAnimate>
+	{#each nodeSettings as ns, index (ns.id)}
+		{@render nodeSettingsEditor(ns, () => nodeSettings.splice(index, 1))}
 	{/each}
 </div>
 

@@ -16,10 +16,12 @@
 	import { layoutTypes, type LayoutType } from '../utils/graphSettings.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import Literature from './Literature.svelte';
-	import { setContext } from 'svelte';
+	import { setContext, getContext } from 'svelte';
+	import { availableAttributes } from '../utils/graph.svelte';
 
 	let { guideline = $bindable() }: { guideline: Guideline } = $props();
 	setContext('isGuidelineEditor', true);
+	let { newGUIID } = getContext('graphSettings');
 
 	type SettingType = 'layout' | 'nodeSettings' | 'edgeSettings';
 
@@ -73,11 +75,39 @@
 			}
 		}
 	}
+
+	function addRule(settings: NodeSettings[] | EdgeSettings[], type: 'node' | 'edge') {
+		settings.push({
+			id: newGUIID(),
+			priority: settings.length + 1,
+			rule: {
+				id: newGUIID(),
+				operator: 'AND',
+				rules: [
+					{
+						id: newGUIID(),
+						operator: '>',
+						type: 'number',
+						target: 'node',
+						value: 0,
+						property: availableAttributes.filter(
+							(attribute) => attribute.owner === type && attribute.general === true
+						)[0]
+					}
+				]
+			},
+			source: null
+		});
+	}
 </script>
 
 <div class="guideline-editor" use:autoAnimate>
-	<input bind:value={guideline.name} placeholder="Guideline name" />
-	<textarea bind:value={guideline.description} placeholder="Guideline description" />
+	<input class="title" bind:value={guideline.name} placeholder="Guideline name" />
+	<textarea
+		class="description"
+		bind:value={guideline.description}
+		placeholder="Guideline description"
+	/>
 
 	<h3>Conditions</h3>
 	{#each guideline.rootCondition.condition.conditions as weightedCondition, index}
@@ -87,7 +117,7 @@
 
 	<h3>Recommendations</h3>
 
-	<div class="labelContainer" use:autoAnimate>
+	<div class="labelContainer p-1" use:autoAnimate>
 		<div class="ruleToggleSettings">
 			<button onclick={() => toggleSettings('layout')}
 				><span class="material-symbols-outlined"> linked_services </span></button
@@ -101,6 +131,7 @@
 		</div>
 
 		{#if guideline.recommendations.layout}
+			<h3>Layout</h3>
 			<div use:autoAnimate={{ duration: 300 }} class="flex mx-2 my-2">
 				<div>ALGORITHM</div>
 				<select bind:value={guideline.recommendations.layout} class="bg-transparent ml-auto">
@@ -110,12 +141,23 @@
 				</select>
 			</div>
 		{/if}
-
 		{#if guideline.recommendations.nodeSettings}
+			<div class="flex">
+				<h3>Node</h3>
+				<button onclick={() => addRule(guideline.recommendations.nodeSettings!, 'node')}>
+					<span class="material-symbols-outlined"> add </span>
+				</button>
+			</div>
 			<NodeRecommendations nodeSettings={guideline.recommendations.nodeSettings!} />
 		{/if}
 
 		{#if guideline.recommendations.edgeSettings}
+			<div class="flex">
+				<h3>Edge</h3>
+				<button onclick={() => addRule(guideline.recommendations.edgeSettings!, 'edge')}>
+					<span class="material-symbols-outlined"> add </span>
+				</button>
+			</div>
 			<EdgeRecommendations edgeSettings={guideline.recommendations.edgeSettings!} />
 		{/if}
 	</div>
@@ -140,7 +182,16 @@
 	input,
 	textarea {
 		width: 100%;
-		padding: 0.5rem;
+		background-color: transparent;
+	}
+
+	.title {
+		font-size: 1.25rem;
+		font-weight: bold;
+	}
+
+	.description {
+		font-size: 1rem;
 	}
 
 	/* button {
