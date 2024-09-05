@@ -11,9 +11,14 @@
 	import autoAnimate from '@formkit/auto-animate';
 
 	let {
-		compositeCondition,
-		weightedCondition
-	}: { compositeCondition: CompositeCondition; weightedCondition: wCondition } = $props();
+		compositeCondition = $bindable(),
+		weightedCondition,
+		editable = false
+	}: {
+		compositeCondition: CompositeCondition;
+		weightedCondition: wCondition;
+		editable?: boolean;
+	} = $props();
 
 	let collapsed = $state(true);
 	let collapseAnimationInstance: AnimationItem;
@@ -51,11 +56,20 @@
 		</div>
 	</div>
 
-	<ScoreBar score={weightedCondition.score} weightNormalized={weightedCondition.weightNormalized} />
+	{#if !editable}
+		<ScoreBar
+			score={weightedCondition.score}
+			weightNormalized={weightedCondition.weightNormalized}
+		/>
+	{/if}
 	<div use:autoAnimate>
 		{#if !collapsed}
-			{#each compositeCondition.conditions.sort((a, b) => b.scoreWeighted - a.scoreWeighted) as wc, index}
-				<WeightedCondition weightedCondition={wc} />
+			{#each compositeCondition.conditions.sort((a, b) => b.scoreWeighted - a.scoreWeighted) as wc, index (wc.GUIID)}
+				<WeightedCondition
+					weightedCondition={wc}
+					{editable}
+					deleteFunction={() => compositeCondition.conditions.splice(index, 1)}
+				/>
 				<div
 					class={`mx-1 ${index < compositeCondition.conditions.length - 1 ? 'border-b border-gray-200' : ''}`}
 				/>

@@ -7,7 +7,15 @@
 	import NumericCondition from './NumericCondition.svelte';
 	import CompositeCondition from './CompositeCondition.svelte';
 
-	let { weightedCondition }: { weightedCondition: WeightedCondition } = $props();
+	let {
+		weightedCondition = $bindable(),
+		editable = false,
+		deleteFunction = undefined
+	}: {
+		weightedCondition: WeightedCondition;
+		editable: boolean;
+		deleteFunction?: () => void;
+	} = $props();
 	let collapsed = $state(true);
 
 	function toggleCollapse() {
@@ -18,19 +26,46 @@
 <div class="flex mb-1">
 	<div class="pr-4 flex items-center">
 		<span class="material-symbols-outlined text-xs"> scale </span>
-		<div>{weightedCondition.weight}</div>
+		{#if editable}
+			<input type="number" bind:value={weightedCondition.weight} class="w-16" />
+			<button onclick={deleteFunction}>
+				<span class="material-symbols-outlined text-xs">close</span>
+			</button>
+		{:else}
+			<div>{weightedCondition.weight}</div>
+		{/if}
 	</div>
 	<div class="flex-1 py-1">
 		{#if weightedCondition.condition.type === 'boolean'}
-			<BooleanCondition booleanCondition={weightedCondition.condition} {weightedCondition} />
+			<BooleanCondition
+				bind:booleanCondition={weightedCondition.condition}
+				{weightedCondition}
+				{editable}
+			/>
 		{:else if weightedCondition.condition.type === 'range'}
-			<RangeCondition rangeCondition={weightedCondition.condition} {weightedCondition} />
+			<RangeCondition
+				bind:rangeCondition={weightedCondition.condition}
+				{weightedCondition}
+				{editable}
+			/>
 		{:else if weightedCondition.condition.type === 'string'}
-			<StringCondition stringCondition={weightedCondition.condition} {weightedCondition} />
+			<StringCondition
+				bind:stringCondition={weightedCondition.condition}
+				{weightedCondition}
+				{editable}
+			/>
 		{:else if weightedCondition.condition.type === 'numeric'}
-			<NumericCondition numericCondition={weightedCondition.condition} {weightedCondition} />
+			<NumericCondition
+				bind:numericCondition={weightedCondition.condition}
+				{weightedCondition}
+				{editable}
+			/>
 		{:else if weightedCondition.condition.type === 'composite'}
-			<CompositeCondition compositeCondition={weightedCondition.condition} {weightedCondition} />
+			<CompositeCondition
+				bind:compositeCondition={weightedCondition.condition}
+				{weightedCondition}
+				{editable}
+			/>
 		{/if}
 	</div>
 </div>

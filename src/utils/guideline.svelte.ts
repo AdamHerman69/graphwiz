@@ -88,7 +88,7 @@ export function isComposite(condition: Condition): condition is CompositeConditi
 	return condition.type === 'composite';
 }
 
-type Condition =
+export type Condition =
 	| NumericCondition
 	| BooleanCondition
 	| StringCondition
@@ -102,6 +102,7 @@ export type WeightedCondition = {
 	score?: number;
 	scoreWeighted?: number;
 	condition: Condition;
+	GUIID?: number;
 };
 
 export type StaticGuideline = {
@@ -485,4 +486,30 @@ export async function loadGuidelines() {
 	for (let guideline of defaultGuidelines) {
 		await Promise.all(guideline.literature.map((doi) => getCitationInfo(doi)));
 	}
+}
+
+export function assignGUIIDsToConditions(
+	weightedCondition: WeightedCondition,
+	newGUIID: () => number
+): void {
+	weightedCondition.GUIID = newGUIID();
+
+	const assignGUIIDsRecursively = (condition: Condition) => {
+		switch (condition.type) {
+			case 'composite':
+				condition.conditions.forEach((subCondition) =>
+					assignGUIIDsToConditions(subCondition, newGUIID)
+				);
+				break;
+			case 'logical':
+				condition.conditions.forEach(assignGUIIDsRecursively);
+				break;
+		}
+
+		if (condition.logicalCondition) {
+			assignGUIIDsRecursively(condition.logicalCondition);
+		}
+	};
+
+	assignGUIIDsRecursively(weightedCondition.condition);
 }

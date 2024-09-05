@@ -20,12 +20,21 @@
 			: structuredClone(edgeSettingsDefaults[setting]);
 		console.log(edgeSettings);
 	}
+
+	let noGlobalSettings: boolean = $derived(
+		edgeSettings.find((es) => es.rule === undefined) === undefined
+	);
 </script>
 
 {#snippet edgeSettingsEditor(edgeSettings: EdgeSettings, deleteFunction: () => void)}
 	<div>
 		{#if edgeSettings.rule}
-			<Rules rule={edgeSettings.rule} type="edge" />
+			<!-- Rule can be deleted only if there are no global settings present (settings without a rule) -->
+			<Rules
+				rule={edgeSettings.rule}
+				type="edge"
+				deleteFunction={noGlobalSettings ? () => (edgeSettings.rule = undefined) : undefined}
+			/>
 		{/if}
 	</div>
 	<div class="ruleToggleSettings">

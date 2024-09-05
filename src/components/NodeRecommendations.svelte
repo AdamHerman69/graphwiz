@@ -20,12 +20,22 @@
 			: structuredClone(nodeSettingsDefaults[setting]);
 		console.log(nodeSettings);
 	}
+
+	let noGlobalSettings: boolean = $derived(
+		nodeSettings.find((ns) => ns.rule === undefined) === undefined
+	);
 </script>
 
 {#snippet nodeSettingsEditor(nodeSettings: NodeSettings, deleteFunction: () => void)}
 	<div>
 		{#if nodeSettings.rule}
-			<Rules rule={nodeSettings.rule} type="node" />
+			<!-- Rule can be deleted only if there are no global settings present (settings without a rule) -->
+
+			<Rules
+				rule={nodeSettings.rule}
+				type="node"
+				deleteFunction={noGlobalSettings ? () => (nodeSettings.rule = undefined) : undefined}
+			/>
 		{/if}
 	</div>
 	<div class="ruleToggleSettings">

@@ -15,6 +15,7 @@
 		rule,
 		type,
 		deleteFunction = undefined
+		// canDeleteItself = false
 	}: { rule: Rule; type: 'node' | 'edge'; deleteFunction: (() => void) | undefined } = $props();
 
 	let owner = getContext('type');
@@ -51,6 +52,14 @@
 		<!-- <RadialSelector bind:selected={rule.operator} options={['AND', 'OR']} width={45} /> -->
 		<ToggleSwitch bind:selected={rule.operator} />
 	</div>
+	<!-- {#if canDeleteItself}
+		<div class="absolute right-2">
+			<button class="buttonSmall" onclick={deleteFunction}>
+				<span class="material-symbols-outlined" style="font-size: 16px;"> close </span>
+			</button>
+		</div>
+	{/if} -->
+	<div class="absolute right-2"></div>
 	<div class="mt-6" use:autoAnimate={{ duration: 300 }}>
 		{#each rule.rules as subRule, index (subRule.id)}
 			{#if isAtomic(subRule)}

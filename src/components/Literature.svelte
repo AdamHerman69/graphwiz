@@ -25,11 +25,11 @@
 
 {#snippet citationMini(DOI: string, last: boolean = false)}
 	{#await getCitationInfo(DOI)}
-		<div>{DOI}</div>
+		{DOI}
 	{:then citation}
 		{citation.authors ? citation.authors[0].family : 'unknown'} ({citation.created.getFullYear()})
 	{:catch}
-		<div>{DOI}</div>
+		{DOI}
 	{/await}
 	{last ? '' : ', '}
 {/snippet}

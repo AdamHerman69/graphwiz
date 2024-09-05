@@ -4,24 +4,46 @@
 	import ScoreBar from './GUI/ScoreBar.svelte';
 
 	let {
-		stringCondition,
-		weightedCondition
-	}: { stringCondition: StringCondition; weightedCondition: WeightedCondition } = $props();
+		stringCondition = $bindable(),
+		weightedCondition,
+		editable = false
+	}: {
+		stringCondition: StringCondition;
+		weightedCondition: WeightedCondition;
+		editable?: boolean;
+	} = $props();
 </script>
 
 <div class="flex-col w-full">
 	<div class="flex justify-between">
 		<div>
-			<div>{stringCondition.property}</div>
-		</div>
-		<div class="flex items-center">
-			<div class="pr-1">{stringCondition.value}</div>
-			{#if graphCharacteristics[stringCondition.property].value === stringCondition.value}
-				<span class="material-symbols-outlined text-xs"> check </span>
+			{#if editable}
+				<select bind:value={stringCondition.property} class="w-1/2">
+					{#each Object.entries(graphCharacteristics).filter(([key, value]) => value.type === 'string') as characteristicKVP}
+						<option value={characteristicKVP[0]}>{characteristicKVP[0]}</option>
+					{/each}
+				</select>
 			{:else}
-				<span class="material-symbols-outlined text-xs"> close </span>
+				<div>{stringCondition.property}</div>
 			{/if}
 		</div>
+		{#if editable}
+			<input type="string" class="w-1/2" bind:value={stringCondition.value} />
+		{:else}
+			<div class="flex items-center">
+				<div class="pr-1">{stringCondition.value}</div>
+				{#if graphCharacteristics[stringCondition.property].value === stringCondition.value}
+					<span class="material-symbols-outlined text-xs"> check </span>
+				{:else}
+					<span class="material-symbols-outlined text-xs"> close </span>
+				{/if}
+			</div>
+		{/if}
 	</div>
-	<ScoreBar score={weightedCondition.score} weightNormalized={weightedCondition.weightNormalized} />
+	{#if !editable}
+		<ScoreBar
+			score={weightedCondition.score}
+			weightNormalized={weightedCondition.weightNormalized}
+		/>
+	{/if}
 </div>

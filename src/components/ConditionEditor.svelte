@@ -1,85 +1,100 @@
 <script lang="ts">
-	import { type WeightedCondition } from '../utils/guideline.svelte';
-	import { availableAttributes } from '../utils/graph.svelte';
-	import { bin } from 'd3';
+	import { onMount } from 'svelte';
+	import { isComposite, type Condition } from '../utils/guideline.svelte';
+	import WeightedCondition from './WeightedCondition.svelte';
+	import autoAnimate from '@formkit/auto-animate';
+	import { getContext } from 'svelte';
+	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
+	import { assignGUIIDsToConditions } from '../utils/guideline.svelte';
+	import { graphCharacteristics } from '../utils/graph.svelte';
 
 	let { weightedCondition = $bindable() }: { weightedCondition: WeightedCondition } = $props();
 
-	$effect(() => {
-		if (weightedCondition.condition.type === 'numeric' && !weightedCondition.condition.property) {
-			weightedCondition.condition.property = availableAttributes[0].name;
-		}
-	});
+	function deleteFunction(index: number) {
+		weightedCondition.condition.conditions.splice(index, 1);
+	}
 
-	function updateConditionType(type: string) {
-		if (type === 'numeric') {
-			weightedCondition.condition = {
-				type: 'numeric',
-				property: availableAttributes[0].name,
-				ideal: 0,
-				tolerance: 0
-			};
-		} else if (type === 'boolean') {
-			weightedCondition.condition = {
-				type: 'boolean',
-				property: availableAttributes[0].name,
-				value: true
-			};
-		} else if (type === 'string') {
-			weightedCondition.condition = {
-				type: 'string',
-				property: availableAttributes[0].name,
-				value: ''
-			};
+	let { newGUIID } = getContext('graphSettings') as GraphSettingsClass;
+
+	assignGUIIDsToConditions(weightedCondition, newGUIID);
+
+	function addCondition(type: 'boolean' | 'range' | 'string' | 'numeric' | 'composite') {
+		const getDefaultProperty = (propertyType: 'number' | 'boolean' | 'string') => {
+			const properties = Object.entries(graphCharacteristics)
+				.filter(([, value]) => value.type === propertyType)
+				.map(([key]) => key);
+			return properties[0] || 'nodeCount'; // Fallback to 'nodeCount' if no properties of the specified type
+		};
+
+		let newCondition: Condition;
+
+		switch (type) {
+			case 'boolean':
+				newCondition = {
+					type: 'boolean',
+					property: getDefaultProperty('boolean'),
+					value: true
+				};
+				break;
+			case 'range':
+			case 'numeric':
+				newCondition = {
+					type: type,
+					property: getDefaultProperty('number'),
+					min: 0,
+					max: 0
+				};
+				break;
+			case 'string':
+				newCondition = {
+					type: 'string',
+					property: getDefaultProperty('string'),
+					value: ''
+				};
+				break;
+			case 'composite':
+				newCondition = {
+					type: 'composite',
+					conditions: []
+				};
+				break;
+			default:
+				throw new Error(`Invalid condition type: ${type}`);
 		}
+
+		weightedCondition.condition.conditions.push({
+			GUIID: newGUIID(),
+			condition: newCondition,
+			weight: 1
+		});
 	}
 </script>
 
-<div class="condition-editor labelContainer">
-	<select
-		bind:value={weightedCondition.condition.type}
-		on:change={(e) => updateConditionType(e.target.value)}
-	>
-		<option value="numeric">Numeric</option>
-		<option value="boolean">Boolean</option>
-		<option value="string">String</option>
-	</select>
-
-	<input type="number" bind:value={weightedCondition.weight} min="0" step="0.1" />
-
-	<select bind:value={weightedCondition.condition.property}>
-		{#each availableAttributes as attribute}
-			<option value={attribute.name}>{attribute.name}</option>
-		{/each}
-	</select>
-
-	{#if weightedCondition.condition.type === 'numeric'}
-		<input type="number" bind:value={weightedCondition.condition.ideal} placeholder="Ideal" />
-		<input
-			type="number"
-			bind:value={weightedCondition.condition.tolerance}
-			placeholder="Tolerance"
-		/>
-	{:else if weightedCondition.condition.type === 'boolean'}
-		<select bind:value={weightedCondition.condition.value}>
-			<option value={true}>True</option>
-			<option value={false}>False</option>
-		</select>
-	{:else if weightedCondition.condition.type === 'string'}
-		<input type="text" bind:value={weightedCondition.condition.value} placeholder="Value" />
-	{/if}
+<div use:autoAnimate class="mt-1 labelContainer px-3">
+	<div class="pb-1" use:autoAnimate>
+		{#if isComposite(weightedCondition.condition)}
+			{#each weightedCondition.condition.conditions as wc, index (wc.GUIID)}
+				<WeightedCondition
+					weightedCondition={wc}
+					editable={true}
+					deleteFunction={() => deleteFunction(index)}
+				/>
+				<div
+					class={`${index < weightedCondition.condition.conditions.length - 1 ? 'border-b border-gray-200' : ''}`}
+				></div>
+			{/each}
+			<div class="border-b border-gray-200"></div>
+			<div class="flex mb-1 gap-1">
+				<span class="material-symbols-outlined text-xs"> add </span>
+				<button onclick={() => addCondition('boolean')}>boolean</button>
+				<button onclick={() => addCondition('numeric')}>numeric</button>
+				<button onclick={() => addCondition('range')}>range</button>
+				<button onclick={() => addCondition('string')}>string</button>
+				<button onclick={() => addCondition('composite')}>composite</button>
+			</div>
+		{/if}
+	</div>
 </div>
 
 <style>
-	.condition-editor {
-		display: flex;
-		gap: 0.5rem;
-		align-items: center;
-		margin-bottom: 0.5rem;
-	}
-
-	select,
-	input {
-		padding: 0.25rem;
-	}
 </style>

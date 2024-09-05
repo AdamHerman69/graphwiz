@@ -110,24 +110,36 @@
 	/>
 
 	<h3>Conditions</h3>
-	{#each guideline.rootCondition.condition.conditions as weightedCondition, index}
-		<ConditionEditor bind:weightedCondition={guideline.rootCondition.condition.conditions[index]} />
-	{/each}
-	<button onclick={addCondition}>Add Condition</button>
+	<ConditionEditor bind:weightedCondition={guideline.rootCondition} />
 
 	<h3>Recommendations</h3>
 
-	<div class="labelContainer p-1" use:autoAnimate>
+	<div
+		class="p-1"
+		class:labelContainer={guideline.recommendations.layout ||
+			guideline.recommendations.nodeSettings ||
+			guideline.recommendations.edgeSettings}
+		use:autoAnimate
+	>
 		<div class="ruleToggleSettings">
-			<button onclick={() => toggleSettings('layout')}
-				><span class="material-symbols-outlined"> linked_services </span></button
+			<button
+				onclick={() => toggleSettings('layout')}
+				class:active={guideline.recommendations.layout}
 			>
-			<button onclick={() => toggleSettings('nodeSettings')}
-				><span class="material-symbols-outlined"> masked_transitions </span></button
+				<span class="material-symbols-outlined"> linked_services </span>
+			</button>
+			<button
+				onclick={() => toggleSettings('nodeSettings')}
+				class:active={guideline.recommendations.nodeSettings}
 			>
-			<button onclick={() => toggleSettings('edgeSettings')}
-				><span class="material-symbols-outlined"> diagonal_line </span></button
+				<span class="material-symbols-outlined"> masked_transitions </span>
+			</button>
+			<button
+				onclick={() => toggleSettings('edgeSettings')}
+				class:active={guideline.recommendations.edgeSettings}
 			>
+				<span class="material-symbols-outlined"> diagonal_line </span>
+			</button>
 		</div>
 
 		{#if guideline.recommendations.layout}
