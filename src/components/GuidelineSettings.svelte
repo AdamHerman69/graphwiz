@@ -42,7 +42,8 @@
 			<div class="flex flex-wrap">
 				{#each recommendations.nodeSettings as ns, index}
 					{#each Object.keys(ns) as key}
-						{#if key != 'source' && key != 'rule'}
+						{#if key != 'source' && key != 'rule' && key != 'id' && ns[key]}
+							{console.log('key:', key, ns[key])}
 							<SettingValue
 								setting={ns[key]}
 								rule={index > 0 ? ns.rule : null}
@@ -63,7 +64,7 @@
 		<div class="flex flex-wrap">
 			{#each recommendations.edgeSettings as es, index}
 				{#each Object.keys(es) as key}
-					{#if key != 'source' && key != 'rule'}
+					{#if key != 'source' && key != 'rule' && key != 'id' && es[key]}
 						<SettingValue
 							setting={es[key]}
 							rule={index > 0 ? es.rule : null}

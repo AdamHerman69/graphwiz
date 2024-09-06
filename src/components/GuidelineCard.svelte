@@ -13,6 +13,7 @@
 	import { type Citation, getCitationInfo } from '../utils/citation.svelte';
 	import Literature from './Literature.svelte';
 	import GuidelineEditor from './GuidelineEditor.svelte';
+	import { calculateApplicability } from '../utils/guideline.svelte';
 
 	let {
 		guideline,
@@ -48,6 +49,15 @@
 		editedGuideline = $state.snapshot(guideline);
 		editing = true;
 	}
+
+	function saveEditedGuideline() {
+		console.log('save');
+		console.log(editedGuideline);
+		console.log(guideline);
+		guideline = editedGuideline!;
+		editing = false;
+		calculateApplicability(guideline);
+	}
 </script>
 
 <div
@@ -57,7 +67,7 @@
 	class:first={first === true}
 >
 	{#if editing}
-		<GuidelineEditor bind:guideline={editedGuideline!} />
+		<GuidelineEditor bind:guideline={editedGuideline!} saveFunction={saveEditedGuideline} />
 	{:else}
 		<GuidelineHeader {guideline} />
 		<div class="text-sm my-2">{guideline.description}</div>

@@ -59,6 +59,7 @@
 			canvasHandler.updateNodeStyles(graphSettings.computeNodeStyles());
 			computeGuidelineStatuses(guidelines, graphSettings);
 			graphSettings.saveState();
+			console.log('Node settings changed, ran');
 		}, DEBOUNCE_TIME);
 	});
 

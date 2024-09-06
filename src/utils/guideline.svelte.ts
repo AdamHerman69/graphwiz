@@ -444,15 +444,17 @@ function addGuidelineIDs(guidelines: Guideline[], graphSettings: GraphSettingsCl
 	guidelines.forEach((guideline) => {
 		guideline.id = graphSettings.newGUIID();
 		guideline.recommendations.nodeSettings?.forEach((nodeSetting) => {
+			nodeSetting.id = graphSettings.newGUIID();
 			if (nodeSetting.rule) assignIDsToRules(nodeSetting.rule, graphSettings.newGUIID);
 		});
 		guideline.recommendations.edgeSettings?.forEach((edgeSetting) => {
+			edgeSetting.id = graphSettings.newGUIID();
 			if (edgeSetting.rule) assignIDsToRules(edgeSetting.rule, graphSettings.newGUIID);
 		});
 	});
 }
 
-const calculateApplicability = (guideline: Guideline): number => {
+export const calculateApplicability = (guideline: Guideline): number => {
 	guideline.score = evaluateCondition(guideline.rootCondition.condition);
 	return guideline.score;
 };

@@ -109,6 +109,7 @@
 {/snippet}
 
 <div class="relative" use:autoAnimate>
+	{console.log(nodeSettings.map((ns) => ns.id))}
 	{#each nodeSettings as ns, index (ns.id)}
 		{@render nodeSettingsEditor(ns, () => nodeSettings.splice(index, 1))}
 	{/each}

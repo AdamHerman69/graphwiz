@@ -19,7 +19,10 @@
 	import { setContext, getContext } from 'svelte';
 	import { availableAttributes } from '../utils/graph.svelte';
 
-	let { guideline = $bindable() }: { guideline: Guideline } = $props();
+	let {
+		guideline = $bindable(),
+		saveFunction
+	}: { guideline: Guideline; saveFunction: () => void } = $props();
 	setContext('isGuidelineEditor', true);
 	let { newGUIID } = getContext('graphSettings');
 
@@ -35,11 +38,6 @@
 				tolerance: 0
 			}
 		});
-	}
-
-	function saveGuideline() {
-		// TODO: Implement save functionality
-		console.log('Saving guideline:', guideline);
 	}
 
 	function toggleSettings(setting: SettingType) {
@@ -178,7 +176,7 @@
 	<h3>Literature</h3>
 	<Literature bind:literature={guideline.literature} editable={true} />
 
-	<button onclick={saveGuideline}>Save Guideline</button>
+	<button onclick={saveFunction}>Save Guideline</button>
 </div>
 
 <style>
