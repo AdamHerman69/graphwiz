@@ -7,6 +7,7 @@
 	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import { assignGUIIDsToConditions } from '../utils/guideline.svelte';
 	import { graphCharacteristics } from '../utils/graph.svelte';
+	import HoverButton from './GUI/HoverButton.svelte';
 
 	let { weightedCondition = $bindable() }: { weightedCondition: WeightedCondition } = $props();
 
@@ -68,7 +69,12 @@
 			weight: 1
 		});
 	}
+
+	let newConditionHovered: 'none' | 'boolean' | 'range' | 'string' | 'numeric' | 'composite' =
+		$state('none');
 </script>
+
+{#snippet addConditionButton(icon: string, type: 'boolean' | 'range' | 'string' | 'numeric' | 'composite')}{/snippet}
 
 <div use:autoAnimate class="mt-1 labelContainer px-3">
 	<div class="pb-1" use:autoAnimate>
@@ -86,11 +92,21 @@
 			<div class="border-b border-gray-200"></div>
 			<div class="flex mb-1 gap-1">
 				<span class="material-symbols-outlined text-xs"> add </span>
-				<button onclick={() => addCondition('boolean')}>boolean</button>
-				<button onclick={() => addCondition('numeric')}>numeric</button>
-				<button onclick={() => addCondition('range')}>range</button>
-				<button onclick={() => addCondition('string')}>string</button>
-				<button onclick={() => addCondition('composite')}>composite</button>
+				<button onclick={() => addCondition('boolean')}
+					><HoverButton icon="check_box" text="boolean" />
+				</button>
+				<button onclick={() => addCondition('numeric')}
+					><HoverButton icon="pin_drop" text="numeric" />
+				</button>
+				<button onclick={() => addCondition('range')}
+					><HoverButton icon="arrow_range" text="range" />
+				</button>
+				<button onclick={() => addCondition('string')}
+					><HoverButton icon="spellcheck" text="string" />
+				</button>
+				<button onclick={() => addCondition('composite')}
+					><HoverButton icon="layers" text="composite" />
+				</button>
 			</div>
 		{/if}
 	</div>

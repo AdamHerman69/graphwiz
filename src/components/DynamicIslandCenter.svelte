@@ -6,6 +6,7 @@
 	import { getContext } from 'svelte';
 	import type { GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import type { ICanvasHandler } from '../utils/canvas.svelte';
+	import { downloadFile } from '../utils/helperFunctions';
 
 	let {
 		stickyLeft = $bindable(),
@@ -290,29 +291,6 @@
 			});
 		}
 	});
-
-	function downloadFile(contents: string, fileName: string, fileType: string) {
-		// Create a Blob from the string
-		const blob = new Blob([contents], { type: fileType });
-
-		// Create a URL for the Blob
-		const url = URL.createObjectURL(blob);
-
-		const fileExtension = fileType === 'application/json' ? '.json' : '.svg';
-
-		// Create an anchor element and trigger the download
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = fileName + fileExtension;
-		document.body.appendChild(a);
-		a.click();
-
-		// Remove the anchor element
-		document.body.removeChild(a);
-
-		// Release the object URL
-		URL.revokeObjectURL(url);
-	}
 </script>
 
 <div class="menuBar relative">

@@ -10,6 +10,7 @@
 	let guidelines: Guideline[] = getContext('guidelines') as Guideline[];
 
 	let expandedGuideline: Guideline | null = $state(null);
+	let editedGuideline: Guideline | null = $state(null);
 	let expandedGuidelineOriginalDims: DOMRect | null = $state(null);
 	let expandedCardElement: HTMLElement;
 	let graphSettings: GraphSettingsClass = getContext('graphSettings');
@@ -72,7 +73,6 @@
 	}
 
 	export function addGuideline() {
-		console.log('guideeeeline add');
 		let newG = newGuideline();
 		guidelines.push(newG);
 		setTimeout(() => {

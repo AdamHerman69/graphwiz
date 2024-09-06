@@ -42,6 +42,12 @@
 		guideline.literature.map(getCitationInfo)
 	);
 
+	function isNewGuideline(guideline: Guideline) {
+		return (
+			guideline.name === 'Guideline name' && Object.keys(guideline.recommendations).length === 0
+		);
+	}
+
 	let editing = $state(false);
 	let editedGuideline: Guideline | null = $state(null);
 
@@ -49,6 +55,8 @@
 		editedGuideline = $state.snapshot(guideline);
 		editing = true;
 	}
+
+	if (isNewGuideline(guideline)) edit();
 
 	function saveEditedGuideline() {
 		console.log('save');

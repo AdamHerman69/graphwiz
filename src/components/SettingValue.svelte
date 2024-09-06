@@ -96,7 +96,6 @@
 		<span class="material-symbols-outlined">{settingIcons[setting.name]}</span>
 	</div>
 	<div class="valueDisplay" bind:clientWidth={valueDisplayWidth}>
-		{console.log(setting)}
 		{#if settingTypes[setting.name] === 'number'}
 			<div>{setting.value}</div>
 		{/if}

@@ -32,3 +32,26 @@ export function formatDecimal(value: number, decimalPlaces: number): string {
 	// Otherwise, return the number with the specified decimal places
 	return roundedValue.toFixed(decimalPlaces);
 }
+
+export function downloadFile(contents: string, fileName: string, fileType: string) {
+	// Create a Blob from the string
+	const blob = new Blob([contents], { type: fileType });
+
+	// Create a URL for the Blob
+	const url = URL.createObjectURL(blob);
+
+	const fileExtension = fileType === 'application/json' ? '.json' : '.svg';
+
+	// Create an anchor element and trigger the download
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = fileName + fileExtension;
+	document.body.appendChild(a);
+	a.click();
+
+	// Remove the anchor element
+	document.body.removeChild(a);
+
+	// Release the object URL
+	URL.revokeObjectURL(url);
+}

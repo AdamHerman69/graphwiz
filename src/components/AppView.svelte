@@ -14,8 +14,7 @@
 	import SideBarSwitch from './GUI/SideBarSwitch.svelte';
 	import { hoverPopup } from './GUI/hoverPopup.svelte';
 	import type { ICanvasHandler } from '../utils/canvas.svelte';
-	import type Graph from 'graphology';
-	import type { SvelteComponent } from 'svelte';
+	import { downloadFile } from '../utils/helperFunctions';
 
 	let {
 		side,
@@ -99,6 +98,14 @@
 
 	let hintSlideLeft = $state(false);
 	let hintSlideRight = $state(false);
+
+	function downloadGuidelines() {
+		downloadFile(
+			JSON.stringify($state.snapshot(guidelines), null, 2),
+			'guidelines',
+			'application/json'
+		);
+	}
 </script>
 
 {#snippet settingButtons(side: 'left' | 'right')}
@@ -120,7 +127,7 @@
 		<button onclick={guidelineExports[side]!.addGuideline}>
 			<span class="material-symbols-outlined"> add </span>
 		</button>
-		<button onclick={() => console.log('save guidelines')}>
+		<button onclick={downloadGuidelines}>
 			<span class="material-symbols-outlined"> download </span>
 		</button>
 	</div>

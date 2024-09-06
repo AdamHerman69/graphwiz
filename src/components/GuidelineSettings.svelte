@@ -32,7 +32,7 @@
 	</div>
 </div> -->
 
-<div class="flex justify-between">
+<div class="">
 	{#if recommendations.layout}
 		<div>{recommendations.layout}</div>
 	{/if}
