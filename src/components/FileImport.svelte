@@ -4,6 +4,7 @@
 	import { isValidGraph, importGraphJSON, importGraphOther } from '../utils/graph.svelte';
 	import { parse } from 'svelte/compiler';
 	import { getContext } from 'svelte';
+	import type { Guideline } from '../utils/guideline.svelte';
 
 	let {
 		importState,
@@ -43,6 +44,8 @@
 		}
 	}
 
+	let guidelines: Guideline[] = getContext('guidelines');
+
 	function handleJSON(json: string): void {
 		try {
 			const parsed = JSON.parse(json);
@@ -55,6 +58,10 @@
 			if (parsed.hasOwnProperty('settings') && isValidSettings(parsed.settings)) {
 				// todo full state import binding gone on import
 				importState(parsed.settings);
+				imported = true;
+			}
+			if (parsed.hasOwnProperty('guidelines')) {
+				guidelines.push(...parsed.guidelines);
 				imported = true;
 			}
 

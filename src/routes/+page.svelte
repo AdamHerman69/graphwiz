@@ -24,6 +24,7 @@
 	import type Graph from 'graphology';
 	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import { type ICanvasHandler, WebWorkerCanvasHandler } from '../utils/canvas.svelte';
+	import { blur } from 'svelte/transition';
 
 	let graphSettingsLeft = new GraphSettingsClass();
 	let graphSettingsRight: GraphSettingsClass = new GraphSettingsClass();
@@ -31,7 +32,10 @@
 	let leftCanvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
 	let rightCanvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
 
-	initGraph();
+	let showTasks = $state({ anyGuidelinesVisible: false }); // an object because of context
+	setContext('showTasks', showTasks);
+
+	let graph = $state(initGraph());
 
 	function initGraph(): Graph {
 		let graph = loadSampleGraph();
@@ -224,14 +228,16 @@
 			bind:splitView
 		/>
 	</div>
-	<div class="tasks">
-		<span class="material-symbols-outlined"> task_alt </span>
-		<select bind:value={selectedTask} onchange={recomputeCharacteristics}>
-			{#each tasks as task}
-				<option>{task.name}</option>
-			{/each}
-		</select>
-	</div>
+	{#if showTasks.anyGuidelinesVisible}
+		<div class="tasks" transition:blur>
+			<span class="material-symbols-outlined"> task_alt </span>
+			<select bind:value={selectedTask} onchange={() => recomputeCharacteristics(graph)}>
+				{#each tasks as task}
+					<option>{task.name}</option>
+				{/each}
+			</select>
+		</div>
+	{/if}
 </div>
 
 <style>

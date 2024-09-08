@@ -14,6 +14,8 @@
 	import Literature from './Literature.svelte';
 	import GuidelineEditor from './GuidelineEditor.svelte';
 	import { calculateApplicability } from '../utils/guideline.svelte';
+	import { downloadFile } from '../utils/helperFunctions';
+	import { toStaticGuideline } from '../utils/guideline.svelte';
 
 	let {
 		guideline = $bindable(),
@@ -36,6 +38,14 @@
 	function applyInSplitView() {
 		toggleSplitView(true, true);
 		applyGuideline(guideline, neighborGraphSettings);
+	}
+
+	function downloadGuideline() {
+		downloadFile(
+			JSON.stringify({ guidelines: [toStaticGuideline($state.snapshot(guideline))] }, null, 2),
+			'guideline_' + guideline.name,
+			'application/json'
+		);
 	}
 
 	let citationsPromise: Promise<Citation[]> = Promise.all(
@@ -92,6 +102,8 @@
 			onclick={() => {guideline.parentDiv = cardParentDiv; expand(guideline, cardParentDiv!)}}
 			>expand</button
 		>
+		<button class="text-sm" onclick={downloadGuideline}>download</button>
+
 		<button class="text-sm" onclick={edit}>edit</button>
 
 		<!-- svelte-ignore a11y_no_static_element_interactions -->

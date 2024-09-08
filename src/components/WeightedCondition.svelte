@@ -27,7 +27,7 @@
 	<div class="pr-4 flex items-center">
 		<span class="material-symbols-outlined text-xs"> scale </span>
 		{#if editable}
-			<input type="number" bind:value={weightedCondition.weight} class="w-16" />
+			<input type="number" bind:value={weightedCondition.weight} min="1" />
 			<button onclick={deleteFunction}>
 				<span class="material-symbols-outlined text-xs">close</span>
 			</button>
@@ -69,53 +69,22 @@
 		{/if}
 	</div>
 </div>
-<!-- 
-<div class="flex justify-between">
-	<div>
-		<div>
-			{#if isComposite(condition)}
-				composite
-			{:else}
-				{weightedCondition.condition.property!}
-			{/if}
-		</div>
-        <div>
-            {#if }
-        </div>
-	</div>
 
-	<div class="flex">
-		<div class="text-sm flex justify-center align-middle">
-			<span class="material-symbols-outlined"> scale </span>
-			{weightedCondition.scoreWeighted?.toFixed(2)}
-		</div>
-		<div class="text-sm flex justify-center align-middle">
-			<span class="material-symbols-outlined"> weight </span>
-			{weightedCondition.weight}
-		</div>
-		<div class="text-sm flex justify-center align-middle">
-			<span class="material-symbols-outlined"> readiness_score </span>
-			{weightedCondition.score?.toFixed(2)}
-		</div>
+<style>
+	:global(input) {
+		background-color: transparent;
+		user-select: none; /* Prevent text selection */
+		outline: none; /* Remove the default outline */
+	}
 
-		{#if isComposite(condition)}
-			<button onclick={toggleCollapse}>
-				<span class="material-symbols-outlined">
-					{collapsed ? 'keyboard_arrow_down' : 'keyboard_arrow_up'}
-				</span>
-			</button>
-		{/if}
-	</div>
-</div>
-{#if !collapsed}
-	<div class="flex">
-		<span class="material-symbols-outlined"> subdirectory_arrow_right </span>
-		<div class="flex-1">
-			{#each condition.conditions as wc}
-				<div>
-					<svelte:self weightedCondition={wc} />
-				</div>
-			{/each}
-		</div>
-	</div>
-{/if} -->
+	input {
+		width: 30px;
+		padding: 5px;
+	}
+
+	:global(select) {
+		background-color: transparent;
+		user-select: none; /* Prevent text selection */
+		outline: none; /* Remove the default outline */
+	}
+</style>

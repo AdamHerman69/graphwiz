@@ -2,7 +2,7 @@
 	import Canvas from './Canvas.svelte';
 	import GraphSettingsPanel from './GraphSettingsPanel.svelte';
 	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
-	import { onMount, setContext } from 'svelte';
+	import { getContext, onMount, setContext } from 'svelte';
 	import { blur } from 'svelte/transition';
 	import Guidelines from './Guidelines.svelte';
 	import { newGuidelineSet, sortGuidelines, type Guideline } from '../utils/guideline.svelte';
@@ -15,6 +15,7 @@
 	import { hoverPopup } from './GUI/hoverPopup.svelte';
 	import type { ICanvasHandler } from '../utils/canvas.svelte';
 	import { downloadFile } from '../utils/helperFunctions';
+	import { toStaticGuidelines } from '../utils/guideline.svelte';
 
 	let {
 		side,
@@ -46,6 +47,13 @@
 		left: 'guidelines',
 		right: 'settings'
 	} as PanelState);
+
+	let showTasks = getContext('showTasks');
+	$effect(() => {
+		showTasks.anyGuidelinesVisible =
+			(!hidden.left && panelState.left === 'guidelines') ||
+			(!hidden.right && panelState.right === 'guidelines');
+	});
 
 	let hidden = $state({ left: false, right: false });
 	let manuallyToggled = $state({ left: false, right: false });
@@ -101,7 +109,7 @@
 
 	function downloadGuidelines() {
 		downloadFile(
-			JSON.stringify($state.snapshot(guidelines), null, 2),
+			JSON.stringify({ guidelines: toStaticGuidelines($state.snapshot(guidelines)) }, null, 2),
 			'guidelines',
 			'application/json'
 		);

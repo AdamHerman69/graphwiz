@@ -123,6 +123,7 @@ export type Guideline = StaticGuideline & {
 	status: GuidelineStatus;
 	expanded: boolean;
 	parentDiv?: HTMLDivElement;
+	imported?: boolean;
 };
 
 const normalizeWeights = (conditions: WeightedCondition[]): WeightedCondition[] => {
@@ -481,6 +482,13 @@ export function newGuidelineSet(graphSettings: GraphSettingsClass): Guideline[] 
 	return newGuidelineSet;
 }
 
+// // TODO refactor into a file and import
+// let guidelineArray: Guideline[] = $state([]);
+// // export let graph = $state(graphObject);
+// export function getGuidelines(): Graph {
+// 	return graphObject;
+// }
+
 export async function loadGuidelines(newGUIID: () => number) {
 	// todo check format
 	let guidelinesFromFile = guidelinesFile as StaticGuideline[];
@@ -515,4 +523,18 @@ export function assignGUIIDsToConditions(
 	};
 
 	assignGUIIDsRecursively(weightedCondition.condition);
+}
+
+export function toStaticGuideline(guideline: Guideline): StaticGuideline {
+	return {
+		name: guideline.name,
+		description: guideline.description,
+		literature: guideline.literature,
+		rootCondition: guideline.rootCondition,
+		recommendations: guideline.recommendations
+	};
+}
+
+export function toStaticGuidelines(guidelines: Guideline[]): StaticGuideline[] {
+	return guidelines.map(toStaticGuideline);
 }
