@@ -475,43 +475,94 @@
 			<div class="optionContainer">
 				<div class="heading">svg</div>
 				<div class="description">Export the visualization as a scalable vector graphic file.</div>
-				<button
-					onclick={async () => {
-						downloadFile(exportSVG(), 'graph', 'image/svg+xml');
-						menuOpen = null;
-					}}
-				>
-					<span class="material-symbols-outlined">download</span>
-				</button>
+				<div class="flex justify-between w-full h-full align-bottom">
+					<button
+						onclick={async () => {
+							downloadFile(
+								view === 'right' ? exportSVGRight() : exportSVGLeft(),
+								'graph',
+								'image/svg+xml'
+							);
+							menuOpen = null;
+						}}
+					>
+						<span class="material-symbols-outlined">download</span>
+					</button>
+					{#if view === 'double'}
+						<button
+							onclick={async () => {
+								downloadFile(exportSVGRight(), 'graph', 'image/svg+xml');
+								menuOpen = null;
+							}}
+						>
+							<span class="material-symbols-outlined">download</span>
+						</button>
+					{/if}
+				</div>
 			</div>
 			<div class="optionContainer">
 				<div class="heading">settings</div>
 				<div class="description">Export the visualization settings alone.</div>
-				<button
-					onclick={() => {
-						let objectToExport = { settings: graphSettings.exportState() };
-						let json = JSON.stringify(objectToExport, null, 2);
-						console.log(json);
-						downloadFile(json, 'graphwiz_settings', 'application/json');
-						menuOpen = null;
-					}}
-				>
-					<span class="material-symbols-outlined">download</span>
-				</button>
+				<div class="flex justify-between w-full h-full align-bottom">
+					<button
+						onclick={() => {
+							let gs = view === 'right' ? graphSettingsRight : graphSettingsLeft;
+							let objectToExport = { settings: gs.exportState() };
+							let json = JSON.stringify(objectToExport, null, 2);
+							console.log(json);
+							downloadFile(json, 'graphwiz_settings', 'application/json');
+							menuOpen = null;
+						}}
+					>
+						<span class="material-symbols-outlined">download</span>
+					</button>
+					{#if view === 'double'}
+						<button
+							onclick={() => {
+								let objectToExport = { settings: graphSettingsRight.exportState() };
+								let json = JSON.stringify(objectToExport, null, 2);
+								console.log(json);
+								downloadFile(json, 'graphwiz_settings', 'application/json');
+								menuOpen = null;
+							}}
+						>
+							<span class="material-symbols-outlined">download</span>
+						</button>
+					{/if}
+				</div>
 			</div>
 			<div class="optionContainer">
 				<div class="heading">full state</div>
 				<div class="description">Export the complete state of your session.</div>
-				<button
-					onclick={() => {
-						let objectToExport = { settings: graphSettings.exportState(), graph: exportGraph() };
-						let json = JSON.stringify(objectToExport, null, 2);
-						downloadFile(json, 'graphwiz_state', 'application/json');
-						menuOpen = null;
-					}}
-				>
-					<span class="material-symbols-outlined">download</span>
-				</button>
+
+				<div class="flex justify-between w-full h-full align-bottom">
+					<button
+						onclick={() => {
+							let gs = view === 'right' ? graphSettingsRight : graphSettingsLeft;
+							let objectToExport = { settings: gs.exportState(), graph: exportGraph() };
+							let json = JSON.stringify(objectToExport, null, 2);
+							downloadFile(json, 'graphwiz_state', 'application/json');
+							menuOpen = null;
+						}}
+					>
+						<span class="material-symbols-outlined">download</span>
+					</button>
+					{#if view === 'double'}
+						<button
+							onclick={() => {
+								let objectToExport = {
+									settings: graphSettingsRight.exportState(),
+									graph: exportGraph()
+								};
+								let json = JSON.stringify(objectToExport, null, 2);
+								downloadFile(json, 'graphwiz_state', 'application/json');
+								menuOpen = null;
+							}}
+						>
+							<span class="material-symbols-outlined">download</span>
+						</button>
+					{/if}
+				</div>
 			</div>
 
 			<button class="closeExpanded" onclick={() => (menuOpen = null)}>
