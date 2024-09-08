@@ -126,11 +126,11 @@
 </script>
 
 <div use:autoAnimate>
-	<div>
+	<!-- <div>
 		<button id="log" onclick={() => console.log(guidelines)} class="flex justify-end items-center">
 			log guidelines
 		</button>
-	</div>
+	</div> -->
 	{#each guidelines as guideline, index (guideline.id)}
 		{#if !guideline.expanded || isClosing}
 			<GuidelineCard

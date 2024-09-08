@@ -27,7 +27,7 @@
 
 	let graphSettings = getContext('graphSettings') as GraphSettingsClass;
 	let neighborGraphSettings = getContext('neighborGraphSettings') as GraphSettingsClass;
-	// let parentDiv: HTMLDivElement;
+	let cardParentDiv: HTMLDivElement;
 
 	let applyHovered: boolean = $state(false);
 
@@ -69,7 +69,7 @@
 </script>
 
 <div
-	bind:this={guideline.parentDiv}
+	bind:this={cardParentDiv}
 	class="card cardSpacing"
 	class:expanded={guideline.expanded}
 	class:first={first === true}
@@ -87,7 +87,11 @@
 			conflicts={guideline.status?.conflicts}
 		/>
 
-		<button class="text-sm" onclick={() => expand(guideline, guideline.parentDiv!)}>expand</button>
+		<button
+			class="text-sm"
+			onclick={() => {guideline.parentDiv = cardParentDiv; expand(guideline, cardParentDiv!)}}
+			>expand</button
+		>
 		<button class="text-sm" onclick={edit}>edit</button>
 
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
