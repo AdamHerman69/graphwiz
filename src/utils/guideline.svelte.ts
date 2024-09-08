@@ -24,13 +24,14 @@ export type Task = {
 	icon?: string;
 };
 
-export const tasks: Task[] = [
-	{ name: 'Path Finding', description: 'neco' },
-	{ name: 'Cluster Detection', description: 'neco' },
-	{ name: 'Other task', description: 'neco' }
-];
-
-export let selectedTask: Task = $state(tasks[0]);
+export let tasks = $state({
+	tasks: [
+		{ name: 'Path Finding', description: 'neco' },
+		{ name: 'Cluster Detection', description: 'neco' },
+		{ name: 'Other task', description: 'neco' }
+	],
+	selectedTask: { name: 'Path Finding', description: 'neco' }
+});
 
 export type Conflict = {
 	type: 'layout' | 'nodeSetting' | 'edgeSetting';

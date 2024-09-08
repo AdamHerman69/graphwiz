@@ -15,7 +15,6 @@
 		sortGuidelines,
 		type Guideline,
 		applyGuideline,
-		selectedTask,
 		type Task,
 		tasks,
 		assignGUIIDsToConditions
@@ -232,8 +231,8 @@
 	{#if showTasks.anyGuidelinesVisible}
 		<div class="tasks" transition:blur>
 			<span class="material-symbols-outlined"> task_alt </span>
-			<select bind:value={selectedTask} onchange={() => recomputeCharacteristics(graph)}>
-				{#each tasks as task}
+			<select bind:value={tasks.selectedTask} onchange={() => recomputeCharacteristics(graph)}>
+				{#each tasks.tasks as task}
 					<option>{task.name}</option>
 				{/each}
 			</select>

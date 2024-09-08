@@ -4,7 +4,7 @@ import { density, diameter } from 'graphology-metrics/graph';
 import hasCycle from 'graphology-dag/has-cycle';
 import isBipartiteBy from 'graphology-bipartite/is-bipartite-by';
 //import { unbindAttributes } from './graphSettings.svelte';
-import { sortGuidelines, type Task, selectedTask } from './guideline.svelte';
+import { sortGuidelines, type Task, tasks } from './guideline.svelte';
 
 export type Attribute = {
 	name: string;
@@ -337,7 +337,7 @@ export const graphCharacteristics: { [key: string]: Characteristic<Characteristi
 	task: {
 		type: 'string',
 		getter: (graph: Graph) => {
-			return selectedTask.name;
+			return tasks.selectedTask;
 		}
 	}
 	// isBipartite: {
