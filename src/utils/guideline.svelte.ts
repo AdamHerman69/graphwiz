@@ -11,6 +11,7 @@ import { graphCharacteristics } from './graph.svelte';
 import { areRulesEqual } from './rules.svelte';
 import { getCitationInfo, type Citation } from './citation.svelte';
 import { assignIDsToRules } from './rules.svelte';
+import { getGraph } from './graph.svelte';
 
 export type GuidelineStatus = {
 	applied: 'fully' | 'partially' | 'notApplied';
@@ -479,15 +480,17 @@ export function newGuidelineSet(graphSettings: GraphSettingsClass): Guideline[] 
 		guideline.expanded = false;
 	});
 
+	guidelineArray = newGuidelineSet;
+
 	return newGuidelineSet;
 }
 
-// // TODO refactor into a file and import
-// let guidelineArray: Guideline[] = $state([]);
-// // export let graph = $state(graphObject);
-// export function getGuidelines(): Graph {
-// 	return graphObject;
-// }
+// TODO refactor into a file and import
+let guidelineArray: Guideline[] = $state([]);
+// export let graph = $state(graphObject);
+export function getGuidelines(): Guideline[] {
+	return guidelineArray;
+}
 
 export async function loadGuidelines(newGUIID: () => number) {
 	// todo check format
@@ -537,4 +540,14 @@ export function toStaticGuideline(guideline: Guideline): StaticGuideline {
 
 export function toStaticGuidelines(guidelines: Guideline[]): StaticGuideline[] {
 	return guidelines.map(toStaticGuideline);
+}
+
+export async function importGuidelines(guidelines: StaticGuideline[], newGUIID: () => number) {
+	for (let guideline of defaultGuidelines) {
+		assignGUIIDsToConditions(guideline.rootCondition, newGUIID);
+		addSourceToSettings(guidelines as Guideline[]);
+		await Promise.all(guideline.literature.map((doi) => getCitationInfo(doi)));
+	}
+	getGuidelines().push(...(guidelines as Guideline[]));
+	sortGuidelines(getGuidelines(), getGraph());
 }

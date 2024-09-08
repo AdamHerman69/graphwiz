@@ -9,10 +9,11 @@
 	import ColorPickerWrapper from '$lib/RangeSlider/ColorPickerWrapper.svelte';
 	import { availableAttributes } from '../utils/graph.svelte';
 	import { getContext } from 'svelte';
+	import BooleanCondition from './BooleanCondition.svelte';
 
 	let newGUIID = getContext('graphSettings').newGUIID;
 
-	let { labels }: { labels: EdgeLabel[] } = $props();
+	let { labels, onlyGeneral = false }: { labels: EdgeLabel[]; onlyGeneral: boolean } = $props();
 	let colorPickers: boolean[] = $state(Array(labels.length).fill(false));
 
 	// For range slider relative positions
@@ -73,7 +74,7 @@
 						<div>{label.source}</div>
 						<AttributePicker
 							bind:selectedAttribute={label.attribute}
-							filter={(attribute: Attribute) => attribute.owner === 'edge'}
+							filter={(attribute: Attribute) => attribute.owner === 'edge' && (!onlyGeneral || attribute.general === true)}
 						/>
 						<select bind:value={label.position} class="bg-transparent">
 							<option value="above">above</option>

@@ -12,6 +12,7 @@
 	import { getContext } from 'svelte';
 	import RuleDisplay from './RuleDisplay.svelte';
 	import autoAnimate from '@formkit/auto-animate';
+	import type { EdgeLabel, NodeLabel } from '../utils/graphSettings.svelte';
 
 	let {
 		setting,
@@ -19,11 +20,26 @@
 		collapsed = $bindable(true),
 		conflict = undefined
 	}: {
-		setting: SelectSetting<any> | NumericalSetting | ColorSetting | DecoratorSetting;
+		setting:
+			| SelectSetting<any>
+			| NumericalSetting
+			| ColorSetting
+			| DecoratorSetting
+			| Array<EdgeLabel | NodeLabel>;
 		rule: Rule | null;
 		collapsed: boolean;
 		conflict?: Conflict;
 	} = $props();
+
+	if (Array.isArray(setting))
+		setting = {
+			name: 'labels',
+			value: setting
+				.reduce((labelsList, label) => {
+					return labelsList + (label.attribute?.name ? label.attribute.name + ' ' : '');
+				}, '')
+				.trim() // Use trim() to remove the trailing space
+		};
 
 	let guidelines = getContext('guidelines') as Guideline[];
 

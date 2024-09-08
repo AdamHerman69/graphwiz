@@ -4,12 +4,14 @@
 	import { isValidGraph, importGraphJSON, importGraphOther } from '../utils/graph.svelte';
 	import { parse } from 'svelte/compiler';
 	import { getContext } from 'svelte';
-	import type { Guideline } from '../utils/guideline.svelte';
+	import { type Guideline, importGuidelines } from '../utils/guideline.svelte';
 
 	let {
 		importState,
 		closeMenu
 	}: { importState: (graphSettings: GraphSettings) => void; closeMenu: () => void } = $props();
+
+	let newGUIID = getContext('arbitraryGUIDI') as () => number;
 
 	// TODO: fix flow and error handeling
 	async function handleFile(e: Event) {
@@ -44,8 +46,6 @@
 		}
 	}
 
-	let guidelines: Guideline[] = getContext('guidelines');
-
 	function handleJSON(json: string): void {
 		try {
 			const parsed = JSON.parse(json);
@@ -61,7 +61,7 @@
 				imported = true;
 			}
 			if (parsed.hasOwnProperty('guidelines')) {
-				guidelines.push(...parsed.guidelines);
+				importGuidelines(parsed.guidelines, newGUIID);
 				imported = true;
 			}
 

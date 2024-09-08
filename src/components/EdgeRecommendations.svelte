@@ -103,7 +103,7 @@
 
 		{#if edgeSettings.labels}
 			<div>
-				<SettingsEdgeLabel labels={edgeSettings.labels} />
+				<SettingsEdgeLabel labels={edgeSettings.labels} onlyGeneral={true} />
 			</div>
 		{/if}
 	</div>

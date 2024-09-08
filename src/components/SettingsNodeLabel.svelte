@@ -11,7 +11,7 @@
 
 	let newGUIID = getContext('graphSettings').newGUIID;
 
-	let { labels }: { labels: NodeLabel[] } = $props();
+	let { labels, onlyGeneral = false }: { labels: NodeLabel[]; onlyGeneral: boolean } = $props();
 	let colorPickers: boolean[] = $state(Array(labels.length).fill(false));
 
 	function addLabel() {
@@ -61,7 +61,7 @@
 							<div>{label.source}</div>
 							<AttributePicker
 								bind:selectedAttribute={label.attribute}
-								filter={(attribute: Attribute) => attribute.owner === 'node'}
+								filter={(attribute: Attribute) => attribute.owner === 'node' && (!onlyGeneral || attribute.general === true)}
 							/>
 
 							<select class="bg-transparent outline-none" bind:value={label.position}>

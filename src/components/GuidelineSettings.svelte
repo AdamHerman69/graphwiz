@@ -23,6 +23,19 @@
 
 	let nodeCollapsed = $state(true);
 	let edgeCollapsed = $state(true);
+
+	const settingTypes = [
+		'size',
+		'color',
+		'strokeWidth',
+		'strokeColor',
+		'labels',
+		'width',
+		'partialStart',
+		'partialEnd',
+		'decorators',
+		'type'
+	];
 </script>
 
 <!-- <div class="mt-1">
@@ -42,7 +55,7 @@
 			<div class="flex flex-wrap">
 				{#each recommendations.nodeSettings as ns, index}
 					{#each Object.keys(ns) as key}
-						{#if key != 'source' && key != 'rule' && key != 'id' && ns[key]}
+						{#if settingTypes.includes(key)}
 							{console.log('key:', key, ns[key])}
 							<SettingValue
 								setting={ns[key]}
@@ -64,7 +77,10 @@
 		<div class="flex flex-wrap">
 			{#each recommendations.edgeSettings as es, index}
 				{#each Object.keys(es) as key}
-					{#if key != 'source' && key != 'rule' && key != 'id' && es[key]}
+					{#if settingTypes.includes(key)}
+						{#if es[key].name === undefined}
+							{console.log('undefiiiined:', key, es[key])}
+						{/if}
 						<SettingValue
 							setting={es[key]}
 							rule={index > 0 ? es.rule : null}

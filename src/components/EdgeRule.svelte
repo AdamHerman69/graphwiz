@@ -21,7 +21,7 @@
 	<!-- todo proper filter -->
 	<AttributePicker
 		bind:selectedAttribute={rule.property}
-		filter={(attribute: Attribute) => (attribute.owner === (rule.target === 'edge' ? 'edge' : 'node') && attribute.general === isGuidelineEditor)}
+		filter={(attribute: Attribute) => (attribute.owner === (rule.target === 'edge' ? 'edge' : 'node') && (!isGuidelineEditor || attribute.general === true))}
 		{disabled}
 	/>
 

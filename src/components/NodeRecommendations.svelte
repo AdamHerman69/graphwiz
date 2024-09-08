@@ -99,7 +99,7 @@
 
 		{#if nodeSettings.labels}
 			<div>
-				<SettingsNodeLabel labels={nodeSettings.labels} />
+				<SettingsNodeLabel labels={nodeSettings.labels} onlyGeneral={true} />
 			</div>
 		{/if}
 	</div>

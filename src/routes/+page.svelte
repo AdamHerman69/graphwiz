@@ -28,6 +28,7 @@
 
 	let graphSettingsLeft = new GraphSettingsClass();
 	let graphSettingsRight: GraphSettingsClass = new GraphSettingsClass();
+	setContext('arbitraryGUIDI', graphSettingsLeft.newGUIID);
 
 	let leftCanvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
 	let rightCanvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();

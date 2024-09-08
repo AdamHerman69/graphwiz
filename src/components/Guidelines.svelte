@@ -1,11 +1,17 @@
 <script lang="ts">
 	import type Graph from 'graphology';
 	import { graphCharacteristics } from '../utils/graph.svelte';
-	import { type Guideline, applyGuideline, isComposite } from '../utils/guideline.svelte';
+	import {
+		type Guideline,
+		applyGuideline,
+		isComposite,
+		sortGuidelines
+	} from '../utils/guideline.svelte';
 	import { getContext } from 'svelte';
 	import type { GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import GuidelineCard from './GuidelineCard.svelte';
 	import autoAnimate from '@formkit/auto-animate';
+	import { getGraph } from '../utils/graph.svelte';
 
 	let guidelines: Guideline[] = getContext('guidelines') as Guideline[];
 
