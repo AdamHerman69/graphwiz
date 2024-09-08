@@ -69,12 +69,7 @@
 			weight: 1
 		});
 	}
-
-	let newConditionHovered: 'none' | 'boolean' | 'range' | 'string' | 'numeric' | 'composite' =
-		$state('none');
 </script>
-
-{#snippet addConditionButton(icon: string, type: 'boolean' | 'range' | 'string' | 'numeric' | 'composite')}{/snippet}
 
 <div use:autoAnimate class="mt-1 labelContainer px-3">
 	<div class="pb-1" use:autoAnimate>

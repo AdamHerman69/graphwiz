@@ -17,14 +17,13 @@
 		applyGuideline,
 		selectedTask,
 		type Task,
-		tasks
+		tasks,
+		assignGUIIDsToConditions
 	} from '../utils/guideline.svelte';
 	import DynamicIslandCenter from '../components/DynamicIslandCenter.svelte';
 	import type Graph from 'graphology';
 	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import { type ICanvasHandler, WebWorkerCanvasHandler } from '../utils/canvas.svelte';
-
-	initGraph();
 
 	let graphSettingsLeft = new GraphSettingsClass();
 	let graphSettingsRight: GraphSettingsClass = new GraphSettingsClass();
@@ -32,11 +31,13 @@
 	let leftCanvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
 	let rightCanvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
 
+	initGraph();
+
 	function initGraph(): Graph {
 		let graph = loadSampleGraph();
 		computeAttributes(getGraph());
 		recomputeCharacteristics(graph);
-		loadGuidelines();
+		loadGuidelines(graphSettingsLeft.newGUIID);
 		return graph;
 	}
 

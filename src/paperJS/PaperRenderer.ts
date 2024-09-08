@@ -104,6 +104,7 @@ export class PaperRenderer implements Renderer {
 		edgeStyles: Map<string, EdgeStyle>,
 		canvas?: HTMLCanvasElement
 	) {
+		// todo if canvas is provided fucks things up!
 		if (canvas) {
 			this.paperScope = new Paper.PaperScope();
 			this.paperScope.setup(canvas);

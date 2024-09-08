@@ -34,6 +34,7 @@
 				const graphString = await file.text();
 				importGraphOther(graphString);
 				closeMenu();
+				console.log('Graph Import successful');
 				// todo toast
 			} catch (error) {
 				// todo toast

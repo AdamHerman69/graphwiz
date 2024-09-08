@@ -40,6 +40,7 @@ export interface ICanvasHandler {
 	updateNodeStyles(nodeStyles: NodeStyles): void;
 	updateEdgeStyles(edgeStyles: EdgeStyles): void;
 	initialize(canvas: HTMLCanvasElement, width: number, height: number, graph: Graph): void;
+	graphChange(layout: LayoutType, nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void;
 
 	detectHover(event: MouseEvent): void;
 	canvasClicked(event: MouseEvent): void;
@@ -53,6 +54,7 @@ export interface ICanvasHandler {
 	selectedNodePosition: { x: number; y: number } | null;
 	sticky: boolean;
 	zoomed: boolean;
+	started: boolean;
 }
 
 export class WebWorkerCanvasHandler implements ICanvasHandler {
@@ -74,6 +76,8 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 
 	sticky: boolean = $state(false);
 	staticPosition: boolean = $state(false);
+
+	started: boolean = $state(false);
 
 	hoveredNodeKey: string | undefined = $state(undefined);
 	selectedNode: D3Node | null = $state(null);
@@ -159,7 +163,23 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		};
 	}
 
+	graphChange(layout: LayoutType, nodeStyles: NodeStyles, edgeStyles: EdgeStyles) {
+		console.log('canvas handler graph change');
+		this.nodeStyles = nodeStyles;
+		this.edgeStyles = edgeStyles;
+
+		this.paperRenderer.restart(
+			this.d3nodes as NodePositionDatum[],
+			this.d3links as EdgeDatum[],
+			nodeStyles,
+			edgeStyles
+		);
+
+		this.changeLayout(layout, true);
+	}
+
 	start(layout: LayoutType, nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void {
+		console.log('staaaaart');
 		this.nodeStyles = nodeStyles;
 		this.edgeStyles = edgeStyles;
 
@@ -201,9 +221,11 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 					})
 			);
 		this.changeLayout(layout);
+		this.started = true;
 	}
 
-	startForceSimulation() {
+	startForceSimulation(forceRestart: boolean = false) {
+		console.log('starting force simulation');
 		if (!this.simulationWorker) {
 			this.simulationWorker = new Worker();
 			this.simulationWorker.postMessage({
@@ -214,18 +236,32 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 				height: this.height
 			});
 		} else {
-			this.simulationWorker.postMessage({
-				type: 'resume',
-				nodes: $state.snapshot(this.d3nodes),
-				links: this.d3links,
-				width: this.width,
-				height: this.height
-			});
+			if (forceRestart) {
+				console.log('forcing newGraph simulation d3 nodes:', this.d3nodes);
+				this.simulationWorker.postMessage({
+					type: 'newGraph',
+					nodes: $state.snapshot(this.d3nodes),
+					links: this.d3links,
+					width: this.width,
+					height: this.height
+				});
+			} else {
+				console.log('resuming simulation d3 nodes:', this.d3nodes);
+				this.simulationWorker.postMessage({
+					type: 'resume',
+					nodes: $state.snapshot(this.d3nodes),
+					links: this.d3links,
+					width: this.width,
+					height: this.height
+				});
+			}
 		}
 
 		this.simulationWorker.onmessage = (event) => {
 			const { type, nodes, links, message } = event.data;
 			if (type === 'tick') {
+				// console.log('worker tick');
+				// console.log(nodes);
 				this.paperRenderer.updatePositions(nodes as NodePositionDatum[]);
 				this.d3nodes = nodes as D3Node[];
 				if (links) this.d3links = links; // only there on first tick, needed by greadability
@@ -390,10 +426,12 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	}
 
 	handleHover(nodeKey: string | undefined) {
+		if (!nodeKey || !this.nodeStyles.get(nodeKey)) return;
 		if (this.hoveredNodeKey && this.hoveredNodeKey != nodeKey) {
 			// cancel old shadow
 
-			this.nodeStyles.get(this.hoveredNodeKey)!.shadow = false;
+			if (this.nodeStyles.get(this.hoveredNodeKey))
+				this.nodeStyles.get(this.hoveredNodeKey)!.shadow = false;
 			this.paperRenderer.updateNodeStyle(
 				this.hoveredNodeKey,
 				this.nodeStyles.get(this.hoveredNodeKey)!
@@ -431,15 +469,19 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.simulationWorker.postMessage({ type: 'resize', width, height });
 	}
 
-	async changeLayout(layout: LayoutType) {
-		if (this.currentLayout === layout) return;
+	async changeLayout(layout: LayoutType, forceRestart: boolean = false) {
+		if (!forceRestart && this.currentLayout === layout) {
+			console.log('changeLayout: same layout');
+			return;
+		}
 
 		if (layout === 'force-graph') {
-			this.startForceSimulation();
+			this.startForceSimulation(forceRestart);
 			this.currentLayout = layout;
 			return;
 		}
 		if (this.currentLayout === 'force-graph') {
+			if (forceRestart) this.simulationWorker.postMessage({ type: 'pause' });
 			this.simulationWorker.postMessage({ type: 'pause' });
 		}
 

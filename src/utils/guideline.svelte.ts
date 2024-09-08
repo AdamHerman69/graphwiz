@@ -481,11 +481,12 @@ export function newGuidelineSet(graphSettings: GraphSettingsClass): Guideline[] 
 	return newGuidelineSet;
 }
 
-export async function loadGuidelines() {
+export async function loadGuidelines(newGUIID: () => number) {
 	// todo check format
 	let guidelinesFromFile = guidelinesFile as StaticGuideline[];
 	defaultGuidelines = structuredClone(guidelinesFromFile) as StaticGuideline[];
 	for (let guideline of defaultGuidelines) {
+		assignGUIIDsToConditions(guideline.rootCondition, newGUIID);
 		await Promise.all(guideline.literature.map((doi) => getCitationInfo(doi)));
 	}
 }

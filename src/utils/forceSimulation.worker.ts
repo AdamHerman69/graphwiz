@@ -84,6 +84,18 @@ onmessage = function (event) {
 			d3nodes = nodes;
 			d3links = links;
 			startSimulation(d3nodes, d3links, width, height);
+
+			simRunning = true;
+			break;
+
+		case 'newGraph':
+			log(currentWidth + ' ' + currentHeight);
+			log(width + ' ' + height);
+
+			simulation.stop();
+			d3nodes = nodes;
+			d3links = links;
+			startSimulation(d3nodes, d3links, width, height);
 			simRunning = true;
 			break;
 		case 'dragStarted':

@@ -16,7 +16,7 @@
 	import { calculateApplicability } from '../utils/guideline.svelte';
 
 	let {
-		guideline,
+		guideline = $bindable(),
 		expand,
 		first = false
 	}: {
@@ -62,7 +62,7 @@
 		console.log('save');
 		console.log(editedGuideline);
 		console.log(guideline);
-		guideline = editedGuideline!;
+		guideline = $state.snapshot(editedGuideline)!;
 		editing = false;
 		calculateApplicability(guideline);
 	}

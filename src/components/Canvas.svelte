@@ -30,11 +30,19 @@
 			console.log('----------------------canvasHandler init');
 			canvasHandler.initialize(canvas, width, height, g);
 
-			canvasHandler.start(
-				graphSettings.graphSettings.layout.value,
-				graphSettings.computeNodeStyles(),
-				graphSettings.computeEdgeStyles()
-			);
+			if (canvasHandler.started) {
+				canvasHandler.graphChange(
+					graphSettings.graphSettings.layout.value,
+					graphSettings.computeNodeStyles(),
+					graphSettings.computeEdgeStyles()
+				);
+			} else {
+				canvasHandler.start(
+					graphSettings.graphSettings.layout.value,
+					graphSettings.computeNodeStyles(),
+					graphSettings.computeEdgeStyles()
+				);
+			}
 		});
 	});
 

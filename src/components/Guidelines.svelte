@@ -19,6 +19,7 @@
 	let overlay = getContext('overlay');
 
 	$effect(() => {
+		console.log('sorting');
 		guidelines.sort((a, b) => {
 			if (a.status?.applied === b.status?.applied) return b.score! - a.score!;
 
@@ -125,10 +126,15 @@
 </script>
 
 <div use:autoAnimate>
+	<div>
+		<button id="log" onclick={() => console.log(guidelines)} class="flex justify-end items-center">
+			log guidelines
+		</button>
+	</div>
 	{#each guidelines as guideline, index (guideline.id)}
 		{#if !guideline.expanded || isClosing}
 			<GuidelineCard
-				{guideline}
+				bind:guideline={guidelines[index]}
 				first={index === 0 || (index === 1 && guidelines[0].expanded)}
 				{expand}
 			/>
@@ -170,5 +176,9 @@
 
 	.overlay.active {
 		backdrop-filter: blur(15px);
+	}
+
+	#log {
+		pointer-events: all;
 	}
 </style>

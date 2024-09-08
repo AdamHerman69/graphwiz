@@ -239,8 +239,7 @@ export function isValidGraph(object: any): boolean {
 // unbind attributes
 export const onGraphImport: ((graph: Graph) => void)[] = [
 	computeAttributes,
-	recomputeCharacteristics,
-	sortGuidelines
+	recomputeCharacteristics
 ];
 
 function onGraphImportRun(graph: Graph) {
