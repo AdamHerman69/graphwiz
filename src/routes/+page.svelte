@@ -24,6 +24,7 @@
 	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import { type ICanvasHandler, WebWorkerCanvasHandler } from '../utils/canvas.svelte';
 	import { blur } from 'svelte/transition';
+	import GraphCharacteristics from '../components/GraphCharacteristics.svelte';
 
 	let graphSettingsLeft = new GraphSettingsClass();
 	let graphSettingsRight: GraphSettingsClass = new GraphSettingsClass();
@@ -238,6 +239,9 @@
 			</select>
 		</div>
 	{/if}
+	<div class="graphCharacteristics">
+		<GraphCharacteristics />
+	</div>
 </div>
 
 <style>
@@ -289,5 +293,12 @@
 		width: 24px;
 		height: 24px;
 		margin: 0 5px;
+	}
+
+	.graphCharacteristics {
+		position: absolute;
+		bottom: 10px;
+		left: 50%;
+		transform: translateX(-50%);
 	}
 </style>
