@@ -164,7 +164,7 @@
 	const HEIGHT = 32;
 
 	// ISLAND POSITION
-	const Y = 10;
+	const Y = 20;
 	let island_x = $derived.by(() => {
 		if (menuOpen) return (SVG_WIDTH - ISLAND_EXPANDED_WIDTH) / 2;
 		if (!stickyLeft)
@@ -297,7 +297,7 @@
 	let wasInsideIsland = $state(false);
 
 	let circlePosition = spring(
-		{ x: $islandStyles.x + $islandStyles.width / 2, y: 26, r: 10 },
+		{ x: $islandStyles.x + $islandStyles.width / 2, y: 36, r: 10 },
 		{ stiffness: 0.1, damping: 0.5 }
 	);
 
@@ -306,38 +306,73 @@
 		let mouseX = e.clientX - svgRect.left;
 		let mouseY = e.clientY - svgRect.top;
 
-		if (insideIsland(mouseX, mouseY)) {
+		if (insideIsland(mouseX, mouseY) === 'main' || 'stickyLeft' || 'stickyRight') {
 			circlePosition.set({ x: mouseX, y: mouseY, r: 20 });
 			wasInsideIsland = true;
 		} else {
-			circlePosition.set({ x: wasInsideIsland ? mouseX : $circlePosition.x, y: 26, r: 10 });
+			circlePosition.set({ x: wasInsideIsland ? mouseX : $circlePosition.x, y: 36, r: 10 });
 			wasInsideIsland = false;
 		}
 		console.log(mouseX, mouseY);
 	}
 
-	function insideIsland(x: number, y: number): boolean {
-		return (
-			(x > $islandStyles.x || x > $leftStickyStyles.x) &&
-			(x < $islandStyles.x + $islandStyles.width ||
-				x < $rightStickyStyles.x + $rightStickyStyles.width) &&
-			y > $islandStyles.y &&
-			y < $islandStyles.y + $islandStyles.height
-		);
+	function insideIsland(x: number, y: number): 'main' | 'stickyLeft' | 'stickyRight' | 'outside' {
+		// 10 is tolerance for height, when hovered and buttons are bigger than the island
+		if (
+			x > $islandStyles.x &&
+			x < $islandStyles.x + $islandStyles.width &&
+			y > $islandStyles.y - 10 &&
+			y < $islandStyles.y + $islandStyles.height + 10
+		)
+			return 'main';
+		if (
+			x > $leftStickyStyles.x &&
+			x < $leftStickyStyles.x + $leftStickyStyles.width &&
+			y > $islandStyles.y - 10 &&
+			y < $islandStyles.y + $islandStyles.height + 10
+		)
+			return 'stickyLeft';
+
+		if (
+			x > $rightStickyStyles.x &&
+			x < $rightStickyStyles.x + $rightStickyStyles.width &&
+			y > $islandStyles.y - 10 &&
+			y < $islandStyles.y + $islandStyles.height + 10
+		)
+			return 'stickyRight';
+
+		// TODO - differentiate left and right sticky and apply it in resetCircle
+		return 'outside';
 	}
 
 	function resetCircle(e: MouseEvent | null) {
 		console.log('reset');
 		if (!e) {
-			circlePosition.set({ x: SVG_WIDTH / 2, y: 26, r: 10 });
+			circlePosition.set({ x: SVG_WIDTH / 2, y: 36, r: 10 });
 			wasInsideIsland = false;
 			console.log('reset null');
 			return;
 		}
+
 		const svgRect = svgElement.getBoundingClientRect();
 		let mouseX = e.clientX - svgRect.left;
-		circlePosition.set({ x: wasInsideIsland ? mouseX : SVG_WIDTH / 2, y: 26, r: 6 });
-		wasInsideIsland = false;
+		let mouseY = e.clientY - svgRect.top;
+
+		// if inside main island stay, if in sticky, go to sticky position
+		let where = insideIsland(mouseX, mouseY);
+		if (where === 'main') {
+			circlePosition.set({ x: wasInsideIsland ? mouseX : SVG_WIDTH / 2, y: 36, r: 6 });
+			wasInsideIsland = false;
+		} else if (where === 'stickyLeft') {
+			circlePosition.set({ x: $leftStickyStyles.x + $leftStickyStyles.width / 2, y: 36, r: 6 });
+			wasInsideIsland = false;
+		} else if (where === 'stickyRight') {
+			circlePosition.set({ x: $rightStickyStyles.x + $rightStickyStyles.width / 2, y: 36, r: 6 });
+			wasInsideIsland = false;
+		} else {
+			circlePosition.set({ x: SVG_WIDTH / 2, y: 36, r: 6 });
+			wasInsideIsland = false;
+		}
 	}
 </script>
 
@@ -654,7 +689,7 @@
 
 	.menuBarButtons button {
 		position: absolute;
-		top: 14px;
+		top: 24px;
 		z-index: 100;
 		transition: transform 0.2s;
 	}
