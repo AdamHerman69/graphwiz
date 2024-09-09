@@ -128,41 +128,33 @@ export class PNode implements IPNode {
 				}
 
 			case 'triangle':
-				const size = this.getFinalRadius();
-				const height = size * Math.sqrt(3);
+				if (!(this.shape instanceof Paper.Path)) {
+					return this.position; // Fallback if shape is not a Path
+				}
 
-				// Calculate the three corners of the triangle
-				const top = new Paper.Point(0, (-2 * height) / 3);
-				const bottomLeft = new Paper.Point(-size, height / 3);
-				const bottomRight = new Paper.Point(size, height / 3);
+				// Get the actual points of the triangle
+				const points = this.shape.segments.map((segment) => segment.point);
 
-				// Rotate the direction vector to match the triangle's orientation
-				const rotatedDirection = normalizedDirection.rotate(-this.shape.rotation);
-
-				// Calculate intersection with each edge
+				// Calculate intersections with each edge
 				const intersections = [
-					this.lineIntersection(new Paper.Point(0, 0), rotatedDirection, bottomLeft, bottomRight),
-					this.lineIntersection(new Paper.Point(0, 0), rotatedDirection, top, bottomLeft),
-					this.lineIntersection(new Paper.Point(0, 0), rotatedDirection, top, bottomRight)
+					this.lineIntersection(this.position, this.position.add(direction), points[0], points[1]),
+					this.lineIntersection(this.position, this.position.add(direction), points[1], points[2]),
+					this.lineIntersection(this.position, this.position.add(direction), points[2], points[0])
 				].filter(Boolean) as paper.Point[];
 
-				// Find the intersection point in the correct direction and closest to the origin
+				// Find the intersection point in the correct direction and closest to the position
 				const intersectionPoint = intersections.reduce(
 					(closest, current) => {
-						return current.dot(rotatedDirection) > 0 &&
-							(!closest || current.length < closest.length)
+						const vectorToIntersection = current.subtract(this.position);
+						return vectorToIntersection.dot(normalizedDirection) > 0 &&
+							(!closest || vectorToIntersection.length < closest.subtract(this.position).length)
 							? current
 							: closest;
 					},
-					null as Paper.Point | null
+					null as paper.Point | null
 				);
 
-				if (intersectionPoint) {
-					// Rotate back and adjust for the node's position
-					return this.position.add(intersectionPoint.rotate(this.shape.rotation));
-				}
-
-				return this.position;
+				return intersectionPoint || this.position;
 		}
 	}
 
