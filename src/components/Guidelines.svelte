@@ -146,12 +146,12 @@
 			/>
 		{/if}
 	{/each}
-	<div class="card cardSpacing">
+	<!-- <div class="card cardSpacing">
 		<div class="text-lg font-bold">graphCharacteristics</div>
 		{#each Object.keys(graphCharacteristics) as key}
 			<div class="text-sm">{key} : {graphCharacteristics[key].value}</div>
 		{/each}
-	</div>
+	</div> -->
 </div>
 
 {#if expandedGuideline || isClosing}

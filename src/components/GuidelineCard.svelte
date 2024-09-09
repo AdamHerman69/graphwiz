@@ -69,13 +69,20 @@
 	if (isNewGuideline(guideline)) edit();
 
 	function saveEditedGuideline() {
-		console.log('save');
-		console.log(editedGuideline);
-		console.log(guideline);
-		guideline = $state.snapshot(editedGuideline)!;
+		// guideline = $state.snapshot(editedGuideline)!;
+		guideline.name = $state.snapshot(editedGuideline!.name);
+		guideline.description = $state.snapshot(editedGuideline!.description);
+		guideline.literature = $state.snapshot(editedGuideline!.literature);
+		guideline.recommendations = $state.snapshot(editedGuideline!.recommendations);
+		guideline.rootCondition = $state.snapshot(editedGuideline!.rootCondition);
+
 		editing = false;
 		calculateApplicability(guideline);
 	}
+
+	onMount(() => {
+		guideline.parentDiv = cardParentDiv;
+	});
 </script>
 
 <div

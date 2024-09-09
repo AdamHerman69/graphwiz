@@ -57,7 +57,6 @@
 				{#each recommendations.nodeSettings as ns, index}
 					{#each Object.keys(ns) as key}
 						{#if settingTypes.includes(key)}
-							{console.log('key:', key, ns[key])}
 							<SettingValue
 								setting={ns[key]}
 								rule={index > 0 ? ns.rule : null}
