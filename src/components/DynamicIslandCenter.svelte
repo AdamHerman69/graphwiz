@@ -291,10 +291,59 @@
 			});
 		}
 	});
+
+	// Mouse hover
+	let svgElement: SVGSVGElement;
+	let wasInsideIsland = $state(false);
+
+	let circlePosition = spring(
+		{ x: $islandStyles.x + $islandStyles.width / 2, y: 26, r: 10 },
+		{ stiffness: 0.1, damping: 0.5 }
+	);
+
+	function handleMouseMove(e: MouseEvent) {
+		const svgRect = svgElement.getBoundingClientRect();
+		let mouseX = e.clientX - svgRect.left;
+		let mouseY = e.clientY - svgRect.top;
+
+		if (insideIsland(mouseX, mouseY)) {
+			circlePosition.set({ x: mouseX, y: mouseY, r: 20 });
+			wasInsideIsland = true;
+		} else {
+			circlePosition.set({ x: wasInsideIsland ? mouseX : $circlePosition.x, y: 26, r: 10 });
+			wasInsideIsland = false;
+		}
+		console.log(mouseX, mouseY);
+	}
+
+	function insideIsland(x: number, y: number): boolean {
+		return (
+			(x > $islandStyles.x || x > $leftStickyStyles.x) &&
+			(x < $islandStyles.x + $islandStyles.width ||
+				x < $rightStickyStyles.x + $rightStickyStyles.width) &&
+			y > $islandStyles.y &&
+			y < $islandStyles.y + $islandStyles.height
+		);
+	}
+
+	function resetCircle(e: MouseEvent | null) {
+		console.log('reset');
+		if (!e) {
+			circlePosition.set({ x: SVG_WIDTH / 2, y: 26, r: 10 });
+			wasInsideIsland = false;
+			console.log('reset null');
+			return;
+		}
+		const svgRect = svgElement.getBoundingClientRect();
+		let mouseX = e.clientX - svgRect.left;
+		circlePosition.set({ x: wasInsideIsland ? mouseX : SVG_WIDTH / 2, y: 26, r: 6 });
+		wasInsideIsland = false;
+	}
 </script>
 
-<div class="menuBar relative">
-	<svg width={SVG_WIDTH} height={SVG_HEIGHT}>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="menuBar relative" onmousemove={handleMouseMove} onmouseleave={resetCircle}>
+	<svg bind:this={svgElement} width={SVG_WIDTH} height={SVG_HEIGHT}>
 		<defs>
 			<filter id="split-effect" width="400%" x="-150%" height="400%" y="-150%">
 				<feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
@@ -344,6 +393,7 @@
 						fill="black"
 					/>
 				{/if}
+				<circle cx={$circlePosition.x} cy={$circlePosition.y} r={$circlePosition.r} fill="black" />
 			</g>
 		</g>
 	</svg>
@@ -428,7 +478,10 @@
 					importState={view === 'left'
 						? graphSettingsLeft.importState
 						: graphSettingsRight.importState}
-					closeMenu={() => (menuOpen = null)}
+					closeMenu={() => {
+						menuOpen = null;
+						resetCircle(null);
+					}}
 				/>
 
 				<button class="closeExpanded" onclick={() => (menuOpen = null)}>
@@ -447,18 +500,30 @@
 					<div class="flex-1">
 						<FileImport
 							importState={graphSettingsLeft.importState}
-							closeMenu={() => (menuOpen = null)}
+							closeMenu={() => {
+								menuOpen = null;
+								resetCircle(null);
+							}}
 						/>
 					</div>
 					<div class="flex-1">
 						<FileImport
 							importState={graphSettingsRight.importState}
-							closeMenu={() => (menuOpen = null)}
+							closeMenu={() => {
+								menuOpen = null;
+								resetCircle(null);
+							}}
 						/>
 					</div>
 				</div>
 
-				<button class="closeExpanded" onclick={() => (menuOpen = null)}>
+				<button
+					class="closeExpanded"
+					onclick={() => {
+						menuOpen = null;
+						resetCircle(null);
+					}}
+				>
 					<span class="material-symbols-outlined">close</span>
 				</button>
 			</div>
@@ -565,7 +630,13 @@
 				</div>
 			</div>
 
-			<button class="closeExpanded" onclick={() => (menuOpen = null)}>
+			<button
+				class="closeExpanded"
+				onclick={() => {
+					menuOpen = null;
+					resetCircle(null);
+				}}
+			>
 				<span class="material-symbols-outlined">close</span>
 			</button>
 		</div>
@@ -573,6 +644,10 @@
 </div>
 
 <style>
+	.menuBar {
+		pointer-events: none;
+	}
+
 	button {
 		color: white;
 	}
@@ -581,7 +656,13 @@
 		position: absolute;
 		top: 14px;
 		z-index: 100;
+		transition: transform 0.2s;
 	}
+
+	.menuBarButtons button:hover {
+		transform: scale(1.3);
+	}
+
 	.importDiv,
 	.exportDiv {
 		position: absolute;
