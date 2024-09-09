@@ -121,7 +121,6 @@
 		display: flex;
 		justify-content: flex-start;
 		align-items: center;
-		overflow: hidden;
 	}
 
 	.minimized {
