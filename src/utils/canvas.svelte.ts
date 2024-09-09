@@ -495,10 +495,14 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.sticky = true;
 
 		this.d3nodes.forEach((node, index) => {
+			node.x ??= this.width / 2;
+			node.y ??= this.height / 2;
 			let elkNode = elkNodes.find((n) => n.id === node.id);
 
+			// todo decide animation on size of graph - performance wise - set all performance considerations in graph file
 			if (elkNode) {
 				if (ANIMATE_LAYOUT) {
+					console.log($state.snapshot(node));
 					gsap.to(node, {
 						duration: 1,
 						x: elkNode.x,
