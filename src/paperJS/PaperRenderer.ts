@@ -78,7 +78,7 @@ export class PaperRenderer implements Renderer {
 			node.updateStyle(styles.get(key)!);
 		});
 
-		// if node changes size
+		// if node changes size TODO check
 		this.edges.forEach((edge) => edge.updatePosition());
 	}
 

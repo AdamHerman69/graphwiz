@@ -6,6 +6,7 @@
 	import SettingsSlider from './SettingsSlider.svelte';
 	import SettingsColor from './SettingsColor.svelte';
 	import SettingsNodeLabel from './SettingsNodeLabel.svelte';
+	import SettingsSelect from './SettingsSelect.svelte';
 	import { getContext } from 'svelte';
 
 	let { graphSettings }: { graphSettings: GraphSettings } = getContext('graphSettings');
@@ -40,6 +41,9 @@
 	<div>
 		<Rules rule={nodeSettings.rule} type="node" />
 		<div class="ruleToggleSettings">
+			<button onclick={() => toggleSetting('shape')} class={nodeSettings['shape'] ? 'active' : ''}>
+				<span class="material-symbols-outlined"> shapes </span>
+			</button>
 			<button onclick={() => toggleSetting('size')} class={nodeSettings['size'] ? 'active' : ''}>
 				<span class="material-symbols-outlined"> open_in_full </span>
 			</button>
@@ -68,6 +72,11 @@
 		</div>
 
 		<div use:autoAnimate={{ duration: 300 }} class="settingsContainer">
+			{#if nodeSettings.shape}
+				<div>
+					<SettingsSelect selectSetting={nodeSettings.shape} />
+				</div>
+			{/if}
 			{#if nodeSettings.size}
 				<div>
 					<SettingsSlider numSettings={nodeSettings.size} />

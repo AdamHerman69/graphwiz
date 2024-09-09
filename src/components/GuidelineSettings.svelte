@@ -25,6 +25,7 @@
 	let edgeCollapsed = $state(true);
 
 	const settingTypes = [
+		'shape',
 		'size',
 		'color',
 		'strokeWidth',

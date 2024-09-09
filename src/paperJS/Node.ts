@@ -1,5 +1,5 @@
 import Paper from 'paper';
-import type { NodeLabel, NodeStyle } from '../utils/graphSettings.svelte';
+import type { NodeLabel, NodeStyle, NodeShape } from '../utils/graphSettings.svelte';
 import { toStringGradient } from './Color';
 import { colord } from 'colord';
 
@@ -20,33 +20,42 @@ export interface IPNode {
 
 export class PNode implements IPNode {
 	position: paper.Point;
-	shape: paper.Shape;
+	shape: paper.Shape.Circle | paper.Shape.Rectangle;
 	style: NodeStyle;
 	labels: { pointText: paper.PointText; offset: paper.Point; verticalOffset: paper.Point }[];
 
 	constructor(label: string, x: number, y: number, style: NodeStyle) {
 		this.style = style;
 		this.position = new Paper.Point(x, y);
-		this.shape = new Paper.Shape.Circle(this.position, style.size);
+		this.shape = this.createShape(style.shape, x, y, style.size);
 		this.labels = [];
-
-		// this.label = new Paper.PointText({
-		// 	point: this.position,
-		// 	content: label,
-		// 	fontSize: 5
-		// });
-		// this.label.position = this.label.position.add(
-		// 	new Paper.Point(-this.label.bounds.width / 2, this.label.bounds.height / 4)
-		// );
-
-		// todo updateLabels
 
 		this.updateStyle(style);
 		this.updateLabels2(style.labels);
 	}
 
+	private createShape(
+		shape: NodeShape,
+		x: number,
+		y: number,
+		size: number
+	): paper.Shape.Circle | paper.Shape.Rectangle {
+		if (shape === 'circle') {
+			return new Paper.Shape.Circle(new Paper.Point(x, y), size);
+		} else {
+			return new Paper.Shape.Rectangle({
+				point: new Paper.Point(x - size, y - size),
+				size: new Paper.Size(size * 2, size * 2)
+			});
+		}
+	}
+
 	getFinalRadius(): number {
-		return (this.shape.radius as number) + this.shape.strokeWidth / 2;
+		if (this.shape instanceof Paper.Shape.Circle) {
+			return this.shape.radius + this.shape.strokeWidth / 2;
+		} else {
+			return this.shape.bounds.width / 2 + this.shape.strokeWidth / 2;
+		}
 	}
 
 	updatePosition(newX: number, newY: number) {
@@ -54,35 +63,17 @@ export class PNode implements IPNode {
 		this.position.y = newY;
 		this.shape.position = this.position;
 		this.updateLabelPositions2();
-		// this.label.point = this.position.add(
-		// 	new Paper.Point(-this.label.bounds.width / 2, this.label.bounds.height / 4)
-		// );
 	}
 
-	updateLabelPosition() {
-		for (const [key, label] of Object.entries(this.labels)) {
-			if (label.pointText) {
-				let offsetScaledToSize = label.offset.add(
-					label.offset.normalize().multiply(this.getFinalRadius())
-				);
-				label.pointText.position = this.position.add(offsetScaledToSize);
-			}
-		}
-	}
-
-	// todo support different shapes and stuff
 	updateStyle(style: NodeStyle) {
-		// move labels on size change
-		// if (this.style.size != style.size || this.style.strokeWidth != style.strokeWidth)
-		// 	this.updateLabelPosition();
-
 		this.style = style;
 
-		// handle color
+		// Handle color
 		let color: paper.Color;
 		let stringGradient = toStringGradient(style.color);
-		if (stringGradient.length === 1) color = new Paper.Color(stringGradient[0][0]);
-		else {
+		if (stringGradient.length === 1) {
+			color = new Paper.Color(stringGradient[0][0]);
+		} else {
 			// gradient
 			color = new Paper.Color({
 				gradient: {
@@ -94,7 +85,7 @@ export class PNode implements IPNode {
 			});
 		}
 
-		// apply style
+		// Apply style
 		let strokeColorGradient = toStringGradient(style.strokeColor);
 		this.shape.style = {
 			fillColor: color,
@@ -102,7 +93,7 @@ export class PNode implements IPNode {
 			strokeWidth: style.strokeWidth
 		};
 
-		// apply shadow
+		// Apply shadow
 		if (style.shadow) {
 			this.shape.style.shadowColor = new Paper.Color(0, 0, 0, 0.7);
 			this.shape.style.shadowBlur = 7;
@@ -111,48 +102,33 @@ export class PNode implements IPNode {
 			this.shape.style.shadowBlur = 0;
 		}
 
-		this.shape.radius = style.size;
+		// Update shape and size
+		if (this.shape.constructor !== this.getShapeConstructor(style.shape)) {
+			const newShape = this.createShape(style.shape, this.position.x, this.position.y, style.size);
+			newShape.style = this.shape.style;
+			this.shape.remove();
+			this.shape = newShape;
+		} else {
+			this.updateShapeSize(style.size);
+		}
 
-		// todo optimize, when changing?
 		this.updateLabels2(style.labels);
 	}
 
-	// updateLabels(nodeLabels: NodeLabel[]) {
-	// 	let _labels: {
-	// 		above: NodeLabel[];
-	// 		below: NodeLabel[];
-	// 		left: NodeLabel[];
-	// 		right: NodeLabel[];
-	// 		center: NodeLabel[];
-	// 	} = { above: [], below: [], left: [], right: [], center: [] };
-	// 	if (!nodeLabels) return;
-	// 	nodeLabels.forEach((nodeLabel) => {
-	// 		_labels[nodeLabel.position].push(nodeLabel);
-	// 	});
+	private getShapeConstructor(
+		shape: NodeShape
+	): typeof Paper.Shape.Circle | typeof Paper.Shape.Rectangle {
+		return shape === 'circle' ? Paper.Shape.Circle : Paper.Shape.Rectangle;
+	}
 
-	// 	for (const [key, nodeLabels] of Object.entries(_labels)) {
-	// 		if (nodeLabels.length === 0) {
-	// 			this.labels[key].pointText?.remove();
-	// 		} else {
-	// 			let text = '';
-	// 			nodeLabels.forEach((nodeLabel, index) => {
-	// 				text = text + nodeLabel.text;
-	// 				if (index < nodeLabels.length - 1) text = text + '\n';
-	// 			});
-
-	// 			if (!Object.hasOwn(this.labels[key], 'pointText')) {
-	// 				// position map or something
-	// 				this.labels[key].pointText = new Paper.PointText({
-	// 					content: text,
-	// 					fontSize: nodeLabels[0].size,
-	// 					fillColor: nodeLabels[0].color
-	// 				});
-	// 				console.log('creted label: ', this.labels[key]);
-	// 			}
-	// 			this.labels[key].pointText.content = text;
-	// 		}
-	// 	}
-	// }
+	private updateShapeSize(size: number) {
+		if (this.shape instanceof Paper.Shape.Circle) {
+			this.shape.radius = size;
+		} else {
+			this.shape.bounds.size = new Paper.Size(size * 2, size * 2);
+			this.shape.position = this.position;
+		}
+	}
 
 	calculateVerticalOffset(total: number, rank: number, position: string) {
 		if (total === 1) return 0;

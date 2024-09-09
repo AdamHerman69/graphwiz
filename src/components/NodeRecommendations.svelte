@@ -8,6 +8,7 @@
 	import SettingsNodeLabel from './SettingsNodeLabel.svelte';
 	import { getContext } from 'svelte';
 	import { node } from 'graphology-metrics';
+	import SettingsSelect from './SettingsSelect.svelte';
 
 	let { nodeSettings }: { nodeSettings: NodeSettings[] } = $props();
 
@@ -39,6 +40,12 @@
 		{/if}
 	</div>
 	<div class="ruleToggleSettings">
+		<button
+			onclick={() => toggleSetting(nodeSettings, 'shape')}
+			class={nodeSettings['shape'] ? 'active' : ''}
+		>
+			<span class="material-symbols-outlined"> shapes </span>
+		</button>
 		<button
 			onclick={() => toggleSetting(nodeSettings, 'size')}
 			class={nodeSettings['size'] ? 'active' : ''}
@@ -73,6 +80,11 @@
 	</div>
 
 	<div use:autoAnimate={{ duration: 300 }} class="settingsContainer">
+		{#if nodeSettings.shape}
+			<div>
+				<SettingsSelect selectSetting={nodeSettings.shape} />
+			</div>
+		{/if}
 		{#if nodeSettings.size}
 			<div>
 				<SettingsSlider numSettings={nodeSettings.size} />

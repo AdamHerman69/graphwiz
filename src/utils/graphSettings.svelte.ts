@@ -78,10 +78,20 @@ export type NodeProperties = {
 	strokeWidth?: NumericalSetting;
 	strokeColor?: ColorSetting;
 	labels?: NodeLabel[];
-	// todo shape?
+	shape?: SelectSetting<NodeShape>;
 };
 
-const nodeSettingsTypes = ['size', 'color', 'strokeWidth', 'strokeColor', 'labels'] as const;
+const nodeShapes = ['circle', 'square'] as const;
+export type NodeShape = (typeof nodeShapes)[number];
+
+const nodeSettingsTypes = [
+	'shape',
+	'size',
+	'color',
+	'strokeWidth',
+	'strokeColor',
+	'labels'
+] as const;
 export type NodeSettingsName = (typeof nodeSettingsTypes)[number];
 
 const edgeSettingsTypes = [
@@ -155,6 +165,7 @@ export const edgeSettingsDefaults: EdgeProperties = {
 } as const;
 
 export const nodeSettingsDefaults: NodeProperties = {
+	shape: { name: 'shape', values: Array.from(nodeShapes), value: 'circle', source: null },
 	size: { name: 'size', value: 5, min: 1, max: 10, source: null },
 	color: { name: 'color', value: [[{ r: 80, g: 220, b: 180, a: 1 }, 1]], source: null },
 	strokeWidth: { name: 'strokeWidth', value: 1, min: 0, max: 10, source: null },
@@ -454,6 +465,7 @@ export function isValidSettings(object: any): boolean {
 
 // Types for renderer
 export type NodeStyle = {
+	shape: NodeShape;
 	size: number;
 	color: Gradient;
 	strokeWidth: number;
@@ -484,6 +496,7 @@ export function getNodeStyle(id: string, nodeSettings: NodeSettings[]): NodeStyl
 	// TODO BIG BUG says it's undefined while still running evalRule
 	nodeSettings.forEach((ns, index) => {
 		if (ns.rule === undefined || evalRule(ns.rule!, id)) {
+			if (ns.shape) chosenSettings['shape'] = ns.shape;
 			if (ns.size) chosenSettings['size'] = ns.size;
 			if (ns.color) chosenSettings['color'] = ns.color;
 			if (ns.strokeWidth) chosenSettings['strokeWidth'] = ns.strokeWidth;

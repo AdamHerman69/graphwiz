@@ -68,10 +68,12 @@
 		width: 'line_weight',
 		partialStart: 'step_into',
 		partialEnd: 'step_out',
-		decorators: 'interests'
+		decorators: 'interests',
+		shape: 'shapes'
 	};
 
 	const settingTypes = {
+		shape: 'string',
 		size: 'number',
 		color: 'color',
 		strokeWidth: 'number',
@@ -112,7 +114,7 @@
 		<span class="material-symbols-outlined">{settingIcons[setting.name]}</span>
 	</div>
 	<div class="valueDisplay" bind:clientWidth={valueDisplayWidth}>
-		{#if settingTypes[setting.name] === 'number'}
+		{#if settingTypes[setting.name] === 'number' || settingTypes[setting.name] === 'string'}
 			<div>{setting.value}</div>
 		{/if}
 		{#if settingTypes[setting.name] === 'label'}

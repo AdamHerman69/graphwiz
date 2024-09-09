@@ -9,6 +9,7 @@
 	import { setContext } from 'svelte';
 	import { availableAttributes } from '../utils/graph.svelte';
 	import { getContext } from 'svelte';
+	import SettingsSelect from './SettingsSelect.svelte';
 
 	let { side }: { side: 'left' | 'right' } = $props();
 	setContext('side', side);
@@ -48,6 +49,7 @@
 				<SettingsHeader title="node" bind:collapsed />
 				<!-- Settings -->
 				{#if !collapsed}
+					<SettingsSelect selectSetting={setting.shape!} />
 					<SettingsSlider numSettings={setting.size!} />
 					<SettingsColor colorSetting={setting.color!} />
 					<SettingsSlider numSettings={setting.strokeWidth!} />
