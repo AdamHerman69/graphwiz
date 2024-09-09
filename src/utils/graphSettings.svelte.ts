@@ -81,7 +81,7 @@ export type NodeProperties = {
 	shape?: SelectSetting<NodeShape>;
 };
 
-const nodeShapes = ['circle', 'square'] as const;
+const nodeShapes = ['circle', 'square', 'triangle'] as const;
 export type NodeShape = (typeof nodeShapes)[number];
 
 const nodeSettingsTypes = [

@@ -1,5 +1,5 @@
 import Paper from 'paper';
-import type { NodeLabel, NodeStyle, NodeShape } from '../utils/graphSettings.svelte';
+import type { NodeLabel, NodeStyle } from '../utils/graphSettings.svelte';
 import { toStringGradient } from './Color';
 import { colord } from 'colord';
 
@@ -11,16 +11,20 @@ const labelOffsets = {
 	center: new Paper.Point(0, 0)
 };
 
+// Update NodeShape type to include 'triangle'
+export type NodeShape = 'circle' | 'square' | 'triangle';
+
 export interface IPNode {
 	position: paper.Point;
 	getFinalRadius(): number;
 	updatePosition(newX: number, newY: number): void;
 	updateStyle(style: NodeStyle): void;
+	getConnectionPoint(direction: paper.Point): paper.Point;
 }
 
 export class PNode implements IPNode {
 	position: paper.Point;
-	shape: paper.Shape.Circle | paper.Shape.Rectangle;
+	shape: paper.Shape.Circle | paper.Shape.Rectangle | paper.Path;
 	style: NodeStyle;
 	labels: { pointText: paper.PointText; offset: paper.Point; verticalOffset: paper.Point }[];
 
@@ -39,23 +43,131 @@ export class PNode implements IPNode {
 		x: number,
 		y: number,
 		size: number
-	): paper.Shape.Circle | paper.Shape.Rectangle {
-		if (shape === 'circle') {
-			return new Paper.Shape.Circle(new Paper.Point(x, y), size);
-		} else {
-			return new Paper.Shape.Rectangle({
-				point: new Paper.Point(x - size, y - size),
-				size: new Paper.Size(size * 2, size * 2)
-			});
+	): paper.Shape.Circle | paper.Shape.Rectangle | paper.Path {
+		switch (shape) {
+			case 'circle':
+				return new Paper.Shape.Circle(new Paper.Point(x, y), size);
+			case 'square':
+				return new Paper.Shape.Rectangle({
+					point: new Paper.Point(x - size, y - size),
+					size: new Paper.Size(size * 2, size * 2)
+				});
+			case 'triangle':
+				const height = size * Math.sqrt(3);
+				const path = new Paper.Path({
+					segments: [
+						[x, y - height / 2],
+						[x - size, y + height / 2],
+						[x + size, y + height / 2]
+					],
+					closed: true
+				});
+				path.position = new Paper.Point(x, y);
+				return path;
+		}
+	}
+
+	private lineIntersection(
+		p1: paper.Point,
+		p2: paper.Point,
+		p3: paper.Point,
+		p4: paper.Point
+	): paper.Point | null {
+		const dx1 = p2.x - p1.x;
+		const dy1 = p2.y - p1.y;
+		const dx2 = p4.x - p3.x;
+		const dy2 = p4.y - p3.y;
+
+		const denominator = dy2 * dx1 - dx2 * dy1;
+
+		if (denominator === 0) {
+			return null; // Lines are parallel
+		}
+
+		const ua = (dx2 * (p1.y - p3.y) - dy2 * (p1.x - p3.x)) / denominator;
+		return new Paper.Point(p1.x + ua * dx1, p1.y + ua * dy1);
+	}
+
+	private nearestPointOnLine(
+		lineStart: paper.Point,
+		lineEnd: paper.Point,
+		direction: paper.Point
+	): paper.Point {
+		const lineVector = lineEnd.subtract(lineStart);
+		const t = direction.dot(lineVector) / lineVector.dot(lineVector);
+		return lineStart.add(lineVector.multiply(Math.max(0, Math.min(1, t))));
+	}
+
+	getConnectionPoint(direction: paper.Point): paper.Point {
+		const normalizedDirection = direction.normalize();
+		const strokeOffset = this.style.strokeWidth / 2;
+
+		switch (this.style.shape) {
+			case 'circle':
+				return this.position.add(normalizedDirection.multiply(this.getFinalRadius()));
+
+			case 'square':
+				const halfSize = this.style.size + strokeOffset;
+				const dx = Math.abs(normalizedDirection.x);
+				const dy = Math.abs(normalizedDirection.y);
+
+				if (dx > dy) {
+					return this.position.add(
+						new Paper.Point(
+							Math.sign(normalizedDirection.x) * halfSize,
+							normalizedDirection.y * (halfSize / dx)
+						)
+					);
+				} else {
+					return this.position.add(
+						new Paper.Point(
+							normalizedDirection.x * (halfSize / dy),
+							Math.sign(normalizedDirection.y) * halfSize
+						)
+					);
+				}
+
+			case 'triangle':
+				const size = this.getFinalRadius();
+				const height = size * Math.sqrt(3);
+
+				// Calculate the three corners of the triangle
+				const top = new Paper.Point(0, (-2 * height) / 3);
+				const bottomLeft = new Paper.Point(-size, height / 3);
+				const bottomRight = new Paper.Point(size, height / 3);
+
+				// Rotate the direction vector to match the triangle's orientation
+				const rotatedDirection = normalizedDirection.rotate(-this.shape.rotation);
+
+				// Calculate intersection with each edge
+				const intersections = [
+					this.lineIntersection(new Paper.Point(0, 0), rotatedDirection, bottomLeft, bottomRight),
+					this.lineIntersection(new Paper.Point(0, 0), rotatedDirection, top, bottomLeft),
+					this.lineIntersection(new Paper.Point(0, 0), rotatedDirection, top, bottomRight)
+				].filter(Boolean) as paper.Point[];
+
+				// Find the intersection point in the correct direction and closest to the origin
+				const intersectionPoint = intersections.reduce(
+					(closest, current) => {
+						return current.dot(rotatedDirection) > 0 &&
+							(!closest || current.length < closest.length)
+							? current
+							: closest;
+					},
+					null as Paper.Point | null
+				);
+
+				if (intersectionPoint) {
+					// Rotate back and adjust for the node's position
+					return this.position.add(intersectionPoint.rotate(this.shape.rotation));
+				}
+
+				return this.position;
 		}
 	}
 
 	getFinalRadius(): number {
-		if (this.shape instanceof Paper.Shape.Circle) {
-			return this.shape.radius + this.shape.strokeWidth / 2;
-		} else {
-			return this.shape.bounds.width / 2 + this.shape.strokeWidth / 2;
-		}
+		return this.style.size + this.style.strokeWidth / 2;
 	}
 
 	updatePosition(newX: number, newY: number) {
@@ -117,15 +229,30 @@ export class PNode implements IPNode {
 
 	private getShapeConstructor(
 		shape: NodeShape
-	): typeof Paper.Shape.Circle | typeof Paper.Shape.Rectangle {
-		return shape === 'circle' ? Paper.Shape.Circle : Paper.Shape.Rectangle;
+	): typeof Paper.Shape.Circle | typeof Paper.Shape.Rectangle | typeof Paper.Path {
+		switch (shape) {
+			case 'circle':
+				return Paper.Shape.Circle;
+			case 'square':
+				return Paper.Shape.Rectangle;
+			case 'triangle':
+				return Paper.Path;
+		}
 	}
 
 	private updateShapeSize(size: number) {
 		if (this.shape instanceof Paper.Shape.Circle) {
 			this.shape.radius = size;
-		} else {
+		} else if (this.shape instanceof Paper.Shape.Rectangle) {
 			this.shape.bounds.size = new Paper.Size(size * 2, size * 2);
+			this.shape.position = this.position;
+		} else if (this.shape instanceof Paper.Path) {
+			const height = size * Math.sqrt(3);
+			this.shape.segments = [
+				new Paper.Segment(new Paper.Point(0, -height / 2)),
+				new Paper.Segment(new Paper.Point(-size, height / 2)),
+				new Paper.Segment(new Paper.Point(size, height / 2))
+			];
 			this.shape.position = this.position;
 		}
 	}
@@ -166,21 +293,26 @@ export class PNode implements IPNode {
 			);
 
 			if (index >= this.labels.length) {
+				const pointText = new Paper.PointText({
+					content: label.text,
+					fontSize: label.size,
+					fillColor: colord(label.color).toRgbString()
+				});
 				this.labels.push({
-					pointText: new Paper.PointText({
-						content: label.text,
-						fontSize: label.size,
-						fillColor: colord(label.color).toRgbString()
-					}),
+					pointText: pointText,
 					verticalOffset: verticalOffset,
 					offset: labelOffsets[label.position]
 				});
+				// Ensure the new label is on top
+				pointText.bringToFront();
 			} else {
 				this.labels[index].pointText.content = label.text;
 				this.labels[index].pointText.fontSize = label.size;
 				this.labels[index].pointText.fillColor = new Paper.Color(colord(label.color).toRgbString());
 				this.labels[index].offset = labelOffsets[label.position];
 				this.labels[index].verticalOffset = verticalOffset;
+				// Ensure existing label is on top
+				this.labels[index].pointText.bringToFront();
 			}
 
 			labelPositions[label.position].rank++;
@@ -200,6 +332,8 @@ export class PNode implements IPNode {
 			);
 			let finalOffset = offsetScaledToSize.add(labelObject.verticalOffset);
 			labelObject.pointText.position = this.position.add(finalOffset);
+			// Ensure label is always on top after repositioning
+			labelObject.pointText.bringToFront();
 		});
 	}
 }
