@@ -561,7 +561,7 @@
 			<div class="optionContainer">
 				<div class="heading">svg</div>
 				<div class="description">Export the visualization as a scalable vector graphic file.</div>
-				<div class="flex justify-between w-full h-full align-bottom">
+				<div class="flex gap-1 w-full h-full align-bottom">
 					<button
 						onclick={async () => {
 							downloadFile(
@@ -589,7 +589,7 @@
 			<div class="optionContainer">
 				<div class="heading">settings</div>
 				<div class="description">Export the visualization settings alone.</div>
-				<div class="flex justify-between w-full h-full align-bottom">
+				<div class="flex gap-1 w-full h-full align-bottom">
 					<button
 						onclick={() => {
 							let gs = view === 'right' ? graphSettingsRight : graphSettingsLeft;
@@ -621,7 +621,7 @@
 				<div class="heading">full state</div>
 				<div class="description">Export the complete state of your session.</div>
 
-				<div class="flex justify-between w-full h-full align-bottom">
+				<div class="flex gap-1 w-full h-full align-bottom">
 					<button
 						onclick={() => {
 							let gs = view === 'right' ? graphSettingsRight : graphSettingsLeft;
