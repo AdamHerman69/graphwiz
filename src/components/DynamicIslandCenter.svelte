@@ -50,6 +50,10 @@
 		delay: 0,
 		duration: 100
 	};
+	const blurParamsIn = {
+		delay: 150,
+		duration: 100
+	};
 
 	const SVG_WIDTH = 520;
 	const SVG_HEIGHT = 240;
@@ -441,7 +445,7 @@
 				{#each buttons['left'] as button, index}
 					{#if index != 0}
 						<button
-							transition:blur
+							transition:blur|global
 							onclick={button.action}
 							style={`left: ${getButtonPosition(index)}px`}
 						>
@@ -454,7 +458,7 @@
 				{#each buttons['right'] as button, index}
 					{#if index != buttons['right'].length - 1}
 						<button
-							transition:blur
+							transition:blur|global
 							onclick={button.action}
 							style={`left: ${getButtonPosition(index)}px`}
 						>
@@ -467,7 +471,7 @@
 				{#each buttons['double'] as button, index}
 					{#if index != buttons['double'].length - 1 && index != 0}
 						<button
-							transition:blur
+							transition:blur|global
 							onclick={button.action}
 							style={`left: ${getButtonPosition(index)}px`}
 						>
@@ -481,7 +485,7 @@
 		<!-- Sticky Right -->
 		{#if (view === 'right' || view === 'double') && (stickyRight || !menuOpen)}
 			<button
-				transition:blur
+				transition:blur|global
 				onclick={() => (stickyRight = !stickyRight)}
 				style={`left: ${RIGHT_STICKY_X_MIDDLE - BUTTON_WIDTH / 2}px;`}
 				disabled={graphSettingsRight.graphSettings.layout.value != 'force-graph'}
@@ -492,7 +496,7 @@
 		<!-- Sticky Left -->
 		{#if (view === 'left' || view === 'double') && (stickyLeft || !menuOpen)}
 			<button
-				transition:blur
+				transition:blur|global
 				onclick={() => (stickyLeft = !stickyLeft)}
 				style={`left: ${LEFT_STICKY_X_MIDDLE - BUTTON_WIDTH / 2}px;`}
 				disabled={graphSettingsLeft.graphSettings.layout.value != 'force-graph'}
@@ -506,7 +510,7 @@
 	{#if menuOpen === 'import'}
 		{#if view != 'double'}
 			<div
-				transition:blur
+				transition:blur|global
 				class="importDiv"
 				style={`width: ${ISLAND_EXPANDED_WIDTH - 2 * ISLAND_X_MARGIN}px; height: ${
 					ISLAND_EXPANDED_HEIGHT - 2 * ISLAND_X_MARGIN
@@ -525,7 +529,7 @@
 			</div>
 		{:else}
 			<div
-				transition:blur
+				transition:blur|global
 				class="importDiv"
 				style={`width: ${ISLAND_EXPANDED_WIDTH - 2 * ISLAND_X_MARGIN}px; height: ${
 					ISLAND_EXPANDED_HEIGHT - 2 * ISLAND_X_MARGIN
@@ -548,7 +552,7 @@
 	{/if}
 	{#if menuOpen === 'export'}
 		<div
-			transition:blur
+			transition:blur|global
 			class="exportDiv"
 			style={`width: ${ISLAND_EXPANDED_WIDTH - 2 * ISLAND_X_MARGIN}px; height: ${
 				ISLAND_EXPANDED_HEIGHT - 2 * ISLAND_X_MARGIN
