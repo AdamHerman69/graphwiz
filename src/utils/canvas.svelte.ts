@@ -19,6 +19,7 @@ import { greadability } from '$lib/greadability/greadability';
 import { type ILayoutProvieder, ElkLayoutProvider, type NodePositions } from './elk.svelte';
 import { spring } from 'svelte/motion';
 import gsap from 'gsap';
+import { get } from 'svelte/store';
 
 const ANIMATE_LAYOUT = true;
 
@@ -358,12 +359,32 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		} else this.draggedLocal(dragEvent);
 	}
 
+	getEventCoords(event: MouseEvent | TouchEvent): { x: number; y: number } {
+		let x, y;
+		if (event.touches) {
+			event = event as TouchEvent;
+			x = event.touches[0].clientX;
+			y = event.touches[0].clientY;
+		} else {
+			event = event as MouseEvent;
+			x = event.clientX;
+			y = event.clientY;
+		}
+
+		return { x: x, y: y };
+	}
+
 	draggedWorker(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
 		let draggedNode = dragEvent.subject;
 
 		let rect = this.canvas.getBoundingClientRect();
-		let x = dragEvent.sourceEvent.clientX - rect.left;
-		let y = dragEvent.sourceEvent.clientY - rect.top;
+		console.log(dragEvent.sourceEvent);
+		console.log(dragEvent.sourceEvent.clientX);
+
+		let { x, y } = this.getEventCoords(dragEvent.sourceEvent);
+
+		x = x - rect.left;
+		y = y - rect.top;
 
 		draggedNode.fx = this.transform.invertX(x);
 		draggedNode.fy = this.transform.invertY(y);
@@ -384,8 +405,9 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		let draggedNode = dragEvent.subject;
 
 		let rect = this.canvas.getBoundingClientRect();
-		let x = dragEvent.sourceEvent.clientX - rect.left;
-		let y = dragEvent.sourceEvent.clientY - rect.top;
+		let { x, y } = this.getEventCoords(dragEvent.sourceEvent);
+		x = x - rect.left;
+		y = y - rect.top;
 
 		draggedNode.x = this.transform.invertX(x);
 		draggedNode.y = this.transform.invertY(y);
