@@ -52,7 +52,7 @@
 	};
 
 	const SVG_WIDTH = 520;
-	const SVG_HEIGHT = 220;
+	const SVG_HEIGHT = 240;
 
 	const buttons = {
 		left: [
@@ -306,14 +306,15 @@
 		let mouseX = e.clientX - svgRect.left;
 		let mouseY = e.clientY - svgRect.top;
 
-		if (insideIsland(mouseX, mouseY) === 'main' || 'stickyLeft' || 'stickyRight') {
-			circlePosition.set({ x: mouseX, y: mouseY, r: 20 });
+		let position = insideIsland(mouseX, mouseY);
+
+		if (position === 'main' || 'stickyLeft' || 'stickyRight') {
+			circlePosition.set({ x: mouseX, y: mouseY, r: position === 'main' ? 20 : 18 });
 			wasInsideIsland = true;
 		} else {
 			circlePosition.set({ x: wasInsideIsland ? mouseX : $circlePosition.x, y: 36, r: 10 });
 			wasInsideIsland = false;
 		}
-		console.log(mouseX, mouseY);
 	}
 
 	function insideIsland(x: number, y: number): 'main' | 'stickyLeft' | 'stickyRight' | 'outside' {
@@ -341,16 +342,13 @@
 		)
 			return 'stickyRight';
 
-		// TODO - differentiate left and right sticky and apply it in resetCircle
 		return 'outside';
 	}
 
 	function resetCircle(e: MouseEvent | null) {
-		console.log('reset');
 		if (!e) {
 			circlePosition.set({ x: SVG_WIDTH / 2, y: 36, r: 10 });
 			wasInsideIsland = false;
-			console.log('reset null');
 			return;
 		}
 
@@ -373,6 +371,11 @@
 			circlePosition.set({ x: SVG_WIDTH / 2, y: 36, r: 6 });
 			wasInsideIsland = false;
 		}
+	}
+
+	function closeMenu() {
+		menuOpen = null;
+		resetCircle(null);
 	}
 </script>
 
@@ -513,13 +516,10 @@
 					importState={view === 'left'
 						? graphSettingsLeft.importState
 						: graphSettingsRight.importState}
-					closeMenu={() => {
-						menuOpen = null;
-						resetCircle(null);
-					}}
+					{closeMenu}
 				/>
 
-				<button class="closeExpanded" onclick={() => (menuOpen = null)}>
+				<button class="closeExpanded" onclick={closeMenu}>
 					<span class="material-symbols-outlined">close</span>
 				</button>
 			</div>
@@ -533,32 +533,14 @@
 			>
 				<div class="flex h-full">
 					<div class="flex-1">
-						<FileImport
-							importState={graphSettingsLeft.importState}
-							closeMenu={() => {
-								menuOpen = null;
-								resetCircle(null);
-							}}
-						/>
+						<FileImport importState={graphSettingsLeft.importState} {closeMenu} />
 					</div>
 					<div class="flex-1">
-						<FileImport
-							importState={graphSettingsRight.importState}
-							closeMenu={() => {
-								menuOpen = null;
-								resetCircle(null);
-							}}
-						/>
+						<FileImport importState={graphSettingsRight.importState} {closeMenu} />
 					</div>
 				</div>
 
-				<button
-					class="closeExpanded"
-					onclick={() => {
-						menuOpen = null;
-						resetCircle(null);
-					}}
-				>
+				<button class="closeExpanded" onclick={closeMenu}>
 					<span class="material-symbols-outlined">close</span>
 				</button>
 			</div>
@@ -665,13 +647,7 @@
 				</div>
 			</div>
 
-			<button
-				class="closeExpanded"
-				onclick={() => {
-					menuOpen = null;
-					resetCircle(null);
-				}}
-			>
+			<button class="closeExpanded" onclick={closeMenu}>
 				<span class="material-symbols-outlined">close</span>
 			</button>
 		</div>
@@ -685,17 +661,20 @@
 
 	button {
 		color: white;
+		transition: transform 0.2s;
+	}
+
+	button:hover {
+		transform: scale(1.3);
 	}
 
 	.menuBarButtons button {
 		position: absolute;
 		top: 24px;
 		z-index: 100;
-		transition: transform 0.2s;
 	}
 
 	.menuBarButtons button:hover {
-		transform: scale(1.3);
 	}
 
 	.importDiv,
