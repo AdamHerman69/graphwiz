@@ -25,6 +25,7 @@
 	import { type ICanvasHandler, WebWorkerCanvasHandler } from '../utils/canvas.svelte';
 	import { blur } from 'svelte/transition';
 	import GraphCharacteristics from '../components/GraphCharacteristics.svelte';
+	import { getEventCoords } from '../utils/helperFunctions';
 
 	let graphSettingsLeft = new GraphSettingsClass();
 	let graphSettingsRight: GraphSettingsClass = new GraphSettingsClass();
@@ -111,24 +112,35 @@
 	let dragStartLeftWidth = 0;
 
 	let dragStartX: number;
-	function dragStart(e: MouseEvent) {
-		dragStartX = e.clientX;
+	function dragStart(e: MouseEvent | TouchEvent) {
+		dragStartX = e instanceof MouseEvent ? e.clientX : e.touches[0].clientX;
 		dragStartLeftWidth = width.left;
 
-		document.addEventListener('mousemove', doDrag);
-		document.addEventListener('mouseup', stopDrag);
+		if (e instanceof MouseEvent) {
+			document.addEventListener('mousemove', doDrag);
+			document.addEventListener('mouseup', stopDrag);
+		} else {
+			document.addEventListener('touchmove', doDrag);
+			document.addEventListener('touchend', stopDrag);
+		}
 	}
 
-	function doDrag(e: MouseEvent) {
-		const deltaX = e.clientX - dragStartX;
+	function doDrag(e: MouseEvent | TouchEvent) {
+		const currentX = e instanceof MouseEvent ? e.clientX : e.touches[0].clientX;
+		const deltaX = currentX - dragStartX;
 		const deltaPercentage = (deltaX / fullWidth) * 100;
 		width.left = dragStartLeftWidth + deltaPercentage;
 		width.right = 100 - width.left;
 	}
 
-	function stopDrag() {
-		document.removeEventListener('mousemove', doDrag);
-		document.removeEventListener('mouseup', stopDrag);
+	function stopDrag(e: MouseEvent | TouchEvent) {
+		if (e instanceof MouseEvent) {
+			document.removeEventListener('mousemove', doDrag);
+			document.removeEventListener('mouseup', stopDrag);
+		} else {
+			document.removeEventListener('touchmove', doDrag);
+			document.removeEventListener('touchend', stopDrag);
+		}
 	}
 
 	// function dividerHover(e: MouseEvent) {
@@ -189,7 +201,13 @@
 
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
-			<svg class="divider" onmousedown={dragStart} height="100%" width="19">
+			<svg
+				class="divider"
+				onmousedown={dragStart}
+				ontouchstart={dragStart}
+				height="100%"
+				width="19"
+			>
 				<!-- <defs>
 					<filter id="split-effect" width="400%" x="-150%" height="400%" y="-150%">
 						<feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
