@@ -24,7 +24,7 @@
 					{/each}
 				</select>
 			{:else}
-				<div>{stringCondition.property}</div>
+				<div class="uppercase">{stringCondition.property}</div>
 			{/if}
 		</div>
 		{#if editable}

@@ -6,6 +6,7 @@
 	import StringCondition from './StringCondition.svelte';
 	import NumericCondition from './NumericCondition.svelte';
 	import CompositeCondition from './CompositeCondition.svelte';
+	import IconValueDisplay from './GUI/IconValueDisplay.svelte';
 
 	let {
 		weightedCondition = $bindable(),
@@ -23,19 +24,32 @@
 	}
 </script>
 
-<div class="flex mb-1">
-	<div class="pr-4 flex items-center">
-		<span class="material-symbols-outlined text-xs"> scale </span>
-		{#if editable}
-			<input type="number" bind:value={weightedCondition.weight} min="1" />
-			<button onclick={deleteFunction}>
-				<span class="material-symbols-outlined text-xs">close</span>
-			</button>
-		{:else}
-			<div>{weightedCondition.weight}</div>
-		{/if}
+{#snippet stringDisplay(text: string)}
+	{text}
+{/snippet}
+
+<div class="flex mb-1 w-full">
+	<div class="pr-4 flex items-center weight">
+		<!-- <IconValueDisplay
+			icon="scale"
+			content={stringDisplay}
+			data={weightedCondition.weight.toString()}
+		/> -->
+		<div class="bubble">
+			{#if editable}
+				<input type="number" bind:value={weightedCondition.weight} min="1" />
+			{:else}
+				<div class="weightNumber">{weightedCondition.weight}</div>
+			{/if}
+			<span class="material-symbols-outlined"> scale </span>
+			{#if editable}
+				<button onclick={deleteFunction}>
+					<span class="material-symbols-outlined text-xs">close</span>
+				</button>
+			{/if}
+		</div>
 	</div>
-	<div class="flex-1 py-1">
+	<div class="flex-1 py-1 w-full">
 		{#if weightedCondition.condition.type === 'boolean'}
 			<BooleanCondition
 				bind:booleanCondition={weightedCondition.condition}
@@ -78,7 +92,7 @@
 	}
 
 	input {
-		width: 30px;
+		width: 40px;
 		padding: 5px;
 	}
 
@@ -86,5 +100,25 @@
 		background-color: transparent;
 		user-select: none; /* Prevent text selection */
 		outline: none; /* Remove the default outline */
+	}
+
+	.weight span {
+		font-size: 16px;
+	}
+
+	.weight .weightNumber {
+		font-size: 15px;
+		font-weight: bold;
+	}
+
+	.weight .bubble {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		border-radius: 8px;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		padding: 5px;
+		margin: 5px 0px 2px 0px;
 	}
 </style>

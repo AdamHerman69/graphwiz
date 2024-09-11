@@ -24,7 +24,7 @@
 				{/each}
 			</select>
 		{:else}
-			<div>{rangeCondition.property}</div>
+			<div class="uppercase">{rangeCondition.property}</div>
 			<span class="material-symbols-outlined">
 				{graphCharacteristics[rangeCondition.property]?.value as number>= rangeCondition.min! &&
 				graphCharacteristics[rangeCondition.property]?.value as number <= rangeCondition.max!

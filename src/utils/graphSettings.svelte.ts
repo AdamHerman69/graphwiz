@@ -278,6 +278,7 @@ export class GraphSettingsClass {
 
 		if (nodeSettings) {
 			nodeSettings = $state.snapshot(nodeSettings);
+			if (nodeSettings[0].shape) this.graphSettings.nodeSettings[0].shape = nodeSettings[0].shape;
 			if (nodeSettings[0].size) this.graphSettings.nodeSettings[0].size = nodeSettings[0].size;
 			if (nodeSettings[0].color) this.graphSettings.nodeSettings[0].color = nodeSettings[0].color;
 			if (nodeSettings[0].strokeWidth)

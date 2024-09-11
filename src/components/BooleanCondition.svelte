@@ -24,7 +24,7 @@
 					{/each}
 				</select>
 			{:else}
-				<div>{booleanCondition.property}</div>
+				<div class="uppercase">{booleanCondition.property}</div>
 			{/if}
 		</div>
 		<div>

@@ -186,7 +186,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
-		overflow: scroll;
+		overflow-y: scroll;
+		overflow-x: hidden;
 	}
 
 	input,

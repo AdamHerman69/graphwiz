@@ -107,7 +107,7 @@
 <div class="flex-col w-full">
 	<div class="flex justify-between">
 		<div>
-			<div>composite</div>
+			<div class="uppercase">composite</div>
 		</div>
 		<div>
 			<button bind:this={collapseButton} onclick={collapse} class="w-5 h-5 pt-1" />
@@ -120,7 +120,7 @@
 			weightNormalized={weightedCondition.weightNormalized}
 		/>
 	{/if}
-	<div use:autoAnimate>
+	<div use:autoAnimate class="w-full">
 		{#if !collapsed}
 			{#each compositeCondition.conditions.sort((a, b) => b.scoreWeighted - a.scoreWeighted) as wc, index (wc.GUIID)}
 				<WeightedCondition
@@ -135,7 +135,7 @@
 		{/if}
 		{#if editable}
 			<div class="border-b border-gray-200"></div>
-			<div class="flex mb-1 gap-1">
+			<div class="flex mb-1 gap-1 w-full">
 				<span class="material-symbols-outlined text-xs"> add </span>
 				<button onclick={() => addCondition('boolean')}
 					><HoverButton icon="check_box" text="boolean" />

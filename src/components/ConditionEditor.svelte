@@ -85,7 +85,7 @@
 				></div>
 			{/each}
 			<div class="border-b border-gray-200"></div>
-			<div class="flex mb-1 gap-1">
+			<div class="flex mb-1 gap-1 overflow-scroll">
 				<span class="material-symbols-outlined text-xs"> add </span>
 				<button onclick={() => addCondition('boolean')}
 					><HoverButton icon="check_box" text="boolean" />

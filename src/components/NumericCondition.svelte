@@ -25,7 +25,7 @@
 					{/each}
 				</select>
 			{:else}
-				<div>{numericCondition.property}</div>
+				<div class="uppercase">{numericCondition.property}</div>
 			{/if}
 
 			{#if editable}
@@ -96,3 +96,9 @@
 		/>
 	{/if}
 </div>
+
+<style>
+	span {
+		font-size: 18px;
+	}
+</style>

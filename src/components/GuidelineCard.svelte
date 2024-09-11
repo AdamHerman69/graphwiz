@@ -168,6 +168,8 @@
 	.bottomRow button {
 		padding: 5px 10px;
 		border-radius: 10px;
+		text-transform: uppercase;
+		font-weight: bold;
 	}
 
 	.conflictButton {

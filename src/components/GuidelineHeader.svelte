@@ -8,6 +8,7 @@
 	import lottie, { type AnimationItem } from 'lottie-web';
 	import { onMount } from 'svelte';
 	import { hoverPopup } from './GUI/HoverPopup.svelte';
+	import IconValueDisplay from './GUI/IconValueDisplay.svelte';
 
 	let { guideline }: { guideline: Guideline } = $props();
 
@@ -39,7 +40,7 @@
 
 <div class="flex justify-between align-middle mb-1">
 	<div class="flex justify-center align-middle">
-		<div class="text-lg font-bold">
+		<div class="text-lg font-bold uppercase">
 			{guideline.name}
 		</div>
 	</div>
@@ -51,7 +52,7 @@
 <ScoreBar score={guideline.score} />
 <div use:autoAnimate class="mt-1 labelContainer px-3">
 	{#if !collapsed}
-		<div class="pb-1">
+		<div class="py-1">
 			{#if isComposite(guideline.rootCondition.condition)}
 				{#each guideline.rootCondition.condition.conditions.sort((a, b) => b.scoreWeighted - a.scoreWeighted) as weightedCondition, index}
 					<WeightedCondition {weightedCondition} />
