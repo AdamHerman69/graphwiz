@@ -310,6 +310,9 @@ export class PEdge {
 	}
 
 	updatePosition() {
+		// orthogonal is static
+		if (this.type === 'orthogonal') return;
+
 		[this.sourceConnectionPoint, this.targetConnectionPoint] = this.getConnectionPoints();
 		this.lineShape.updatePosition(this.sourceConnectionPoint, this.targetConnectionPoint);
 

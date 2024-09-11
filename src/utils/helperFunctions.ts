@@ -55,3 +55,18 @@ export function downloadFile(contents: string, fileName: string, fileType: strin
 	// Release the object URL
 	URL.revokeObjectURL(url);
 }
+
+export function getEventCoords(event: MouseEvent | TouchEvent): { x: number; y: number } {
+	let x, y;
+	if (event.touches) {
+		event = event as TouchEvent;
+		x = event.touches[0].clientX;
+		y = event.touches[0].clientY;
+	} else {
+		event = event as MouseEvent;
+		x = event.clientX;
+		y = event.clientY;
+	}
+
+	return { x: x, y: y };
+}

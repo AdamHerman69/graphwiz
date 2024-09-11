@@ -20,6 +20,7 @@ import { type ILayoutProvieder, ElkLayoutProvider, type NodePositions } from './
 import { spring } from 'svelte/motion';
 import gsap from 'gsap';
 import { get } from 'svelte/store';
+import { getEventCoords } from './helperFunctions';
 
 const ANIMATE_LAYOUT = true;
 
@@ -104,6 +105,15 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	zoomed: boolean = $derived(this.transform != d3.zoomIdentity);
 
 	lastTickTimestamp: number | undefined;
+
+	draggable: boolean = $derived.by(() => {
+		for (const edgeStyle of this.edgeStyles) {
+			if (edgeStyle[1].type === 'orthogonal') {
+				return false;
+			}
+		}
+		return true;
+	});
 
 	constructor(canvas?: HTMLCanvasElement, width?: number, height?: number, graph?: Graph) {
 		this.getD3Node = this.getD3Node.bind(this);
@@ -334,6 +344,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	}
 
 	dragStarted(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
+		if (!this.draggable) return;
 		if (this.currentLayout === 'force-graph') this.dragStartedWorker(dragEvent);
 		else this.dragStartedLocal(dragEvent);
 	}
@@ -354,34 +365,19 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		// 	});
 	}
 	dragged(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
+		if (!this.draggable) return;
+
 		if (this.currentLayout === 'force-graph') {
 			this.draggedWorker(dragEvent);
 		} else this.draggedLocal(dragEvent);
-	}
-
-	getEventCoords(event: MouseEvent | TouchEvent): { x: number; y: number } {
-		let x, y;
-		if (event.touches) {
-			event = event as TouchEvent;
-			x = event.touches[0].clientX;
-			y = event.touches[0].clientY;
-		} else {
-			event = event as MouseEvent;
-			x = event.clientX;
-			y = event.clientY;
-		}
-
-		return { x: x, y: y };
 	}
 
 	draggedWorker(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
 		let draggedNode = dragEvent.subject;
 
 		let rect = this.canvas.getBoundingClientRect();
-		console.log(dragEvent.sourceEvent);
-		console.log(dragEvent.sourceEvent.clientX);
 
-		let { x, y } = this.getEventCoords(dragEvent.sourceEvent);
+		let { x, y } = getEventCoords(dragEvent.sourceEvent);
 
 		x = x - rect.left;
 		y = y - rect.top;
@@ -405,7 +401,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		let draggedNode = dragEvent.subject;
 
 		let rect = this.canvas.getBoundingClientRect();
-		let { x, y } = this.getEventCoords(dragEvent.sourceEvent);
+		let { x, y } = getEventCoords(dragEvent.sourceEvent);
 		x = x - rect.left;
 		y = y - rect.top;
 
@@ -417,6 +413,8 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	}
 
 	dragEnded(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
+		if (!this.draggable) return;
+
 		if (this.currentLayout === 'force-graph') this.dragEndedWorker(dragEvent);
 		else this.dragEndedLocal(dragEvent);
 	}

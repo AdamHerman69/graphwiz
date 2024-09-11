@@ -5,7 +5,7 @@ import type { RgbaColor } from 'colord';
 import { scaleLinear } from './helperFunctions';
 import { getGradientColor } from './gradient';
 import { edge } from 'graphology-metrics';
-
+import { Map } from 'svelte/reactivity';
 export type Setting<T> = {
 	name: string;
 	value: T;
@@ -220,6 +220,8 @@ export class GraphSettingsClass {
 			}
 		]
 	});
+
+	draggable = $derived(this.graphSettings.edgeSettings[0].type?.value != 'orthogonal');
 
 	constructor() {
 		this.exportState = this.exportState.bind(this);
