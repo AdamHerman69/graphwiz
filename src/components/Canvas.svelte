@@ -11,6 +11,7 @@
 	import { type Guideline } from '../utils/guideline.svelte';
 	import { blur } from 'svelte/transition';
 	import { hoverPopup } from './GUI/hoverPopup.svelte';
+	import { graphCharacteristics } from '../utils/graph.svelte';
 
 	let graphSettings: GraphSettingsClass = getContext('graphSettings');
 	let guidelines = getContext('guidelines') as Guideline[];
@@ -60,26 +61,51 @@
 	// todo debounce if graph large
 	let nodeDebounceTimer: number;
 	const DEBOUNCE_TIME = 50;
+	const DEBOUNCE_GRAPH_SIZE = 2500; // nodes + edges
+	let shouldDebounce = $derived(
+		graphCharacteristics['nodeCount'].value + graphCharacteristics['edgeCount'].value >
+			DEBOUNCE_GRAPH_SIZE
+	);
+
 	$effect(() => {
 		JSON.stringify(graphSettings.graphSettings.nodeSettings); // just to make the effect run
-		clearTimeout(nodeDebounceTimer);
-		nodeDebounceTimer = setTimeout(() => {
-			canvasHandler.updateNodeStyles(graphSettings.computeNodeStyles());
-			computeGuidelineStatuses(guidelines, graphSettings);
-			graphSettings.saveState();
-			console.log('Node settings changed, ran');
-		}, DEBOUNCE_TIME);
+
+		if (shouldDebounce) {
+			console.log('Node settings changed, debounced');
+			clearTimeout(nodeDebounceTimer);
+			nodeDebounceTimer = setTimeout(() => {
+				canvasHandler.updateNodeStyles(graphSettings.computeNodeStyles());
+				computeGuidelineStatuses(guidelines, graphSettings);
+				graphSettings.saveState();
+			}, DEBOUNCE_TIME);
+		} else {
+			untrack(() => {
+				canvasHandler.updateNodeStyles(graphSettings.computeNodeStyles());
+				computeGuidelineStatuses(guidelines, graphSettings);
+				graphSettings.saveState();
+				console.log('Node settings changed, ran');
+			});
+		}
 	});
 
 	let edgeDebounceTimer: number;
 	$effect(() => {
 		JSON.stringify(graphSettings.graphSettings.edgeSettings); // just to make the effect run
-		clearTimeout(edgeDebounceTimer);
-		edgeDebounceTimer = setTimeout(() => {
-			canvasHandler.updateEdgeStyles(graphSettings.computeEdgeStyles());
-			computeGuidelineStatuses(guidelines, graphSettings);
-			graphSettings.saveState();
-		}, DEBOUNCE_TIME);
+
+		if (shouldDebounce) {
+			clearTimeout(edgeDebounceTimer);
+			edgeDebounceTimer = setTimeout(() => {
+				canvasHandler.updateEdgeStyles(graphSettings.computeEdgeStyles());
+				computeGuidelineStatuses(guidelines, graphSettings);
+				graphSettings.saveState();
+			}, DEBOUNCE_TIME);
+		} else {
+			untrack(() => {
+				canvasHandler.updateEdgeStyles(graphSettings.computeEdgeStyles());
+				computeGuidelineStatuses(guidelines, graphSettings);
+				graphSettings.saveState();
+			});
+		}
 	});
 
 	// Node Info location, when a node is selected
