@@ -19,7 +19,7 @@
 	<div class="flex justify-between w-full">
 		<div class="flex-col">
 			{#if editable}
-				<select bind:value={numericCondition.property} class="w-1/2">
+				<select bind:value={numericCondition.property} class="uppercase font-bold">
 					{#each Object.entries(graphCharacteristics).filter(([key, value]) => value.type === 'number') as characteristicKVP}
 						<option value={characteristicKVP[0]}>{characteristicKVP[0]}</option>
 					{/each}
@@ -30,7 +30,9 @@
 
 			{#if editable}
 				<div class="mr-2 w-full">
-					<span class="material-symbols-outlined"> arrow_range </span>
+					<!-- <span class="material-symbols-outlined"> arrow_range </span> -->
+					<div class="valueLabel">range:</div>
+
 					<input
 						type="number"
 						class="w-1/4"
@@ -46,11 +48,14 @@
 					/>
 				</div>
 				<div class="flex mr-2 w-full">
-					<span class="material-symbols-outlined"> pin_drop </span>
+					<!-- <span class="material-symbols-outlined"> pin_drop </span> -->
+					<div class="valueLabel">ideal:</div>
+
 					<input type="number" class="w-1/4" bind:value={numericCondition.ideal} />
 				</div>
 				<div class="flex mr-2 w-full">
-					<span class="material-symbols-outlined"> arrow_range </span>
+					<!-- <span class="material-symbols-outlined"> arrow_range </span> -->
+					<div class="valueLabel">tolerance:</div>
 					<input
 						type="number"
 						class="w-1/4"
@@ -112,5 +117,11 @@
 		font-size: 14px;
 		margin-right: 5px;
 		font-style: italic;
+	}
+
+	input {
+		border: none;
+		border-bottom: 1px solid #000;
+		padding: 0;
 	}
 </style>

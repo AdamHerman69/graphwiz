@@ -14,7 +14,10 @@
 	<div class="progress-bar" style="width: {weightNormalized * 100}%">
 		<div
 			class="fill"
-			style="width: {score * 100}%; background-color: {getGradientColorAsString(gradient, score)}"
+			style="width: {score * 100}%; background-color: {getGradientColorAsString(
+				gradient,
+				score
+			)}; box-shadow: 0 0px 4px {getGradientColorAsString(gradient, score)};"
 		></div>
 	</div>
 </div>
@@ -28,6 +31,8 @@
 		height: 8px;
 		background-color: #eee;
 		border-radius: 10px;
+		box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+		/* overflow: hidden; */
 	}
 	.fill {
 		height: 100%;
