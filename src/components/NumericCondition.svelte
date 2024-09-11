@@ -62,29 +62,35 @@
 				<div class="flex">
 					{#if typeof numericCondition.min === 'number' && typeof numericCondition.max === 'number'}
 						<div class="flex mr-2">
-							<span class="material-symbols-outlined"> arrow_range </span>
-							<div class="flex items-center">{numericCondition.min} - {numericCondition.max}</div>
+							<!-- <span class="material-symbols-outlined"> arrow_range </span> -->
+							<div class="valueLabel">range:</div>
+							<div class="flex items-center font-bold">
+								{numericCondition.min} - {numericCondition.max}
+							</div>
 						</div>
 					{/if}
 					{#if typeof numericCondition.ideal === 'number'}
 						<div class="flex mr-2">
 							<div class="flex">
-								<span class="material-symbols-outlined"> pin_drop </span>
-								<div class="flex items-center">{numericCondition.ideal}</div>
+								<!-- <span class="material-symbols-outlined"> pin_drop </span> -->
+								<div class="valueLabel">ideal:</div>
+
+								<div class="flex items-center font-bold">{numericCondition.ideal}</div>
 							</div>
 						</div>
 					{/if}
 					{#if typeof numericCondition.tolerance === 'number'}
 						<div class="flex mr-2">
-							<span class="material-symbols-outlined"> arrow_range </span>
-							<div class="flex items-center">{numericCondition.tolerance}</div>
+							<!-- <span class="material-symbols-outlined"> arrow_range </span> -->
+							<div class="valueLabel">tolerance:</div>
+							<div class="flex items-center font-bold">{numericCondition.tolerance}</div>
 						</div>
 					{/if}
 				</div>
 			{/if}
 		</div>
 		{#if !editable}
-			<div>
+			<div class="font-bold">
 				{formatDecimal(graphCharacteristics[numericCondition.property].value as number, 2)}
 			</div>
 		{/if}
@@ -100,5 +106,11 @@
 <style>
 	span {
 		font-size: 18px;
+	}
+
+	.valueLabel {
+		font-size: 14px;
+		margin-right: 5px;
+		font-style: italic;
 	}
 </style>
