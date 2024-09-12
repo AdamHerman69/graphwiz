@@ -8,6 +8,7 @@
 	import ColorPickerWrapper from '$lib/RangeSlider/ColorPickerWrapper.svelte';
 	import { availableAttributes } from '../utils/graph.svelte';
 	import { getContext } from 'svelte';
+	import CustomSelect from './GUI/CustomSelect.svelte';
 
 	let newGUIID = getContext('graphSettings').newGUIID;
 
@@ -64,13 +65,17 @@
 								filter={(attribute: Attribute) => attribute.owner === 'node' && (!onlyGeneral || attribute.general === true)}
 							/>
 
-							<select class="bg-transparent outline-none" bind:value={label.position}>
+							<!-- <select class="bg-transparent outline-none" bind:value={label.position}>
 								<option value="below">below</option>
 								<option value="above">above</option>
 								<option value="center">center</option>
 								<option value="left">left</option>
 								<option value="right">right</option>
-							</select>
+							</select> -->
+							<CustomSelect
+								bind:selected={label.position}
+								values={['below', 'above', 'center', 'left', 'right']}
+							/>
 						</div>
 						<div class="mx-2">
 							<button

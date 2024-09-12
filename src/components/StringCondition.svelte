@@ -31,7 +31,7 @@
 			<input type="string" class="w-1/2" bind:value={stringCondition.value} />
 		{:else}
 			<div class="flex items-center">
-				<div class="pr-1">{stringCondition.value}</div>
+				<div class="pr-1 font-bold">"{stringCondition.value}"</div>
 				{#if graphCharacteristics[stringCondition.property].value === stringCondition.value}
 					<span class="material-symbols-outlined text-xs"> check </span>
 				{:else}

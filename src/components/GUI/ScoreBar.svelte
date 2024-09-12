@@ -7,7 +7,11 @@
 		[{ r: 200, g: 0, b: 0, a: 1 }, 0],
 		[{ r: 0, g: 200, b: 0, a: 1 }, 1]
 	];
-	let { score, weightNormalized = 1 }: { score: number; weightNormalized: number } = $props();
+	let {
+		score,
+		weightNormalized = 1,
+		hidePercentage = false
+	}: { score: number; weightNormalized: number; hidePercentage?: boolean } = $props();
 </script>
 
 <div class="container">
@@ -20,12 +24,16 @@
 			)}; box-shadow: 0 0px 4px {getGradientColorAsString(gradient, score)};"
 		></div>
 	</div>
+	{#if !hidePercentage}
+		<div class="score">{score * 100}%</div>
+	{/if}
 </div>
 
 <style>
 	.container {
-		margin-top: 3px;
 		width: 100%;
+		display: flex;
+		align-items: center;
 	}
 	.progress-bar {
 		height: 8px;
@@ -37,5 +45,11 @@
 	.fill {
 		height: 100%;
 		border-radius: 10px;
+	}
+
+	.score {
+		margin-left: 5px;
+		font-size: 11px;
+		font-style: italic;
 	}
 </style>

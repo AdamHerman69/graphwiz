@@ -205,15 +205,15 @@
 							<Guidelines bind:this={rightGuidelinesExports} />
 						</div>
 					{:else if !hidden.right && panelState.right === 'settings'}
-						<div class="cardStack" use:autoAnimate>
-							{#if settingsState.right.layout}
-								<LayoutSettings />
+						<div class="cardStack reverse" use:autoAnimate>
+							{#if settingsState.right.edge}
+								<EdgeSettings side="right" />
 							{/if}
 							{#if settingsState.right.node}
 								<NodeSettings side="right" />
 							{/if}
-							{#if settingsState.right.edge}
-								<EdgeSettings side="right" />
+							{#if settingsState.right.layout}
+								<LayoutSettings />
 							{/if}
 						</div>
 					{/if}
@@ -386,5 +386,10 @@
 	.rightContainer .panelContent {
 		flex-direction: row-reverse;
 		z-index: 9; /* for the overlay to work, needs to be lower than the left one */
+	}
+
+	.reverse {
+		display: flex;
+		flex-direction: column-reverse;
 	}
 </style>

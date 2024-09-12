@@ -164,6 +164,9 @@
 	// }
 </script>
 
+<div class="graphCharacteristics">
+	<GraphCharacteristics />
+</div>
 <div class="flex h-full w-full" bind:clientWidth={fullWidth}>
 	{#if splitView.left}
 		<div class="h-full relative" style="width: {width.left}%">
@@ -249,7 +252,8 @@
 	</div>
 	{#if showTasks.anyGuidelinesVisible}
 		<div class="tasks" transition:blur>
-			<span class="material-symbols-outlined"> task_alt </span>
+			<!-- <span class="material-symbols-outlined"> task_alt </span> -->
+			<div>task:</div>
 			<select bind:value={tasks.selectedTask} onchange={() => recomputeCharacteristics(graph)}>
 				{#each tasks.tasks as task}
 					<option>{task.name}</option>
@@ -257,21 +261,23 @@
 			</select>
 		</div>
 	{/if}
-	<div class="graphCharacteristics">
-		<GraphCharacteristics />
-	</div>
 </div>
 
 <style>
 	.tasks {
 		position: absolute;
-		top: 90px;
+		top: 100px;
 		left: 50%;
 		transform: translate(-50%);
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		font-size: small;
+	}
+
+	.tasks div {
+		text-transform: uppercase;
+		font-style: oblique;
 	}
 
 	.tasks select {

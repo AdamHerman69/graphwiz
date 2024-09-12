@@ -45,38 +45,40 @@
 	}
 </script>
 
-<div use:autoAnimate={{ duration: 300 }}>
-	{#each graphSettings.graphSettings.edgeSettings as setting, index (setting.id)}
-		{#if index === 0}
-			<div use:autoAnimate={{ duration: 300 }} class="card cardSpacing">
-				<SettingsHeader title="edge" bind:collapsed />
-				<!-- Settings -->
-				{#if !collapsed}
-					<SettingsSelect selectSetting={setting.type!} />
-					<SettingsSlider numSettings={setting.width!} />
-					<SettingsSliderMultiple
-						name="Partial Edge"
-						numSettings={[graphSettings.graphSettings.edgeSettings[0].partialStart!, graphSettings.graphSettings.edgeSettings[0].partialEnd!]}
-					/>
-					<SettingsColor colorSetting={setting.color!} />
+<div>
+	<div use:autoAnimate={{ duration: 300 }}>
+		{#each graphSettings.graphSettings.edgeSettings as setting, index (setting.id)}
+			{#if index === 0}
+				<div use:autoAnimate={{ duration: 300 }} class="card cardSpacing">
+					<SettingsHeader title="edge" bind:collapsed />
+					<!-- Settings -->
+					{#if !collapsed}
+						<SettingsSelect selectSetting={setting.type!} />
+						<SettingsSlider numSettings={setting.width!} />
+						<SettingsSliderMultiple
+							name="Partial Edge"
+							numSettings={[graphSettings.graphSettings.edgeSettings[0].partialStart!, graphSettings.graphSettings.edgeSettings[0].partialEnd!]}
+						/>
+						<SettingsColor colorSetting={setting.color!} />
 
-					<!-- TODO Decorators -->
-					<SettingsEdgeLabel labels={setting.labels!} />
-				{/if}
-			</div>
-		{:else}
-			<div class="card cardSpacing">
-				<RuleEdgeSettings edgeSettings={setting} />
-			</div>
-		{/if}
-	{/each}
-</div>
+						<!-- TODO Decorators -->
+						<SettingsEdgeLabel labels={setting.labels!} />
+					{/if}
+				</div>
+			{:else}
+				<div class="card cardSpacing">
+					<RuleEdgeSettings edgeSettings={setting} />
+				</div>
+			{/if}
+		{/each}
+	</div>
 
-<!-- Add rule button -->
-<div class="flex justify-center">
-	<div class="card buttonSpacing w-14">
-		<button onclick={addRule} class="flex items-center justify-center w-full h-full">
-			<span class="material-symbols-outlined">add</span>
-		</button>
+	<!-- Add rule button -->
+	<div class="flex justify-center">
+		<div class="card buttonSpacing w-14">
+			<button onclick={addRule} class="flex items-center justify-center w-full h-full">
+				<span class="material-symbols-outlined">add</span>
+			</button>
+		</div>
 	</div>
 </div>

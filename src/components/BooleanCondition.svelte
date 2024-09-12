@@ -34,9 +34,9 @@
 					<option value={false}>false</option>
 				</select>
 			{:else if graphCharacteristics[booleanCondition.property].value === booleanCondition.value}
-				<span class="material-symbols-outlined flex items-center"> check </span>
+				<span class="check material-symbols-outlined flex items-center"> check </span>
 			{:else}
-				<span class="material-symbols-outlined flex items-center"> close </span>
+				<span class="check material-symbols-outlined flex items-center"> close </span>
 			{/if}
 		</div>
 	</div>
@@ -47,3 +47,9 @@
 		/>
 	{/if}
 </div>
+
+<style>
+	span.check {
+		font-size: 15px;
+	}
+</style>

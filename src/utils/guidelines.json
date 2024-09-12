@@ -274,6 +274,10 @@
 							"ideal": 100,
 							"tolerance": 50
 						}
+					},
+					{
+						"weight": 2,
+						"condition": { "type": "range", "property": "edgeCount", "min": 5, "max": 15 }
 					}
 				]
 			}

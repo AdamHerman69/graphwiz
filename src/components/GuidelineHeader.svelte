@@ -49,7 +49,7 @@
 		<div class="text-lg font-bold">{formatDecimal(guideline.score * 100, 0)} %</div>
 	</div>
 </div>
-<ScoreBar score={guideline.score} />
+<ScoreBar score={guideline.score} hidePercentage={true} />
 <div use:autoAnimate class="mt-1 labelContainer px-3">
 	{#if !collapsed}
 		<div class="py-1">

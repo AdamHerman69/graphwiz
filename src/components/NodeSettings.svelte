@@ -42,34 +42,43 @@
 	}
 </script>
 
-<div use:autoAnimate={{ duration: 300 }}>
-	{#each graphSettings.graphSettings.nodeSettings as setting, index (setting.id)}
-		{#if index === 0}
-			<div use:autoAnimate={{ duration: 300 }} class="card cardSpacing">
-				<SettingsHeader title="node" bind:collapsed />
-				<!-- Settings -->
-				{#if !collapsed}
-					<SettingsSelect selectSetting={setting.shape!} />
-					<SettingsSlider numSettings={setting.size!} />
-					<SettingsColor colorSetting={setting.color!} />
-					<SettingsSlider numSettings={setting.strokeWidth!} />
-					<SettingsColor colorSetting={setting.strokeColor!} />
-					<SettingsNodeLabel labels={setting.labels!} />
-				{/if}
-			</div>
-		{:else}
-			<div class="card cardSpacing">
-				<RuleNodeSettings nodeSettings={setting} />
-			</div>
-		{/if}
-	{/each}
-</div>
+<div class="reverse">
+	<!-- Add rule button -->
+	<div class="flex justify-center">
+		<div class="card buttonSpacing w-14">
+			<button onclick={addRule} class="flex items-center justify-center w-full h-full">
+				<span class="material-symbols-outlined">add</span>
+			</button>
+		</div>
+	</div>
 
-<!-- Add rule button -->
-<div class="flex justify-center">
-	<div class="card buttonSpacing w-14">
-		<button onclick={addRule} class="flex items-center justify-center w-full h-full">
-			<span class="material-symbols-outlined">add</span>
-		</button>
+	<div use:autoAnimate={{ duration: 300 }}>
+		{#each graphSettings.graphSettings.nodeSettings as setting, index (setting.id)}
+			{#if index === 0}
+				<div use:autoAnimate={{ duration: 300 }} class="card cardSpacing">
+					<SettingsHeader title="node" bind:collapsed />
+					<!-- Settings -->
+					{#if !collapsed}
+						<SettingsSelect selectSetting={setting.shape!} />
+						<SettingsSlider numSettings={setting.size!} />
+						<SettingsColor colorSetting={setting.color!} />
+						<SettingsSlider numSettings={setting.strokeWidth!} />
+						<SettingsColor colorSetting={setting.strokeColor!} />
+						<SettingsNodeLabel labels={setting.labels!} />
+					{/if}
+				</div>
+			{:else}
+				<div class="card cardSpacing">
+					<RuleNodeSettings nodeSettings={setting} />
+				</div>
+			{/if}
+		{/each}
 	</div>
 </div>
+
+<style>
+	.reverse {
+		display: flex;
+		flex-direction: column-reverse;
+	}
+</style>
