@@ -3,13 +3,14 @@
 <script>
 	// @ts-nocheck
 
-	import { spring } from 'svelte/motion';
+	import { spring, tweened } from 'svelte/motion';
 	import { createEventDispatcher } from 'svelte';
 	import RangePips from './RangePips.svelte';
 	import ColorPicker from '$lib/colorPicker/components/ColorPicker.svelte';
 	import ColorPickerWrapper from './ColorPickerWrapper.svelte';
 	import { blur } from 'svelte/transition';
 	import { colord } from 'colord';
+	import { cubicOut } from 'svelte/easing';
 
 	// dom references
 	export let slider = undefined;
@@ -121,9 +122,9 @@
 		if (valueLength !== values.length) {
 			// set the initial spring values when the slider initialises,
 			// or when values array length has changed
-			springPositions = spring(
+			springPositions = tweened(
 				values.map((v) => percentOf(v)),
-				springValues
+				{ duration: 100, easing: cubicOut }
 			);
 		} else {
 			// update the value of the spring function for animated handles
