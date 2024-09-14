@@ -44,9 +44,11 @@
 			{guideline.name}
 		</div>
 	</div>
-	<div class="flex items-center">
-		<button bind:this={collapseButton} on:click={collapse} class="w-5 h-5" />
-		<div class="text-lg font-bold">{formatDecimal(guideline.score * 100, 0)} %</div>
+	<div>
+		<div class="flex items-center">
+			<button bind:this={collapseButton} on:click={collapse} class="w-5 h-5" />
+			<div class="text-lg font-bold text-nowrap">{formatDecimal(guideline.score * 100, 0)} %</div>
+		</div>
 	</div>
 </div>
 <ScoreBar score={guideline.score} hidePercentage={true} />
