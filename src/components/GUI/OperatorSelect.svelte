@@ -6,18 +6,8 @@
 	let {
 		selected = $bindable(),
 		values,
-		width = 150,
-		maxHeight = 200,
-		openUp = false,
-		onChange = () => {}
-	}: {
-		selected: string;
-		values: string[];
-		width?: number;
-		maxHeight?: number;
-		openUp?: boolean;
-		onChange?: (index: number) => void;
-	} = $props();
+		openUp = false
+	}: { selected: string; values: string[]; openUp?: boolean } = $props();
 
 	let isOpen = $state(false);
 	let selectedIndex = $state(0);
@@ -31,7 +21,6 @@
 		selected = value;
 		selectedIndex = index;
 		isOpen = false;
-		onChange(index);
 	}
 
 	let selectContainer: HTMLElement;
@@ -94,7 +83,7 @@
 	});
 </script>
 
-<div class="custom-select" use:autoAnimate bind:this={selectContainer} style="width: {width}px;">
+<div class="custom-select" use:autoAnimate bind:this={selectContainer}>
 	<button
 		class="select-button"
 		onclick={toggleSelect}
@@ -103,7 +92,6 @@
 		onkeydown={handleKeydown}
 	>
 		{selected}
-		<span class="arrow material-symbols-outlined" aria-hidden="true">keyboard_arrow_down</span>
 	</button>
 
 	{#if isOpen}
@@ -114,7 +102,7 @@
 			tabindex="-1"
 			onkeydown={handleKeydown}
 			onmouseover={() => (selectedIndexByKeyboard = false)}
-			style="top: {openUp ? 'auto' : '100%'}; bottom: {openUp ? '100%' : 'auto'};"
+			style="top: {openUp ? 'auto' : '0%'}; bottom: {openUp ? '100%' : 'auto'};"
 		>
 			{#each values as value, index}
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -135,12 +123,13 @@
 <style>
 	.custom-select {
 		position: relative;
+		width: 31px;
 	}
 
 	.select-button {
 		text-transform: uppercase;
 		/* font-style: italic; */
-		font-size: 14px;
+		font-size: 18px;
 		width: 100%;
 		padding: 0px;
 		background-color: --card-bg-color;
@@ -149,19 +138,13 @@
 		text-align: left;
 		transition: all 0.3s ease;
 		z-index: 100000;
+		display: flex;
+		justify-content: center;
+		outline: none;
 	}
 
-	.select-button:hover .arrow {
-		transform: rotate(360deg);
-	}
-
-	.arrow {
-		float: right;
-		transition: transform 0.3s ease;
-	}
-
-	.select-button[aria-expanded='true'] .arrow {
-		transform: rotate(180deg);
+	.select-button:hover {
+		transform: scale(1.3);
 	}
 
 	.select-button[aria-expanded='true'] {
@@ -174,8 +157,7 @@
 		position: absolute;
 		/* top: 110%; */
 		/* bottom: 0; */
-		left: -10px;
-		right: 0;
+		left: 0;
 		/* border: 1px solid #ddd; */
 		background-color: --card-bg-color;
 		border-top: none;
@@ -200,11 +182,14 @@
 		background-color: transparent;
 		text-transform: uppercase;
 		transition: all 0.3s ease;
+		display: flex;
+		justify-content: center;
+		font-size: 18px;
 	}
 
 	.select-option:hover,
 	.highlight {
-		padding-left: 15px;
+		transform: scale(1.3);
 	}
 
 	.select-option[aria-selected='true'] {

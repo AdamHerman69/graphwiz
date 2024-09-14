@@ -3,12 +3,13 @@
 	import type { Attribute } from '../utils/graph.svelte';
 	import AttributePicker from './AttributePicker.svelte';
 	import { getContext } from 'svelte';
+	import OperatorSelect from './GUI/OperatorSelect.svelte';
 
 	let { rule, disabled = false }: { rule: AtomicRule; disabled: boolean } = $props();
 	let isGuidelineEditor = getContext('isGuidelineEditor');
 </script>
 
-<div class="flex justify-between">
+<div class="flex justify-between mt-1 pl-2">
 	<!-- todo proper filter -->
 	<AttributePicker
 		bind:selectedAttribute={rule.property}
@@ -18,13 +19,14 @@
 
 	<!-- Numerical Operator -->
 	{#if rule.property?.type === 'number'}
-		<select class="bg-transparent w-1/4" bind:value={rule.operator} {disabled}>
+		<!-- <select class="bg-transparent w-1/4" bind:value={rule.operator} {disabled}>
 			<option value="=">=</option>
 			<option value=">">&gt</option>
 			<option value="<">&lt</option>
 			<option value=">=">≥</option>
 			<option value="<=">≤</option>
-		</select>
+		</select> -->
+		<OperatorSelect bind:selected={rule.operator} values={['=', '>', '<', '≥', '≤']} />
 		<!-- <RadialSelector bind:selected={rule.operator} options={['=', '>', '<', '≥', '≤']} width={25} /> -->
 		<input type="number" class="bg-transparent w-1/4" bind:value={rule.value} {disabled} />
 	{:else}

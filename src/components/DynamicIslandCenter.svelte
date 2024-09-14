@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { spring } from 'svelte/motion';
+	import { spring, tweened } from 'svelte/motion';
 	import { exportGraph } from '../utils/graph.svelte';
 	import FileImport from './FileImport.svelte';
 	import { blur } from 'svelte/transition';
@@ -7,6 +7,7 @@
 	import type { GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import type { ICanvasHandler } from '../utils/canvas.svelte';
 	import { downloadFile } from '../utils/helperFunctions';
+	import { cubicInOut } from 'svelte/easing';
 
 	let {
 		stickyLeft = $bindable(),
@@ -207,11 +208,11 @@
 
 	let STICKY_LEFT_INSIDE_X = $derived(island_x + 7);
 	// SPRINGS
-	const islandStyles = spring(
+	const islandStyles = tweened(
 		{ x: island_x, y: Y, width: island_width, height: HEIGHT },
 		{
-			stiffness: 0.1,
-			damping: 0.5
+			duration: 200,
+			easing: cubicInOut
 		}
 	);
 	const rightStickyStyles = spring(

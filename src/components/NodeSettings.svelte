@@ -10,6 +10,7 @@
 	import { availableAttributes } from '../utils/graph.svelte';
 	import { getContext } from 'svelte';
 	import SettingsSelect from './SettingsSelect.svelte';
+	import { graph } from 'graphology-metrics';
 
 	let { side }: { side: 'left' | 'right' } = $props();
 	setContext('side', side);
@@ -20,6 +21,7 @@
 	let collapsed = $state(false);
 
 	function addRule() {
+		console.log('addRule');
 		graphSettings.graphSettings.nodeSettings.push({
 			id: graphSettings.newGUIID(),
 			priority: graphSettings.graphSettings.nodeSettings.length + 1,
@@ -40,6 +42,13 @@
 			source: null
 		});
 	}
+
+	// Reverse the order of the node settings (we have to render them in reverse order because of stacking context and select dropdowns)
+	let reverseIndexes = $derived.by(() => {
+		return graphSettings.graphSettings.nodeSettings.map(
+			(setting, index) => graphSettings.graphSettings.nodeSettings.length - index - 1
+		);
+	});
 </script>
 
 <div class="reverse">
@@ -52,24 +61,30 @@
 		</div>
 	</div>
 
-	<div use:autoAnimate={{ duration: 300 }}>
-		{#each graphSettings.graphSettings.nodeSettings as setting, index (setting.id)}
+	<div class="reverse" use:autoAnimate={{ duration: 300 }}>
+		{#each reverseIndexes as index (graphSettings.graphSettings.nodeSettings[index].id)}
 			{#if index === 0}
 				<div use:autoAnimate={{ duration: 300 }} class="card cardSpacing">
 					<SettingsHeader title="node" bind:collapsed />
 					<!-- Settings -->
 					{#if !collapsed}
-						<SettingsSelect selectSetting={setting.shape!} />
-						<SettingsSlider numSettings={setting.size!} />
-						<SettingsColor colorSetting={setting.color!} />
-						<SettingsSlider numSettings={setting.strokeWidth!} />
-						<SettingsColor colorSetting={setting.strokeColor!} />
-						<SettingsNodeLabel labels={setting.labels!} />
+						<SettingsSelect
+							selectSetting={graphSettings.graphSettings.nodeSettings[index].shape!}
+						/>
+						<SettingsSlider numSettings={graphSettings.graphSettings.nodeSettings[index].size!} />
+						<SettingsColor colorSetting={graphSettings.graphSettings.nodeSettings[index].color!} />
+						<SettingsSlider
+							numSettings={graphSettings.graphSettings.nodeSettings[index].strokeWidth!}
+						/>
+						<SettingsColor
+							colorSetting={graphSettings.graphSettings.nodeSettings[index].strokeColor!}
+						/>
+						<SettingsNodeLabel labels={graphSettings.graphSettings.nodeSettings[index].labels!} />
 					{/if}
 				</div>
 			{:else}
 				<div class="card cardSpacing">
-					<RuleNodeSettings nodeSettings={setting} />
+					<RuleNodeSettings nodeSettings={graphSettings.graphSettings.nodeSettings[index]} />
 				</div>
 			{/if}
 		{/each}

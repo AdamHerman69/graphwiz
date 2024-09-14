@@ -28,7 +28,8 @@
 			target: type,
 			value: 0,
 			property: availableAttributes.filter(
-				(attribute) => attribute.owner === owner && attribute.general === isGuidelineEditor
+				(attribute) =>
+					attribute.owner === owner && (!isGuidelineEditor || attribute.general === true)
 			)[0]
 		});
 	}
@@ -92,6 +93,7 @@
 					deleteFunction={() => deleteRule(index)}
 				/>
 			{/if}
+			<div class={`mx-3 ${index < rule.rules.length - 1 ? 'border-b border-gray-200' : ''}`} />
 		{/each}
 	</div>
 

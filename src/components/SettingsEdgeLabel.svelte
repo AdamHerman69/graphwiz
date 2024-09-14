@@ -10,6 +10,7 @@
 	import { availableAttributes } from '../utils/graph.svelte';
 	import { getContext } from 'svelte';
 	import BooleanCondition from './BooleanCondition.svelte';
+	import CustomSelect from './GUI/CustomSelect.svelte';
 
 	let newGUIID = getContext('graphSettings').newGUIID;
 
@@ -76,11 +77,7 @@
 							bind:selectedAttribute={label.attribute}
 							filter={(attribute: Attribute) => attribute.owner === 'edge' && (!onlyGeneral || attribute.general === true)}
 						/>
-						<select bind:value={label.position} class="bg-transparent">
-							<option value="above">above</option>
-							<option value="below">below</option>
-							<option value="center">center</option>
-						</select>
+						<CustomSelect bind:selected={label.position} values={['below', 'above', 'center']} />
 					</div>
 
 					<div>

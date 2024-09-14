@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { type Attribute, availableAttributes } from '../utils/graph.svelte';
+	import CustomSelect from './GUI/CustomSelect.svelte';
+	import { bin } from 'd3';
 
 	let {
 		selectedAttribute = $bindable(),
@@ -13,10 +15,12 @@
 	} = $props();
 
 	let filteredAttributes = $derived(availableAttributes.filter(filter));
+	let attributeNames = $derived(filteredAttributes.map((attribute) => attribute.name));
+	let selectedAttributeName: string = $state(attributeNames.length > 0 ? attributeNames[0] : 'prd');
 
 	let select: HTMLSelectElement;
-	function handleChange() {
-		selectedAttribute = filteredAttributes[select.selectedIndex];
+	function handleChange(index: number) {
+		selectedAttribute = filteredAttributes[index];
 		//console.log('handle change', selectedAttribute);
 	}
 
@@ -24,16 +28,28 @@
 
 	// for state changes not coming from this component
 	$effect(() => {
-		if (select.value != selectedAttribute?.name) {
-			select.value = selectedAttribute?.name!;
-			//console.log('effect actually did something');
+		if (
+			selectedAttributeName != selectedAttribute?.name &&
+			attributeNames.includes(selectedAttribute?.name!)
+		)
+			selectedAttributeName = selectedAttribute?.name!;
+
+		// if attribute name is not in filtered attributes, set to first
+		if (!attributeNames.includes(selectedAttributeName)) {
+			selectedAttributeName = attributeNames[0];
 		}
-		//console.log('effect ran');
 	});
 </script>
 
-<select bind:this={select} onchange={handleChange} class="bg-transparent" {disabled}>
+<!-- <select bind:this={select} onchange={handleChange} class="bg-transparent" {disabled}>
 	{#each filteredAttributes as attribute}
 		<option value={attribute.name}>{attribute.name}</option>
 	{/each}
-</select>
+</select> -->
+<CustomSelect
+	selected={selectedAttributeName}
+	values={filteredAttributes.map((attribute) => attribute.name)}
+	width={150}
+	onChange={handleChange}
+/>
+<!-- TODO doesn't work now - doesn't select -->

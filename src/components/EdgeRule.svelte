@@ -3,6 +3,8 @@
 	import type { Attribute } from '../utils/graph.svelte';
 	import AttributePicker from './AttributePicker.svelte';
 	import { getContext } from 'svelte';
+	import OperatorSelect from './GUI/OperatorSelect.svelte';
+	import CustomSelect from './GUI/CustomSelect.svelte';
 
 	let { rule, disabled = false }: { rule: AtomicRule; disabled: boolean } = $props();
 
@@ -11,29 +13,32 @@
 
 <div class="flex justify-between">
 	<!-- Select rule target -->
-	<select class="flex-auto bg-transparent w-1/4" bind:value={rule.target} {disabled}>
-		<option value="edge">edge</option>
-		<option value="source">source</option>
-		<option value="target">target</option>
-	</select>
+	<!-- todo disabled -->
+	<CustomSelect bind:selected={rule.target} values={['edge', 'source', 'target']} width={100} />
 
 	<!-- Left operator settings -->
 	<!-- todo proper filter -->
-	<AttributePicker
-		bind:selectedAttribute={rule.property}
-		filter={(attribute: Attribute) => (attribute.owner === (rule.target === 'edge' ? 'edge' : 'node') && (!isGuidelineEditor || attribute.general === true))}
-		{disabled}
-	/>
+	{#if rule.target === 'edge'}
+		<AttributePicker
+			bind:selectedAttribute={rule.property}
+			filter={(attribute: Attribute) =>
+				attribute.owner === 'edge' &&
+				(!isGuidelineEditor || attribute.general === true)}
+			{disabled}
+		/>
+	{:else}
+		<AttributePicker
+			bind:selectedAttribute={rule.property}
+			filter={(attribute: Attribute) =>
+			attribute.owner === 'node' &&
+			(!isGuidelineEditor || attribute.general === true)}
+			{disabled}
+		/>
+	{/if}
 
 	<!-- Numerical Operator -->
 	{#if rule.type === 'number'}
-		<select class="bg-transparent w-1/4" bind:value={rule.operator} {disabled}>
-			<option value="=">=</option>
-			<option value=">">&gt</option>
-			<option value="<">&lt</option>
-			<option value=">=">≥</option>
-			<option value="<=">≤</option>
-		</select>
+		<OperatorSelect bind:selected={rule.operator} values={['=', '>', '<', '≥', '≤']} />
 		<input type="number" class="bg-transparent w-1/6" bind:value={rule.value} />
 	{:else}
 		<div class="flex">
