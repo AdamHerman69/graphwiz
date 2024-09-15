@@ -2,6 +2,7 @@
 	import type { BooleanCondition, WeightedCondition } from '../utils/guideline.svelte';
 	import { graphCharacteristics } from '../utils/graph.svelte';
 	import ScoreBar from './GUI/ScoreBar.svelte';
+	import CustomSelect from './GUI/CustomSelect.svelte';
 
 	let {
 		booleanCondition = $bindable(),
@@ -18,21 +19,20 @@
 	<div class="flex justify-between w-full items-center">
 		<div>
 			{#if editable}
-				<select bind:value={booleanCondition.property} class="w-1/2">
-					{#each Object.entries(graphCharacteristics).filter(([key, value]) => value.type === 'boolean') as characteristicKVP}
-						<option value={characteristicKVP[0]}>{characteristicKVP[0]}</option>
-					{/each}
-				</select>
+				<CustomSelect
+					bind:selected={booleanCondition.property}
+					values={Object.keys(graphCharacteristics).filter(
+						(key) => graphCharacteristics[key].type === 'boolean'
+					)}
+					width={100}
+				/>
 			{:else}
 				<div class="uppercase">{booleanCondition.property}</div>
 			{/if}
 		</div>
 		<div>
 			{#if editable}
-				<select bind:value={booleanCondition.value}>
-					<option selected value={true}>true</option>
-					<option value={false}>false</option>
-				</select>
+				<CustomSelect bind:selected={booleanCondition.value} values={[true, false]} width={80} />
 			{:else if graphCharacteristics[booleanCondition.property].value === booleanCondition.value}
 				<span class="check material-symbols-outlined flex items-center"> check </span>
 			{:else}

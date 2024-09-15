@@ -2,6 +2,7 @@
 	import type { StringCondition, WeightedCondition } from '../utils/guideline.svelte';
 	import { graphCharacteristics } from '../utils/graph.svelte';
 	import ScoreBar from './GUI/ScoreBar.svelte';
+	import CustomSelect from './GUI/CustomSelect.svelte';
 
 	let {
 		stringCondition = $bindable(),
@@ -18,11 +19,13 @@
 	<div class="flex justify-between">
 		<div>
 			{#if editable}
-				<select bind:value={stringCondition.property} class="w-1/2">
-					{#each Object.entries(graphCharacteristics).filter(([key, value]) => value.type === 'string') as characteristicKVP}
-						<option value={characteristicKVP[0]}>{characteristicKVP[0]}</option>
-					{/each}
-				</select>
+				<CustomSelect
+					bind:selected={stringCondition.property}
+					values={Object.keys(graphCharacteristics).filter(
+						(key) => graphCharacteristics[key].type === 'string'
+					)}
+					width={100}
+				/>
 			{:else}
 				<div class="uppercase">{stringCondition.property}</div>
 			{/if}

@@ -3,6 +3,7 @@
 	import { graphCharacteristics } from '../utils/graph.svelte';
 	import ScoreBar from './GUI/ScoreBar.svelte';
 	import { formatDecimal } from '../utils/helperFunctions';
+	import CustomSelect from './GUI/CustomSelect.svelte';
 
 	let {
 		numericCondition = $bindable(),
@@ -19,11 +20,13 @@
 	<div class="flex justify-between w-full">
 		<div class="flex-col">
 			{#if editable}
-				<select bind:value={numericCondition.property} class="uppercase font-bold">
-					{#each Object.entries(graphCharacteristics).filter(([key, value]) => value.type === 'number') as characteristicKVP}
-						<option value={characteristicKVP[0]}>{characteristicKVP[0]}</option>
-					{/each}
-				</select>
+				<CustomSelect
+					bind:selected={numericCondition.property}
+					values={Object.keys(graphCharacteristics).filter(
+						(key) => graphCharacteristics[key].type === 'number'
+					)}
+					width={150}
+				/>
 			{:else}
 				<div class="uppercase">{numericCondition.property}</div>
 			{/if}

@@ -11,8 +11,8 @@
 		openUp = false,
 		onChange = () => {}
 	}: {
-		selected: string;
-		values: string[];
+		selected: string | boolean;
+		values: string[] | boolean[];
 		width?: number;
 		maxHeight?: number;
 		openUp?: boolean;
@@ -152,7 +152,7 @@
 	}
 
 	.select-button:hover .arrow {
-		transform: rotate(360deg);
+		transform: translateY(2px);
 	}
 
 	.arrow {

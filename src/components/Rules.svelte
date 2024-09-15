@@ -61,7 +61,7 @@
 		</div>
 	{/if} -->
 	<div class="absolute right-2"></div>
-	<div class="mt-6" use:autoAnimate={{ duration: 300 }}>
+	<div class="mt-8" use:autoAnimate={{ duration: 300 }}>
 		{#each rule.rules as subRule, index (subRule.id)}
 			{#if isAtomic(subRule)}
 				<div class="flex">
