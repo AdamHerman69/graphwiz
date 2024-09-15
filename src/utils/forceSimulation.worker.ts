@@ -46,12 +46,19 @@ function startSimulation(
 function updateNodePositions(width: number, height: number) {
 	const dx = (width - currentWidth) / 2;
 	const dy = (height - currentHeight) / 2;
-	d3nodes.forEach((node) => {
-		if (node.x !== undefined && node.y !== undefined) {
-			node.x += dx;
-			node.y += dy;
+	// d3nodes.forEach((node) => {
+	// 	if (node.x !== undefined && node.y !== undefined) {
+	// 		node.x += dx;
+	// 		node.y += dy;
+	// 	}
+	// });
+	simulation.nodes().forEach((simNode) => {
+		if (simNode.x !== undefined && simNode.y !== undefined) {
+			simNode.x += dx;
+			simNode.y += dy;
 		}
 	});
+
 	currentWidth = width;
 	currentHeight = height;
 }
@@ -137,9 +144,6 @@ onmessage = function (event) {
 			simulation.stop();
 			simRunning = false;
 			break;
-		case 'changePositions':
-			d3nodes = nodes;
-			break;
 		case 'resume':
 			currentWidth = width;
 			currentHeight = height;
@@ -149,6 +153,7 @@ onmessage = function (event) {
 					simNode.x = nodes.find((node) => node.id === simNode.id)?.x;
 					simNode.y = nodes.find((node) => node.id === simNode.id)?.y;
 				});
+
 				simulation.restart().alpha(0.5);
 				simRunning = true;
 			}

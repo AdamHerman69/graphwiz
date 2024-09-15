@@ -486,12 +486,35 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		return this.paperRenderer.exportSVG();
 	}
 
+	// on resize local nodes
+	updateNodePositionsOnResize(
+		currentWidth: number,
+		currentHeight: number,
+		width: number,
+		height: number
+	) {
+		const dx = (width - currentWidth) / 2;
+		const dy = (height - currentHeight) / 2;
+		this.d3nodes.forEach((node) => {
+			if (node.x !== undefined && node.y !== undefined) {
+				node.x += dx;
+				node.y += dy;
+			}
+		});
+		this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
+	}
+
 	resize(width: number, height: number): void {
 		// todo move all sticky points
+
+		this.paperRenderer.resize(width, height);
+		if (this.currentLayout != 'force-graph')
+			this.updateNodePositionsOnResize(this.width, this.height, width, height);
+		if (this.currentLayout === 'force-graph')
+			this.simulationWorker.postMessage({ type: 'resize', width, height });
+
 		this.width = width;
 		this.height = height;
-		this.paperRenderer.resize(width, height);
-		this.simulationWorker.postMessage({ type: 'resize', width, height });
 	}
 
 	async changeLayout(layout: LayoutType, forceRestart: boolean = false) {
@@ -549,14 +572,15 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
 
 		// update the worker with the new graph positions - waiting for the animation to be over
-		setTimeout(
-			() =>
-				this.simulationWorker.postMessage({
-					type: 'changePositions',
-					nodes: $state.snapshot(this.d3nodes)
-				}),
-			1100
-		);
+		// we don't do this anymore since we're not using the worker for layout
+		// setTimeout(
+		// 	() =>
+		// 		this.simulationWorker.postMessage({
+		// 			type: 'changePositions',
+		// 			nodes: $state.snapshot(this.d3nodes)
+		// 		}),
+		// 	1100
+		// );
 		this.currentLayout = layout;
 	}
 
