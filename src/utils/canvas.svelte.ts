@@ -236,6 +236,9 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	}
 
 	startForceSimulation(forceRestart: boolean = false) {
+		this.sticky = false;
+		this.staticPosition = false;
+
 		console.log('starting force simulation');
 		if (!this.simulationWorker) {
 			this.simulationWorker = new Worker();
@@ -422,8 +425,10 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	dragEndedWorker(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
 		let draggedNode = dragEvent.subject;
 
+		console.log(this.sticky, this.staticPosition);
 		// clear the fixed position
 		if (!this.sticky && !this.staticPosition) {
+			console.log('drag ended non sticky');
 			draggedNode.fx = null;
 			draggedNode.fy = null;
 		}

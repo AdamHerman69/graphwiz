@@ -104,7 +104,7 @@ onmessage = function (event) {
 			}
 			break;
 		case 'dragged':
-			let draggedNode = d3nodes.find((node) => node.id === nodeId);
+			let draggedNode = simulation.nodes().find((node) => node.id === nodeId);
 			if (draggedNode) {
 				draggedNode.fx = position.fx;
 				draggedNode.fy = position.fy;
@@ -126,7 +126,7 @@ onmessage = function (event) {
 			if (zeroAlphaTarget) simulation.alphaTarget(0);
 
 			if (resetFixedPosition) {
-				let draggedNode = d3nodes.find((node) => node.id === nodeId);
+				let draggedNode = simulation.nodes().find((node) => node.id === nodeId);
 				if (draggedNode) {
 					draggedNode.fx = null;
 					draggedNode.fy = null;
@@ -144,6 +144,7 @@ onmessage = function (event) {
 			currentWidth = width;
 			currentHeight = height;
 			if (!simRunning) {
+				log('WORKER resume sim not runnign');
 				simulation.nodes().forEach((simNode) => {
 					simNode.x = nodes.find((node) => node.id === simNode.id)?.x;
 					simNode.y = nodes.find((node) => node.id === simNode.id)?.y;
