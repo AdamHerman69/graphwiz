@@ -30,6 +30,8 @@
 	}
 </script>
 
+<!-- TODO Reverse because of stacking context -->
+
 <div class="relative">
 	<!-- Delete rules button -->
 	<div class="card deleteRuleButton" style={side === 'right' ? 'left: -48px;' : 'right: -48px;'}>
@@ -38,39 +40,7 @@
 		</button>
 	</div>
 
-	<div>
-		<Rules rule={nodeSettings.rule} type="node" />
-		<div class="ruleToggleSettings">
-			<button onclick={() => toggleSetting('shape')} class={nodeSettings['shape'] ? 'active' : ''}>
-				<span class="material-symbols-outlined"> shapes </span>
-			</button>
-			<button onclick={() => toggleSetting('size')} class={nodeSettings['size'] ? 'active' : ''}>
-				<span class="material-symbols-outlined"> open_in_full </span>
-			</button>
-			<button onclick={() => toggleSetting('color')} class={nodeSettings['color'] ? 'active' : ''}>
-				<span class="material-symbols-outlined"> palette </span>
-			</button>
-			<button
-				onclick={() => toggleSetting('strokeWidth')}
-				class={nodeSettings['strokeWidth'] ? 'active' : ''}
-			>
-				<span class="material-symbols-outlined"> line_weight </span>
-			</button>
-			<button
-				onclick={() => toggleSetting('strokeColor')}
-				class={nodeSettings['strokeColor'] ? 'active' : ''}
-			>
-				<span class="material-symbols-outlined"> format_color_fill </span>
-			</button>
-
-			<button
-				onclick={() => toggleSetting('labels')}
-				class={nodeSettings['labels'] ? 'active' : ''}
-			>
-				<span class="material-symbols-outlined"> label </span>
-			</button>
-		</div>
-
+	<div class="reverse">
 		<div use:autoAnimate={{ duration: 300 }} class="settingsContainer">
 			{#if nodeSettings.shape}
 				<div>
@@ -107,6 +77,37 @@
 				</div>
 			{/if}
 		</div>
+		<div class="ruleToggleSettings">
+			<button onclick={() => toggleSetting('shape')} class={nodeSettings['shape'] ? 'active' : ''}>
+				<span class="material-symbols-outlined"> shapes </span>
+			</button>
+			<button onclick={() => toggleSetting('size')} class={nodeSettings['size'] ? 'active' : ''}>
+				<span class="material-symbols-outlined"> open_in_full </span>
+			</button>
+			<button onclick={() => toggleSetting('color')} class={nodeSettings['color'] ? 'active' : ''}>
+				<span class="material-symbols-outlined"> palette </span>
+			</button>
+			<button
+				onclick={() => toggleSetting('strokeWidth')}
+				class={nodeSettings['strokeWidth'] ? 'active' : ''}
+			>
+				<span class="material-symbols-outlined"> line_weight </span>
+			</button>
+			<button
+				onclick={() => toggleSetting('strokeColor')}
+				class={nodeSettings['strokeColor'] ? 'active' : ''}
+			>
+				<span class="material-symbols-outlined"> format_color_fill </span>
+			</button>
+
+			<button
+				onclick={() => toggleSetting('labels')}
+				class={nodeSettings['labels'] ? 'active' : ''}
+			>
+				<span class="material-symbols-outlined"> label </span>
+			</button>
+		</div>
+		<Rules rule={nodeSettings.rule} type="node" />
 	</div>
 </div>
 

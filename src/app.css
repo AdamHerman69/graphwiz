@@ -201,3 +201,8 @@ html,
 body {
 	overflow: hidden;
 }
+
+.reverse {
+	display: flex;
+	flex-direction: column-reverse;
+}

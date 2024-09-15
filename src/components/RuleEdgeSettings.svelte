@@ -43,8 +43,38 @@
 		</button>
 	</div>
 
-	<div>
-		<Rules rule={edgeSettings.rule} type="edge" />
+	<div class="reverse">
+		<div use:autoAnimate={{ duration: 300 }} class="settingsContainer">
+			{#if edgeSettings.width}
+				<div>
+					<SettingsSlider numSettings={edgeSettings.width} />
+				</div>
+			{/if}
+
+			{#if edgeSettings.partialStart && edgeSettings.partialEnd}
+				<SettingsSliderMultiple
+					name="Partial Edge"
+					numSettings={[edgeSettings.partialStart, edgeSettings.partialEnd]}
+				/>
+			{/if}
+
+			{#if edgeSettings.color}
+				<div>
+					<SettingsColor colorSetting={edgeSettings.color} />
+				</div>
+			{/if}
+
+			{#if edgeSettings.decorators}
+				<div>decorators</div>
+			{/if}
+
+			{#if edgeSettings.labels}
+				<div>
+					<SettingsEdgeLabel labels={edgeSettings.labels} />
+				</div>
+			{/if}
+		</div>
+
 		<div class="ruleToggleSettings">
 			<button onclick={() => toggleSetting('width')} class={edgeSettings['width'] ? 'active' : ''}>
 				<span class="material-symbols-outlined"> line_weight </span>
@@ -79,36 +109,7 @@
 			</button>
 		</div>
 
-		<div use:autoAnimate={{ duration: 300 }} class="settingsContainer">
-			{#if edgeSettings.width}
-				<div>
-					<SettingsSlider numSettings={edgeSettings.width} />
-				</div>
-			{/if}
-
-			{#if edgeSettings.partialStart && edgeSettings.partialEnd}
-				<SettingsSliderMultiple
-					name="Partial Edge"
-					numSettings={[edgeSettings.partialStart, edgeSettings.partialEnd]}
-				/>
-			{/if}
-
-			{#if edgeSettings.color}
-				<div>
-					<SettingsColor colorSetting={edgeSettings.color} />
-				</div>
-			{/if}
-
-			{#if edgeSettings.decorators}
-				<div>decorators</div>
-			{/if}
-
-			{#if edgeSettings.labels}
-				<div>
-					<SettingsEdgeLabel labels={edgeSettings.labels} />
-				</div>
-			{/if}
-		</div>
+		<Rules rule={edgeSettings.rule} type="edge" />
 	</div>
 </div>
 
