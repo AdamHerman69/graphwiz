@@ -80,12 +80,12 @@
 	{#if literature.length > 0}
 		{#if !expanded && !editable}
 			<div class="minimized text-xs" onclick={() => (expanded = true)}>
-				<span class="material-symbols-outlined"> book_5 </span>
 				<div class="papers">
 					{#each literature as DOI, index}
 						{@render citationMini(DOI, index === literature.length - 1)}
 					{/each}
 				</div>
+				<span class="material-symbols-outlined"> book_5 </span>
 				<Collapser bind:collapsed={expanded} />
 			</div>
 		{:else}

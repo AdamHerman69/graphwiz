@@ -7,11 +7,13 @@
 	let {
 		selectedAttribute = $bindable(),
 		filter,
-		disabled = false
+		disabled = false,
+		alignRight = false
 	}: {
 		selectedAttribute: Attribute | undefined;
 		filter: (attribute: Attribute) => boolean;
 		disabled: boolean;
+		alignRight?: boolean;
 	} = $props();
 
 	let filteredAttributes = $derived(availableAttributes.filter(filter));
@@ -51,5 +53,7 @@
 	values={filteredAttributes.map((attribute) => attribute.name)}
 	width={150}
 	onChange={handleChange}
+	{alignRight}
+	fontSize={12}
 />
 <!-- TODO doesn't work now - doesn't select -->

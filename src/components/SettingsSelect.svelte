@@ -6,7 +6,7 @@
 </script>
 
 <div class="flex justify-between items-center">
-	<div class="text-m uppercase">
+	<div class="settingName">
 		{selectSetting.name}
 
 		<!-- {numSettings.source} -->
@@ -17,6 +17,10 @@
 				<option {value}>{value}</option>
 			{/each}
 		</select> -->
-		<CustomSelect bind:selected={selectSetting.value} values={selectSetting.values} />
+		<CustomSelect
+			bind:selected={selectSetting.value}
+			values={selectSetting.values}
+			alignRight={true}
+		/>
 	</div>
 </div>

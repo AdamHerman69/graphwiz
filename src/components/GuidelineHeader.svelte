@@ -40,7 +40,7 @@
 
 <div class="flex justify-between align-middle mb-1">
 	<div class="flex justify-center align-middle">
-		<div class="text-lg font-bold uppercase">
+		<div class="title">
 			{guideline.name}
 		</div>
 	</div>
@@ -52,7 +52,8 @@
 	</div>
 </div>
 <ScoreBar score={guideline.score} hidePercentage={true} />
-<div use:autoAnimate class="mt-1 labelContainer px-3">
+<!-- if labelContainer px-3 -->
+<div use:autoAnimate class="mt-1">
 	{#if !collapsed}
 		<div class="py-1">
 			{#if isComposite(guideline.rootCondition.condition)}
@@ -66,3 +67,11 @@
 		</div>
 	{/if}
 </div>
+
+<style>
+	.title {
+		font-size: 20px;
+		font-weight: 900;
+		font-family: 'UncutSans', sans-serif;
+	}
+</style>

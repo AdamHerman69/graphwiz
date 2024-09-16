@@ -41,11 +41,11 @@
 </script>
 
 <div class="flex justify-between items-center">
-	<div class="text-m uppercase">
+	<div class="settingName">
 		Labels
 		<!-- {numSettings.source} -->
 	</div>
-	<button onclick={addLabel} class="flex justify-end items-center"
+	<button onclick={addLabel} class="buttonGeneral"
 		><span class="material-symbols-outlined"> add </span></button
 	>
 </div>
@@ -75,36 +75,35 @@
 							<CustomSelect
 								bind:selected={label.position}
 								values={['below', 'above', 'center', 'left', 'right']}
+								fontSize={12}
 							/>
 						</div>
-						<div class="mx-2">
+						<div class="mx-1">
 							<button
 								onclick={() => (label.size = label.size + 0.5)}
-								class="mx-1 flex items-center"
+								class="mx-1 flex items-center buttonGeneral textSizeButton"
 							>
 								<span class="material-symbols-outlined text-sm"> text_increase </span>
 							</button>
 							<button
 								onclick={() => (label.size = label.size - 0.5)}
-								class="mx-1 flex items-center"
+								class="mx-1 flex items-center buttonGeneral textSizeButton"
 							>
 								<span class="material-symbols-outlined text-sm"> text_decrease </span>
 							</button>
 						</div>
 
-						<div>
-							<!-- TODO shadow refactor -->
-							<button
-								onclick={() => (colorPickers[index] = !colorPickers[index])}
-								class="rounded-full w-6 h-6 flex items-center"
-								style="background-color: {colord(
-									label.color
-								).toRgbString()}; box-shadow: inset 0px 0px 6px 0px rgba(0, 0, 0, 0.5);"
-							></button>
-						</div>
+						<!-- TODO shadow refactor -->
+						<button
+							onclick={() => (colorPickers[index] = !colorPickers[index])}
+							class="colorButton hoverScale"
+							style="background-color: {colord(
+								label.color
+							).toRgbString()}; box-shadow: inset 0px 0px 6px 0px rgba(0, 0, 0, 0.5);"
+						></button>
 
 						<!-- Close button -->
-						<button id={index.toString()} class="ml-auto flex items-center" onclick={deleteLabel}>
+						<button id={index.toString()} class="ml-auto buttonGeneral" onclick={deleteLabel}>
 							<span class="material-symbols-outlined"> close </span>
 						</button>
 					</div>
@@ -124,3 +123,19 @@
 		</div>
 	{/each}
 </div>
+
+<style>
+	.colorButton {
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+	}
+
+	.buttonGeneral:not(.textSizeButton) {
+		margin-left: 2px;
+	}
+
+	.textSizeButton span {
+		font-size: 14px;
+	}
+</style>

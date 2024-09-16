@@ -92,8 +92,8 @@
 	}
 
 	input {
-		width: 40px;
-		padding: 5px;
+		width: 15px;
+		padding: 0px;
 	}
 
 	:global(select) {
@@ -120,5 +120,35 @@
 		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 		padding: 5px;
 		margin: 5px 0px 2px 0px;
+	}
+
+	input {
+		text-align: center;
+		border-bottom: 1px solid black;
+		animation: blink 1s infinite;
+	}
+
+	@keyframes blink {
+		0% {
+			border-bottom-color: #000;
+		}
+		50% {
+			border-bottom-color: transparent;
+		}
+		100% {
+			border-bottom-color: #000;
+		}
+	}
+
+	/* Hide arrows for Chrome, Safari, Edge, Opera */
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	/* Hide arrows for Firefox */
+	input[type='number'] {
+		-moz-appearance: textfield;
 	}
 </style>

@@ -112,13 +112,10 @@
 
 	<h3>Recommendations</h3>
 
-	<div
-		class="p-1"
-		class:labelContainer={guideline.recommendations.layout ||
+	<!-- class:labelContainer={guideline.recommendations.layout ||
 			guideline.recommendations.nodeSettings ||
-			guideline.recommendations.edgeSettings}
-		use:autoAnimate
-	>
+			guideline.recommendations.edgeSettings} -->
+	<div class="p-1" use:autoAnimate>
 		<div class="ruleToggleSettings">
 			<button
 				onclick={() => toggleSettings('layout')}

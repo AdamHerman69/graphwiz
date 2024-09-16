@@ -236,7 +236,7 @@
 	{/if}
 
 	<div
-		class="fixed top-10 left-1/2 transform -translate-x-1/2 pointer-events-none {overlay.on
+		class="fixed top-2 left-1/2 transform -translate-x-1/2 pointer-events-none {overlay.on
 			? ''
 			: 'z-20'}"
 	>

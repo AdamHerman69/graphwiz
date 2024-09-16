@@ -10,6 +10,7 @@
 	import autoAnimate from '@formkit/auto-animate';
 	import type { Guideline } from '../utils/guideline.svelte';
 	import GuidelineSource from './GUI/GuidelineSource.svelte';
+	import { blur } from 'svelte/transition';
 
 	let {
 		colorSetting,
@@ -75,7 +76,7 @@
 </script>
 
 <div class="flex justify-between items-center">
-	<div class="text-m uppercase">
+	<div class="settingName">
 		{colorSetting.name}
 		{#if colorSetting.source}
 			<GuidelineSource
@@ -83,19 +84,29 @@
 			/>
 		{/if}
 	</div>
-	<div class="flex justify-end items-center">
-		{#if colorSetting.attribute}
-			<AttributePicker
-				bind:selectedAttribute={colorSetting.attribute}
-				filter={(attribute: Attribute) => (attribute.owner === owner && attribute.type === 'number')}
-			/>
-		{/if}
-		<button onclick={addColor} class="mx-2">+</button>
+	<div class="flex justify-end items-center gap-1">
+		<div class:bindContainer={colorSetting.attribute}>
+			{#if colorSetting.attribute}
+				<div transition:blur={{ duration: 200 }} class="mr-2">
+					<AttributePicker
+						bind:selectedAttribute={colorSetting.attribute}
+						filter={(attribute: Attribute) => (attribute.owner === owner && attribute.type === 'number')}
+						alignRight={true}
+					/>
+				</div>
+			{/if}
+
+			<button onclick={toggleAttributeBinding} class="buttonGeneral">
+				<span class="material-symbols-outlined">
+					{colorSetting.attribute ? 'link_off' : 'add_link'}</span
+				>
+			</button>
+		</div>
 		<!-- TODO iset shadow variable -->
 		{#if colorSetting.value.length == 1}
 			<button
 				onclick={() => toggleColorPicker(0)}
-				class="rounded-full w-6 h-6"
+				class="colorButton"
 				style="background-color: {colord(
 					colorSetting.value[0][0]
 				).toRgbString()}; box-shadow: inset 0px 0px 10px 0px rgba(0, 0, 0, 0.5);"
@@ -103,11 +114,9 @@
 			</button>
 		{/if}
 
-		<button onclick={toggleAttributeBinding}>
-			<span class="material-symbols-outlined">
-				{colorSetting.attribute ? 'link_off' : 'add_link'}</span
-			>
-		</button>
+		<button onclick={addColor} class="buttonGeneral"
+			><span class="material-symbols-outlined"> add</span></button
+		>
 	</div>
 </div>
 
@@ -136,3 +145,16 @@
 		/>
 	{/if}
 </div>
+
+<style>
+	.colorButton {
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		transition: all 0.2s ease;
+	}
+
+	.colorButton:hover {
+		transform: scale(1.1);
+	}
+</style>

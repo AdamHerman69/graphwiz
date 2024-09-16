@@ -36,3 +36,12 @@
 		<button bind:this={collapseButton} on:click={collapse} class="w-10 h-10 pt-1" />
 	</div>
 </div>
+
+<style>
+	.settingsHeader {
+		font-size: 45px;
+		font-weight: 900;
+		font-family: 'UncutSans';
+		text-transform: uppercase;
+	}
+</style>

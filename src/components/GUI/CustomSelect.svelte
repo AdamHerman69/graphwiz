@@ -6,10 +6,12 @@
 	let {
 		selected = $bindable(),
 		values,
-		width = 150,
+		width,
 		maxHeight = 200,
 		openUp = false,
-		onChange = () => {}
+		onChange = () => {},
+		alignRight = false,
+		fontSize = 14
 	}: {
 		selected: string | boolean;
 		values: string[] | boolean[];
@@ -17,6 +19,8 @@
 		maxHeight?: number;
 		openUp?: boolean;
 		onChange?: (index: number) => void;
+		alignRight?: boolean;
+		fontSize?: number;
 	} = $props();
 
 	let isOpen = $state(false);
@@ -94,13 +98,19 @@
 	});
 </script>
 
-<div class="custom-select" use:autoAnimate bind:this={selectContainer} style="width: {width}px;">
+<div
+	class="custom-select"
+	use:autoAnimate
+	bind:this={selectContainer}
+	style="width: {width ? '{width}px' : '100%'}; font-size: {fontSize}px;"
+>
 	<button
 		class="select-button"
 		onclick={toggleSelect}
 		aria-haspopup="listbox"
 		aria-expanded={isOpen}
 		onkeydown={handleKeydown}
+		class:alignRight
 	>
 		{selected}
 		<span class="arrow material-symbols-outlined" aria-hidden="true">keyboard_arrow_down</span>
@@ -115,6 +125,7 @@
 			onkeydown={handleKeydown}
 			onmouseover={() => (selectedIndexByKeyboard = false)}
 			style="top: {openUp ? 'auto' : '100%'}; bottom: {openUp ? '100%' : 'auto'};"
+			class:alignRight
 		>
 			{#each values as value, index}
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -135,12 +146,12 @@
 <style>
 	.custom-select {
 		position: relative;
+		font-family: 'UncutSans';
 	}
 
 	.select-button {
 		text-transform: uppercase;
-		/* font-style: italic; */
-		font-size: 14px;
+		font-style: italic;
 		width: 100%;
 		padding: 0px;
 		background-color: --card-bg-color;
@@ -149,6 +160,8 @@
 		text-align: left;
 		transition: all 0.3s ease;
 		z-index: 100000;
+		display: flex;
+		align-items: center;
 	}
 
 	.select-button:hover .arrow {
@@ -156,8 +169,9 @@
 	}
 
 	.arrow {
-		float: right;
 		transition: transform 0.3s ease;
+		padding: 0 5px;
+		font-size: 16px;
 	}
 
 	.select-button[aria-expanded='true'] .arrow {
@@ -200,14 +214,25 @@
 		background-color: transparent;
 		text-transform: uppercase;
 		transition: all 0.3s ease;
+		text-overflow: clip;
 	}
 
 	.select-option:hover,
 	.highlight {
-		padding-left: 15px;
+		transform: translateX(10px);
+	}
+
+	.alignRight .select-option:hover,
+	.alignRight .highlight {
+		transform: translateX(-10px);
 	}
 
 	.select-option[aria-selected='true'] {
 		font-weight: bold;
+	}
+
+	.alignRight {
+		text-align: right;
+		flex-direction: row-reverse;
 	}
 </style>

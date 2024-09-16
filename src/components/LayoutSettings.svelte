@@ -13,8 +13,8 @@
 <div use:autoAnimate={{ duration: 300 }} class="card cardSpacing relative">
 	<SettingsHeader title="layout" bind:collapsed />
 	{#if !collapsed}
-		<div use:autoAnimate={{ duration: 300 }} class="flex mx-2 my-2">
-			<div>ALGORITHM</div>
+		<div use:autoAnimate={{ duration: 300 }} class="flex my-2 justify-between">
+			<div class="flex items-center settingName">ALGORITHM</div>
 			<!-- <select bind:value={graphSettings.layout.value} class="bg-transparent ml-auto">
 				{#each graphSettings.layout.values as val}
 					<option value={val}>{val}</option>
@@ -24,6 +24,8 @@
 			<CustomSelect
 				bind:selected={graphSettings.layout.value}
 				values={graphSettings.layout.values}
+				alignRight={true}
+				width={140}
 			/>
 		</div>
 	{/if}

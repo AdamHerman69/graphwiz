@@ -298,7 +298,7 @@
 	}
 
 	.cardStack {
-		width: 380px;
+		width: 340px;
 		scroll-behavior: smooth;
 
 		/* Hide scrollbar for IE, Edge, and Firefox */

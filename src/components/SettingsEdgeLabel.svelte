@@ -50,7 +50,7 @@
 </script>
 
 <div class="flex justify-between items-center">
-	<div class="text-m uppercase">
+	<div class="settingName">
 		Labels
 		<!-- {numSettings.source} -->
 	</div>

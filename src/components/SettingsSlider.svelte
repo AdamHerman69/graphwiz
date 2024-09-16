@@ -6,6 +6,8 @@
 	import { getContext } from 'svelte';
 	import GuidelineSource from './GUI/GuidelineSource.svelte';
 	import type { Guideline } from '../utils/guideline.svelte';
+	import autoAnimate from '@formkit/auto-animate';
+	import { blur } from 'svelte/transition';
 
 	let { numSettings }: { numSettings: NumericalSetting } = $props();
 	const owner = getContext('type');
@@ -43,7 +45,7 @@
 </script>
 
 <div class="flex justify-between items-center">
-	<div class="text-m uppercase">
+	<div class="settingName">
 		{numSettings.name}
 		{#if numSettings.source}
 			<GuidelineSource
@@ -51,14 +53,17 @@
 			/>
 		{/if}
 	</div>
-	<div class="flex justify-end items-center">
+	<div class="flex justify-end items-center" class:bindContainer={numSettings.attribute}>
 		{#if numSettings.attribute}
-			<AttributePicker
-				bind:selectedAttribute={numSettings.attribute}
-				filter={(attribute: Attribute) => (attribute.owner === owner && attribute.type === 'number')}
-			/>
+			<div transition:blur={{ duration: 200 }} class="mr-2">
+				<AttributePicker
+					bind:selectedAttribute={numSettings.attribute}
+					filter={(attribute: Attribute) => (attribute.owner === owner && attribute.type === 'number')}
+					alignRight={true}
+				/>
+			</div>
 		{/if}
-		<button onclick={toggleAttributeBinding}>
+		<button onclick={toggleAttributeBinding} class="buttonGeneral">
 			<span class="material-symbols-outlined">
 				{numSettings.attribute ? 'link_off' : 'add_link'}</span
 			>
@@ -66,22 +71,24 @@
 	</div>
 </div>
 
-{#if numSettings.attribute}
-	<RangeSlider
-		bind:values={numSettings.selectedRange}
-		max={numSettings.max}
-		min={numSettings.min}
-		step={numSettings.increment || 1}
-		range={true}
-		float
-	/>
-{:else}
-	<RangeSlider
-		bind:values={valueArray.value}
-		max={numSettings.max}
-		min={numSettings.min}
-		step={numSettings.increment || 1}
-		range={false}
-		float
-	/>
-{/if}
+<div transition:blur>
+	{#if numSettings.attribute}
+		<RangeSlider
+			bind:values={numSettings.selectedRange}
+			max={numSettings.max}
+			min={numSettings.min}
+			step={numSettings.increment || 1}
+			range={true}
+			float
+		/>
+	{:else}
+		<RangeSlider
+			bind:values={valueArray.value}
+			max={numSettings.max}
+			min={numSettings.min}
+			step={numSettings.increment || 1}
+			range={false}
+			float
+		/>
+	{/if}
+</div>
