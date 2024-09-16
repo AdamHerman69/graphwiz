@@ -30,7 +30,9 @@
 		width: var(--picker-indicator-size, 15px);
 		height: var(--picker-indicator-size, 15px);
 		background-color: white;
-		box-shadow: 0 0 6px black;
+		box-shadow:
+			0 0 6px black,
+			inset 0 0 4px rgba(0, 0, 0, 0.3);
 		border-radius: 50%;
 
 		pointer-events: none;
@@ -38,6 +40,8 @@
 		transition: box-shadow 0.2s;
 	}
 	.is-dark {
-		box-shadow: 0 0 6px white;
+		box-shadow:
+			0 0 6px white,
+			inset 0 0 4px rgba(255, 255, 255, 0.3);
 	}
 </style>

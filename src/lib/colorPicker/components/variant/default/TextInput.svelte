@@ -190,6 +190,7 @@ _N.A._
 
 	.text-input {
 		margin: var(--text-input-margin, 5px 0 0);
+		width: calc(var(--picker-width) + 33px); /* cycle button directly under the two bars */
 	}
 	.input-container {
 		display: flex;
