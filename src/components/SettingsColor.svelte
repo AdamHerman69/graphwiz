@@ -87,7 +87,7 @@
 	<div class="flex justify-end items-center gap-1">
 		<div class:bindContainer={colorSetting.attribute}>
 			{#if colorSetting.attribute}
-				<div transition:blur={{ duration: 200 }} class="mr-2">
+				<div class="mr-2">
 					<AttributePicker
 						bind:selectedAttribute={colorSetting.attribute}
 						filter={(attribute: Attribute) => (attribute.owner === owner && attribute.type === 'number')}

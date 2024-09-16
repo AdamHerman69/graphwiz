@@ -225,6 +225,13 @@ body {
 	font-size: 14px;
 	text-transform: uppercase;
 	font-weight: 500;
+	display: flex;
+	align-items: center;
+}
+
+.settingName span {
+	margin-left: 5px;
+	font-size: 16px;
 }
 
 .bindContainer {

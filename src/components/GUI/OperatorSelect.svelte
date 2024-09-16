@@ -91,7 +91,7 @@
 		aria-expanded={isOpen}
 		onkeydown={handleKeydown}
 	>
-		{selected}
+		<div>{selected}</div>
 	</button>
 
 	{#if isOpen}
@@ -124,28 +124,43 @@
 	.custom-select {
 		position: relative;
 		width: 31px;
+		background-color: black;
+		border-radius: 7px;
+		transition: all 0.2s ease;
+	}
+
+	.custom-select:hover {
+		transform: scale(1.1);
 	}
 
 	.select-button {
 		text-transform: uppercase;
 		/* font-style: italic; */
-		font-size: 18px;
+		font-size: 17px;
 		width: 100%;
 		padding: 0px;
-		background-color: --card-bg-color;
-		border-radius: 10px;
+		/* background-color: black; */
+		color: white;
+		border-radius: 7px;
 		cursor: pointer;
-		text-align: left;
+		text-align: center;
 		transition: all 0.3s ease;
 		z-index: 100000;
 		display: flex;
 		justify-content: center;
 		outline: none;
+		align-items: center;
+		text-anchor: middle;
 	}
 
-	.select-button:hover {
-		transform: scale(1.3);
+	.select-button div {
+		text-anchor: middle;
+		padding: 0 0 2px 0;
 	}
+
+	/* .select-button:hover {
+		transform: scale(1.1);
+	} */
 
 	.select-button[aria-expanded='true'] {
 		/* background-color: rgba(0, 0, 0, 1); */
