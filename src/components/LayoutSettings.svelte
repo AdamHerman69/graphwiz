@@ -32,7 +32,4 @@
 </div>
 
 <style>
-	.cardSpacing.cardSpacing {
-		margin-top: 10px;
-	}
 </style>

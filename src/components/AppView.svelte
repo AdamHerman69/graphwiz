@@ -298,6 +298,7 @@
 	}
 
 	.cardStack {
+		margin-top: 10px;
 		width: 340px;
 		scroll-behavior: smooth;
 

@@ -148,7 +148,7 @@
 	},
 	{
 		"name": "guideline_003",
-		"description": "Visualization guideline for small graphs (EDGE)",
+		"description": "Visualization guideline for small graphs affects edges. Likely longer descriptions very likely.",
 		"literature": ["10.1038/502295a"],
 		"rootCondition": {
 			"weight": 1,
@@ -208,7 +208,7 @@
 	},
 	{
 		"name": "guideline_004",
-		"description": "Visualization guideline dense larger graphs",
+		"description": "Visualization guideline dense larger graphs, not really sure if the descriptions will be longer.",
 		"literature": [],
 		"rootCondition": {
 			"weight": 1,
@@ -251,7 +251,7 @@
 	},
 	{
 		"name": "guideline_0025",
-		"description": "Visualization guideline for large trees (RULES)",
+		"description": "Visualization guideline for large trees (RULES). This is a longer description because they'll largely be longer.",
 		"literature": [],
 		"rootCondition": {
 			"weight": 1,

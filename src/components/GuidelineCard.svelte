@@ -97,37 +97,24 @@
 		<GuidelineHeader {guideline} />
 		<div class="text-sm my-2">{guideline.description}</div>
 
-		<Literature literature={guideline.literature} />
-
 		<GuidelineSettings
 			recommendations={guideline.recommendations}
 			conflicts={guideline.status?.conflicts}
 		/>
 
-		<button
-			class="text-sm"
-			onclick={() => {guideline.parentDiv = cardParentDiv; expand(guideline, cardParentDiv!)}}
-			>expand</button
-		>
-		<button class="text-sm" onclick={downloadGuideline}>download</button>
-		<button class="text-sm" onclick={() => console.log($state.snapshot(guideline))}>log</button>
+		<Literature literature={guideline.literature} />
 
-		<button class="text-sm" onclick={edit}>edit</button>
+		<!-- <button class="buttonGeneral" onclick={() => console.log($state.snapshot(guideline))}
+			>log</button
+		> -->
 
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div class="bottomRow" onmouseleave={() => (applyHovered = false)}>
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<div onmouseenter={() => (applyHovered = true)} class="flex">
-				{#if applyHovered && guideline.status?.applied != 'fully'}
-					<button
-						onclick={applyInSplitView}
-						class="card splitButton"
-						transition:blur={{ duration: 100 }}
-						use:hoverPopup={{ text: 'open in split view', delay: 400, position: 'left' }}
-					>
-						<span class="material-symbols-outlined"> splitscreen_right </span>
-					</button>
-				{/if}
+				<!-- {#if applyHovered && guideline.status?.applied != 'fully'}
+					
+				{/if} -->
 
 				<button
 					onclick={() => applyGuideline(guideline, graphSettings)}
@@ -143,11 +130,33 @@
 				</button>
 			</div>
 
-			{#if guideline.status?.conflicts.length > 0}
+			<button
+				onclick={applyInSplitView}
+				class="splitButton buttonGeneral"
+				transition:blur={{ duration: 100 }}
+				use:hoverPopup={{ text: 'open in split view', delay: 400, position: 'left' }}
+			>
+				<span class="material-symbols-outlined"> splitscreen_right </span>
+			</button>
+
+			<button
+				class="buttonGeneral"
+				onclick={() => {guideline.parentDiv = cardParentDiv; expand(guideline, cardParentDiv!)}}
+				><span class="material-symbols-outlined"> open_in_full </span></button
+			>
+			<button class="buttonGeneral" onclick={downloadGuideline}
+				><span class="material-symbols-outlined"> download </span></button
+			>
+
+			<button class="buttonGeneral" onclick={edit}
+				><span class="material-symbols-outlined"> edit </span></button
+			>
+
+			<!-- {#if guideline.status?.conflicts.length > 0}
 				<button class="conflictButton">
 					<span class="material-symbols-outlined"> error </span>
 				</button>
-			{/if}
+			{/if} -->
 		</div>
 	{/if}
 </div>
@@ -199,8 +208,6 @@
 	}
 
 	.splitButton {
-		display: flex;
-		align-items: center;
 		margin: 0px 5px;
 	}
 

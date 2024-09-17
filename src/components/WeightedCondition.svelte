@@ -7,6 +7,7 @@
 	import NumericCondition from './NumericCondition.svelte';
 	import CompositeCondition from './CompositeCondition.svelte';
 	import IconValueDisplay from './GUI/IconValueDisplay.svelte';
+	import { hoverPopup } from './GUI/hoverPopup.svelte';
 
 	let {
 		weightedCondition = $bindable(),
@@ -29,25 +30,25 @@
 {/snippet}
 
 <div class="flex mb-1 w-full">
-	<div class="pr-4 flex items-center weight">
+	<div class="flex items-center weight">
 		<!-- <IconValueDisplay
 			icon="scale"
 			content={stringDisplay}
 			data={weightedCondition.weight.toString()}
 		/> -->
-		<div class="bubble">
+		<div class="bubble" use:hoverPopup={{ text: 'weight', position: 'right' }}>
 			{#if editable}
 				<input type="number" bind:value={weightedCondition.weight} min="1" />
 			{:else}
 				<div class="weightNumber">{weightedCondition.weight}</div>
 			{/if}
-			<span class="material-symbols-outlined"> scale </span>
-			{#if editable}
-				<button onclick={deleteFunction}>
-					<span class="material-symbols-outlined text-xs">close</span>
-				</button>
-			{/if}
+			<span class="material-symbols-outlined weight"> weight </span>
 		</div>
+		{#if editable}
+			<button onclick={deleteFunction} class="buttonGeneral">
+				<span class="material-symbols-outlined text-xs">close</span>
+			</button>
+		{/if}
 	</div>
 	<div class="flex-1 py-1 w-full">
 		{#if weightedCondition.condition.type === 'boolean'}
@@ -119,7 +120,8 @@
 		border-radius: 8px;
 		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 		padding: 5px;
-		margin: 5px 0px 2px 0px;
+		margin: 5px 6px 2px 0px;
+		cursor: help;
 	}
 
 	input {
@@ -150,5 +152,14 @@
 	/* Hide arrows for Firefox */
 	input[type='number'] {
 		-moz-appearance: textfield;
+	}
+
+	.buttonGeneral {
+		margin: 3px;
+	}
+
+	span.weight {
+		font-size: 15px;
+		font-variation-settings: 'FILL' 1;
 	}
 </style>

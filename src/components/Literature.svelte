@@ -79,17 +79,17 @@
 <div class="literature" use:autoAnimate>
 	{#if literature.length > 0}
 		{#if !expanded && !editable}
-			<div class="minimized text-xs" onclick={() => (expanded = true)}>
+			<div class="minimized" onclick={() => (expanded = true)}>
 				<div class="papers">
 					{#each literature as DOI, index}
 						{@render citationMini(DOI, index === literature.length - 1)}
 					{/each}
 				</div>
-				<span class="material-symbols-outlined"> book_5 </span>
+				<!-- <span class="material-symbols-outlined"> book_5 </span> -->
 				<Collapser bind:collapsed={expanded} />
 			</div>
 		{:else}
-			<div class="expanded labelContainer w-full" use:autoAnimate>
+			<div class="expanded labelContainer w-full my-2" use:autoAnimate>
 				{#each literature as DOI, index (DOI)}
 					{@render citationExpanded(DOI, index === literature.length - 1)}
 				{/each}
@@ -130,6 +130,8 @@
 		justify-content: flex-start;
 		align-items: center;
 		width: 100%;
+		font-size: 13px;
+		margin-bottom: 5px;
 	}
 
 	.minimized span {
