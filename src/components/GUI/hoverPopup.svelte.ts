@@ -60,7 +60,7 @@ export function hoverPopup(
 	}
 
 	function handleMouseEnter() {
-		timer = setTimeout(showPopup, options.delay || 500);
+		timer = setTimeout(showPopup, options.delay || 300);
 	}
 
 	function handleMouseLeave() {

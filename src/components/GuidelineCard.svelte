@@ -95,7 +95,7 @@
 		<GuidelineEditor bind:guideline={editedGuideline!} saveFunction={saveEditedGuideline} />
 	{:else}
 		<GuidelineHeader {guideline} />
-		<div class="text-sm my-2">{guideline.description}</div>
+		<div class="description">{guideline.description}</div>
 
 		<GuidelineSettings
 			recommendations={guideline.recommendations}
@@ -213,5 +213,10 @@
 
 	.splitButton span {
 		font-size: 18px;
+	}
+
+	.description {
+		margin: 8px 0px;
+		font-style: italic;
 	}
 </style>

@@ -118,13 +118,25 @@
 
 {#snippet settingButtons(side: 'left' | 'right')}
 	<div class="settingToggleButtons">
-		<button onclick={() => toggleSetting('layout', side)} class:on={settingsState[side].layout}>
+		<button
+			onclick={() => toggleSetting('layout', side)}
+			class:on={settingsState[side].layout}
+			use:hoverPopup={{ text: 'Toggle layout', position: side === 'left' ? 'right' : 'left' }}
+		>
 			<span class="material-symbols-outlined"> linked_services </span>
 		</button>
-		<button onclick={() => toggleSetting('node', side)} class:on={settingsState[side].node}>
+		<button
+			onclick={() => toggleSetting('node', side)}
+			class:on={settingsState[side].node}
+			use:hoverPopup={{ text: 'Toggle node', position: side === 'left' ? 'right' : 'left' }}
+		>
 			<span class="material-symbols-outlined"> masked_transitions </span>
 		</button>
-		<button onclick={() => toggleSetting('edge', side)} class:on={settingsState[side].edge}>
+		<button
+			onclick={() => toggleSetting('edge', side)}
+			class:on={settingsState[side].edge}
+			use:hoverPopup={{ text: 'Toggle edge', position: side === 'left' ? 'right' : 'left' }}
+		>
 			<span class="material-symbols-outlined"> diagonal_line </span>
 		</button>
 	</div>
@@ -132,10 +144,16 @@
 
 {#snippet guidelineButtons(side: 'left' | 'right')}
 	<div class="settingToggleButtons">
-		<button onclick={guidelineExports[side]!.addGuideline}>
+		<button
+			onclick={guidelineExports[side]!.addGuideline}
+			use:hoverPopup={{ text: 'Add new guideline', position: side === 'left' ? 'right' : 'left' }}
+		>
 			<span class="material-symbols-outlined"> add </span>
 		</button>
-		<button onclick={downloadGuidelines}>
+		<button
+			onclick={downloadGuidelines}
+			use:hoverPopup={{ text: 'Download guidelines', position: side === 'left' ? 'right' : 'left' }}
+		>
 			<span class="material-symbols-outlined"> download </span>
 		</button>
 	</div>

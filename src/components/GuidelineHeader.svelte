@@ -38,7 +38,7 @@
 	});
 </script>
 
-<div class="flex justify-between align-middle mb-1">
+<div class="flex justify-between align-middle mb-2">
 	<div class="flex justify-center align-middle">
 		<div class="title">
 			{guideline.name}
@@ -47,7 +47,7 @@
 	<div>
 		<div class="flex items-center">
 			<button bind:this={collapseButton} on:click={collapse} class="w-5 h-5" />
-			<div class="text-lg font-bold text-nowrap">{formatDecimal(guideline.score * 100, 0)} %</div>
+			<div class="percentage">{formatDecimal(guideline.score * 100, 0)} %</div>
 		</div>
 	</div>
 </div>
@@ -70,8 +70,17 @@
 
 <style>
 	.title {
-		font-size: 20px;
-		font-weight: 900;
+		font-size: 18px;
+		font-weight: 600;
 		font-family: 'UncutSans', sans-serif;
+		line-height: 100%;
+		text-transform: uppercase;
+		display: inline-block;
+	}
+
+	.percentage {
+		font-weight: 600;
+		text-wrap: nowrap;
+		font-size: 18px;
 	}
 </style>

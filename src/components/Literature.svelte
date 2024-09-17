@@ -130,7 +130,7 @@
 		justify-content: flex-start;
 		align-items: center;
 		width: 100%;
-		font-size: 13px;
+		font-size: 14px;
 		margin-bottom: 5px;
 	}
 

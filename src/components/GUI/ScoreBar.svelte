@@ -4,9 +4,11 @@
 	import type { Gradient } from '../../utils/graphSettings.svelte';
 
 	const gradient: Gradient = [
-		[{ r: 200, g: 0, b: 0, a: 1 }, 0],
-		[{ r: 0, g: 200, b: 0, a: 1 }, 1]
+		[{ r: 133, g: 0, b: 100, a: 1 }, 0],
+		[{ r: 58, g: 144, b: 209, a: 1 }, 0.5],
+		[{ r: 51, g: 223, b: 120, a: 1 }, 1]
 	];
+
 	let {
 		score,
 		weightNormalized = 1,
