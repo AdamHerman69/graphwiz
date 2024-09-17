@@ -407,30 +407,30 @@ function addSourceToSettings(guidelines: Guideline[]): void {
 	// todo layout
 	guidelines.forEach((guideline) => {
 		guideline.recommendations.nodeSettings?.forEach((nodeSetting: NodeSettings) => {
-			nodeSetting.source = guideline.id;
-			if (nodeSetting.size) nodeSetting.size.source = guideline.id;
-			if (nodeSetting.color) nodeSetting.color.source = guideline.id;
-			if (nodeSetting.strokeWidth) nodeSetting.strokeWidth.source = guideline.id;
-			if (nodeSetting.strokeColor) nodeSetting.strokeColor.source = guideline.id;
+			nodeSetting.source = guideline.name;
+			if (nodeSetting.size) nodeSetting.size.source = guideline.name;
+			if (nodeSetting.color) nodeSetting.color.source = guideline.name;
+			if (nodeSetting.strokeWidth) nodeSetting.strokeWidth.source = guideline.name;
+			if (nodeSetting.strokeColor) nodeSetting.strokeColor.source = guideline.name;
 			if (nodeSetting.labels)
 				nodeSetting.labels.forEach((label) => {
-					label.source = guideline.id;
+					label.source = guideline.name;
 				});
 		});
 
 		guideline.recommendations.edgeSettings?.forEach((edgeSetting) => {
-			edgeSetting.source = guideline.id;
-			if (edgeSetting.color) edgeSetting.color.source = guideline.id;
-			if (edgeSetting.width) edgeSetting.width.source = guideline.id;
-			if (edgeSetting.partialStart) edgeSetting.partialStart.source = guideline.id;
-			if (edgeSetting.partialEnd) edgeSetting.partialEnd.source = guideline.id;
+			edgeSetting.source = guideline.name;
+			if (edgeSetting.color) edgeSetting.color.source = guideline.name;
+			if (edgeSetting.width) edgeSetting.width.source = guideline.name;
+			if (edgeSetting.partialStart) edgeSetting.partialStart.source = guideline.name;
+			if (edgeSetting.partialEnd) edgeSetting.partialEnd.source = guideline.name;
 			if (edgeSetting.decorators)
 				edgeSetting.decorators.value.forEach((decorator) => {
-					decorator.source = guideline.id;
+					decorator.source = guideline.name;
 				});
 			if (edgeSetting.labels)
 				edgeSetting.labels.forEach((label) => {
-					label.source = guideline.id;
+					label.source = guideline.name;
 				});
 		});
 	});

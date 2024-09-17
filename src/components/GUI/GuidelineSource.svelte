@@ -2,9 +2,9 @@
 	import { type Guideline } from '../../utils/guideline.svelte';
 	import { hoverPopup } from './hoverPopup.svelte';
 
-	let { guideline }: { guideline: Guideline } = $props();
+	let { guidelineName }: { guidelineName: string } = $props();
 
-	let popupText = guideline.name ? `Set by: ${guideline.name}` : '';
+	let popupText = guidelineName ? `Set by: ${guidelineName}` : '';
 </script>
 
 <span class="material-symbols-outlined hoverScale" use:hoverPopup={{ text: popupText }}>

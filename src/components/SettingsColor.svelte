@@ -79,9 +79,7 @@
 	<div class="settingName">
 		{colorSetting.name}
 		{#if colorSetting.source}
-			<GuidelineSource
-				guideline={guidelines.find((guideline) => guideline.id === colorSetting.source)}
-			/>
+			<GuidelineSource guidelineName={colorSetting.source} />
 		{/if}
 	</div>
 	<div class="flex justify-end items-center gap-1">

@@ -11,7 +11,8 @@
 		openUp = false,
 		onChange = () => {},
 		alignRight = false,
-		fontSize = 14
+		fontSize = 14,
+		disabled = false
 	}: {
 		selected: string | boolean;
 		values: string[] | boolean[];
@@ -21,6 +22,7 @@
 		onChange?: (index: number) => void;
 		alignRight?: boolean;
 		fontSize?: number;
+		disabled?: boolean;
 	} = $props();
 
 	let isOpen = $state(false);
@@ -29,6 +31,7 @@
 	let dropdownWidth = $state(0);
 
 	function toggleSelect() {
+		if (disabled) return;
 		isOpen = !isOpen;
 	}
 
@@ -129,9 +132,12 @@
 		aria-expanded={isOpen}
 		onkeydown={handleKeydown}
 		class:alignRight
+		class:{disabled}
 	>
 		{selected}
-		<span class="arrow material-symbols-outlined" aria-hidden="true">keyboard_arrow_down</span>
+		{#if !disabled}
+			<span class="arrow material-symbols-outlined" aria-hidden="true">keyboard_arrow_down</span>
+		{/if}
 	</button>
 
 	{#if isOpen}

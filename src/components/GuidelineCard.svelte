@@ -110,6 +110,7 @@
 			>expand</button
 		>
 		<button class="text-sm" onclick={downloadGuideline}>download</button>
+		<button class="text-sm" onclick={() => console.log($state.snapshot(guideline))}>log</button>
 
 		<button class="text-sm" onclick={edit}>edit</button>
 

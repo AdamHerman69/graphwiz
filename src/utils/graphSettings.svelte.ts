@@ -10,7 +10,7 @@ export type Setting<T> = {
 	name: string;
 	value: T;
 	attribute?: RangeAttribute;
-	source: null | number; // guideline id
+	source: null | string; // guideline name
 };
 
 export type SelectSetting<T> = Setting<T> & {
@@ -36,7 +36,7 @@ export type DecoratorData = {
 	id: number;
 	type: DecoratorType;
 	position: number;
-	source?: null | number;
+	source?: null | string;
 };
 
 const decoratorTypes = ['triangle', 'circle', 'square'] as const;
@@ -57,7 +57,7 @@ type LabelStyle = {
 	color: RgbaColor;
 	size: number;
 	attribute?: Attribute;
-	source?: null | number;
+	source?: null | string;
 };
 
 export type NodeLabel = LabelStyle & {
@@ -109,7 +109,7 @@ type RuleSettings = {
 	id: number; // for keyed each blocks
 	priority: number;
 	rule?: Rule;
-	source: null | number;
+	source: null | string;
 };
 
 export type NodeSettings = NodeProperties & RuleSettings;
@@ -277,7 +277,7 @@ export class GraphSettingsClass {
 		}
 
 		if (nodeSettings) {
-			nodeSettings = $state.snapshot(nodeSettings);
+			nodeSettings = $state.snapshot(nodeSettings); // TODO this sometimes ommits source no idea why
 			if (nodeSettings[0].shape) this.graphSettings.nodeSettings[0].shape = nodeSettings[0].shape;
 			if (nodeSettings[0].size) this.graphSettings.nodeSettings[0].size = nodeSettings[0].size;
 			if (nodeSettings[0].color) this.graphSettings.nodeSettings[0].color = nodeSettings[0].color;

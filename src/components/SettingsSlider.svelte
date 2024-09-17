@@ -47,10 +47,8 @@
 <div class="flex justify-between items-center">
 	<div class="settingName">
 		{numSettings.name}
-		{#if numSettings.source}
-			<GuidelineSource
-				guideline={guidelines.find((guideline) => guideline.id === numSettings.source)}
-			/>
+		{#if numSettings.source != null}
+			<GuidelineSource guidelineName={numSettings.source} />
 		{/if}
 	</div>
 	<div class="flex justify-end items-center" class:bindContainer={numSettings.attribute}>
