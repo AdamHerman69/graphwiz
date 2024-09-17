@@ -11,39 +11,67 @@
 	let isGuidelineEditor = getContext('isGuidelineEditor');
 </script>
 
-<div class="flex justify-between">
+<div class="flex justify-between items-center flex-1">
 	<!-- Select rule target -->
 	<!-- todo disabled -->
-	<CustomSelect bind:selected={rule.target} values={['edge', 'source', 'target']} width={100} />
+	<div class="beforeOperator">
+		<CustomSelect
+			bind:selected={rule.target}
+			values={['edge', 'source', 'target']}
+			width={100}
+			fontSize={12}
+		/>
 
-	<!-- Left operator settings -->
-	<!-- todo proper filter -->
-	{#if rule.target === 'edge'}
-		<AttributePicker
-			bind:selectedAttribute={rule.property}
-			filter={(attribute: Attribute) =>
+		<!-- Left operator settings -->
+		<!-- todo proper filter -->
+		{#if rule.target === 'edge'}
+			<AttributePicker
+				bind:selectedAttribute={rule.property}
+				filter={(attribute: Attribute) =>
 				attribute.owner === 'edge' &&
 				(!isGuidelineEditor || attribute.general === true)}
-			{disabled}
-		/>
-	{:else}
-		<AttributePicker
-			bind:selectedAttribute={rule.property}
-			filter={(attribute: Attribute) =>
+				{disabled}
+			/>
+		{:else}
+			<AttributePicker
+				bind:selectedAttribute={rule.property}
+				filter={(attribute: Attribute) =>
 			attribute.owner === 'node' &&
 			(!isGuidelineEditor || attribute.general === true)}
-			{disabled}
-		/>
-	{/if}
+				{disabled}
+			/>
+		{/if}
+	</div>
+
+	<div class="flex-grow">
+		{#if rule.type === 'number'}
+			<OperatorSelect bind:selected={rule.operator} values={['=', '>', '<', '≥', '≤']} />
+		{:else}
+			<p>is</p>
+		{/if}
+	</div>
 
 	<!-- Numerical Operator -->
 	{#if rule.type === 'number'}
-		<OperatorSelect bind:selected={rule.operator} values={['=', '>', '<', '≥', '≤']} />
-		<input type="number" class="bg-transparent w-1/6" bind:value={rule.value} />
+		<input type="number" bind:value={rule.value} />
 	{:else}
-		<div class="flex">
-			<p>is</p>
-			<input type="string" class="bg-transparent mx-1 w-1/4" bind:value={rule.value} />
-		</div>
+		<input type="string" bind:value={rule.value} />
 	{/if}
 </div>
+
+<style>
+	.beforeOperator {
+		display: flex;
+		max-width: 150px;
+		flex-wrap: wrap;
+		flex-grow: 1;
+	}
+
+	input {
+		text-align: center;
+		background-color: transparent;
+		margin: 0 5px;
+		width: 100%;
+		max-width: 70px;
+	}
+</style>

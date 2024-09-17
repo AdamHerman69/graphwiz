@@ -48,7 +48,7 @@
 	}
 </script>
 
-<div class="labelContainer p-1">
+<div class="labelContainer">
 	<div class="absolute left-1/2 transform -translate-x-1/2 mt-1">
 		<!-- <RadialSelector bind:selected={rule.operator} options={['AND', 'OR']} width={45} /> -->
 		<ToggleSwitch bind:selected={rule.operator} />
@@ -64,7 +64,7 @@
 	<div class="mt-8" use:autoAnimate={{ duration: 300 }}>
 		{#each rule.rules as subRule, index (subRule.id)}
 			{#if isAtomic(subRule)}
-				<div class="flex">
+				<div class="flex w-full">
 					<!-- TODO: combine node rule and edgeRule to one component, have adjecent edges optional -->
 					{#if type === 'edge'}
 						<!-- <EdgeRule2 bind:rule={rule.rules[index]} /> -->
@@ -77,7 +77,7 @@
 					<!-- Delete button -->
 					<button
 						id={index.toString()}
-						class="ml-auto flex items-center mr-1"
+						class="deleteButton flex items-center"
 						onclick={(event) => {
 							rule.rules.splice(parseInt(event.currentTarget.id), 1);
 						}}
@@ -86,7 +86,7 @@
 					</button>
 				</div>
 			{:else}
-				<div class="my-1 mx-1">
+				<div class="ml-auto my-1 mx-1">
 					<svelte:self
 						rule={rule.rules[index]}
 						{type}
@@ -95,7 +95,7 @@
 					/>
 				</div>
 			{/if}
-			<div class={`mx-3 ${index < rule.rules.length - 1 ? 'border-b border-gray-200' : ''}`} />
+			<div class={`${index < rule.rules.length - 1 ? 'border-b border-gray-200' : ''}`} />
 		{/each}
 	</div>
 
@@ -122,5 +122,13 @@
 	.buttonSmall {
 		font-size: 14px;
 		padding: 4px 4px 0px 4px;
+	}
+
+	.labelContainer {
+		padding: 4px 8px;
+	}
+
+	.deleteButton {
+		width: 14px;
 	}
 </style>

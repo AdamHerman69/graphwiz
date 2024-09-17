@@ -9,7 +9,7 @@
 	let isGuidelineEditor = getContext('isGuidelineEditor');
 </script>
 
-<div class="flex justify-between my-1 pl-2">
+<div class="flex justify-between items-center flex-1">
 	<!-- todo proper filter -->
 	<AttributePicker
 		bind:selectedAttribute={rule.property}
@@ -19,37 +19,24 @@
 
 	<!-- Numerical Operator -->
 	{#if rule.property?.type === 'number'}
-		<!-- <select class="bg-transparent w-1/4" bind:value={rule.operator} {disabled}>
-			<option value="=">=</option>
-			<option value=">">&gt</option>
-			<option value="<">&lt</option>
-			<option value=">=">≥</option>
-			<option value="<=">≤</option>
-		</select> -->
 		<OperatorSelect bind:selected={rule.operator} values={['=', '>', '<', '≥', '≤']} />
-		<!-- <RadialSelector bind:selected={rule.operator} options={['=', '>', '<', '≥', '≤']} width={25} /> -->
-		<input type="number" class="bg-transparent w-1/4" bind:value={rule.value} {disabled} />
 	{:else}
-		is
-		<input type="string" class="bg-transparent mx-1 w-1/2" bind:value={rule.value} {disabled} />
+		<div>is</div>
 	{/if}
+
+	<input type={rule.property?.type} bind:value={rule.value} {disabled} />
 </div>
 
 <style>
-	select,
 	input {
 		flex: 1;
-		border-radius: 0.5rem;
-		transition: box-shadow 0.2s ease-in-out;
 		text-align: center;
+		background-color: transparent;
+		margin: 0 5px;
+		max-width: 70px;
+		min-width: none;
 	}
 
-	/* select:hover,
-	input:hover {
-		box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
-	} */
-
-	select:focus,
 	input:focus {
 		outline: none;
 	}

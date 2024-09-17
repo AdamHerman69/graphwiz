@@ -127,6 +127,7 @@
 		background-color: black;
 		border-radius: 7px;
 		transition: all 0.2s ease;
+		height: 22px;
 	}
 
 	.custom-select:hover {
