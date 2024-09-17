@@ -9,7 +9,7 @@
 	let isGuidelineEditor = getContext('isGuidelineEditor');
 </script>
 
-<div class="flex justify-between items-center flex-1">
+<div class="flex justify-between items-center flex-1 my-1">
 	<!-- todo proper filter -->
 	<AttributePicker
 		bind:selectedAttribute={rule.property}
