@@ -12,6 +12,10 @@
 >
 
 <style>
+	span {
+		font-variation-settings: 'FILL' 1;
+	}
+
 	span:hover {
 		cursor: help;
 	}

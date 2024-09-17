@@ -96,7 +96,11 @@
 				</div>
 			{/if}
 
-			<button onclick={toggleAttributeBinding} class="buttonGeneral">
+			<button
+				onclick={toggleAttributeBinding}
+				class="buttonGeneral"
+				class:linkMargin={colorSetting.value.length <= 1}
+			>
 				<span class="material-symbols-outlined">
 					{colorSetting.attribute ? 'link_off' : 'add_link'}</span
 				>
@@ -156,5 +160,9 @@
 
 	.colorButton:hover {
 		transform: scale(1.1);
+	}
+
+	.linkMargin {
+		margin-right: 3px;
 	}
 </style>

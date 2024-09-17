@@ -65,7 +65,7 @@
 	<div class="reverse" use:autoAnimate={{ duration: 300 }}>
 		{#each reverseIndexes as index (graphSettings.graphSettings.edgeSettings[index].id)}
 			{#if index === 0}
-				<div use:autoAnimate={{ duration: 300 }} class="card cardSpacing">
+				<div use:autoAnimate={{ duration: 300 }} class="card cardSpacing settingContainer">
 					<SettingsHeader title="edge" bind:collapsed />
 					<!-- Settings -->
 					{#if !collapsed}

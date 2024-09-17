@@ -34,7 +34,10 @@
 
 <div class="relative">
 	<!-- Delete rules button -->
-	<div class="card deleteRuleButton" style={side === 'right' ? 'left: -48px;' : 'right: -48px;'}>
+	<div
+		class="card deleteRuleButton hoverScale"
+		style={side === 'right' ? 'left: -48px;' : 'right: -48px;'}
+	>
 		<button onclick={deleteRuleSettings}>
 			<span class="material-symbols-outlined text-base"> close </span>
 		</button>

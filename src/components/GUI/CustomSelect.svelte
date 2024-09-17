@@ -26,6 +26,7 @@
 	let isOpen = $state(false);
 	let selectedIndex = $state(0);
 	let selectedIndexByKeyboard = $state(false);
+	let dropdownWidth = $state(0);
 
 	function toggleSelect() {
 		isOpen = !isOpen;
@@ -39,6 +40,9 @@
 	}
 
 	let selectContainer: HTMLElement;
+	let dropdownElement: HTMLUListElement;
+	let measureElement: HTMLSpanElement;
+
 	function handleClickOutside(event: MouseEvent) {
 		if (!selectContainer.contains(event.target as Node)) {
 			isOpen = false;
@@ -47,6 +51,7 @@
 
 	onMount(() => {
 		document.addEventListener('click', handleClickOutside);
+		calculateDropdownWidth();
 	});
 
 	onDestroy(() => {
@@ -54,7 +59,6 @@
 	});
 
 	function handleKeydown(event: KeyboardEvent) {
-		console.log('handleKeydown', isOpen, event.key);
 		if (!isOpen) return;
 
 		switch (event.key) {
@@ -79,6 +83,18 @@
 		}
 	}
 
+	function calculateDropdownWidth() {
+		if (measureElement) {
+			let maxWidth = 0;
+			values.forEach((value) => {
+				measureElement.textContent = String(value);
+				const width = measureElement.offsetWidth;
+				maxWidth = Math.max(maxWidth, width);
+			});
+			dropdownWidth = maxWidth + 40; // Add padding for the dropdown
+		}
+	}
+
 	$effect(() => {
 		selectedIndex = values.indexOf(selected);
 	});
@@ -88,12 +104,14 @@
 	});
 
 	$effect(() => {
-		if (isOpen && selectedIndex) {
-			tick().then(() => {
-				console.log('scrolled');
-				const options = document.querySelectorAll('.select-option');
-				options[selectedIndex]?.scrollIntoView({ block: 'nearest' });
-			});
+		if (isOpen) {
+			calculateDropdownWidth();
+			if (selectedIndex !== null) {
+				tick().then(() => {
+					const options = dropdownElement.querySelectorAll('.select-option');
+					options[selectedIndex]?.scrollIntoView({ block: 'nearest' });
+				});
+			}
 		}
 	});
 </script>
@@ -117,18 +135,21 @@
 	</button>
 
 	{#if isOpen}
-		<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 		<ul
 			class="select-dropdown"
 			role="listbox"
 			tabindex="-1"
 			onkeydown={handleKeydown}
 			onmouseover={() => (selectedIndexByKeyboard = false)}
-			style="top: {openUp ? 'auto' : '100%'}; bottom: {openUp ? '100%' : 'auto'};"
+			style="top: {openUp ? 'auto' : '100%'}; bottom: {openUp
+				? '100%'
+				: 'auto'}; width: {dropdownWidth}px; right: {alignRight ? '0' : 'auto'}; left: {alignRight
+				? 'auto'
+				: '0'};"
 			class:alignRight
+			bind:this={dropdownElement}
 		>
 			{#each values as value, index}
-				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<li
 					class="select-option"
 					role="option"
@@ -141,6 +162,8 @@
 			{/each}
 		</ul>
 	{/if}
+
+	<span bind:this={measureElement} class="measure-element"></span>
 </div>
 
 <style>
@@ -154,7 +177,7 @@
 		font-style: italic;
 		width: 100%;
 		padding: 0px;
-		background-color: --card-bg-color;
+		background-color: var(--card-bg-color);
 		border-radius: 10px;
 		cursor: pointer;
 		text-align: left;
@@ -179,20 +202,13 @@
 	}
 
 	.select-button[aria-expanded='true'] {
-		/* background-color: rgba(0, 0, 0, 1); */
-		/* color: white; */
 		border-radius: 10px 10px 10px 10px;
 	}
 
 	.select-dropdown {
 		position: absolute;
-		/* top: 110%; */
-		/* bottom: 0; */
 		left: -10px;
-		right: 0;
-		/* border: 1px solid #ddd; */
-		background-color: --card-bg-color;
-		border-top: none;
+		background-color: var(--card-bg-color);
 		border-radius: 11px;
 		max-height: 200px;
 		overflow-y: auto;
@@ -215,6 +231,7 @@
 		text-transform: uppercase;
 		transition: all 0.3s ease;
 		text-overflow: clip;
+		white-space: nowrap;
 	}
 
 	.select-option:hover,
@@ -234,5 +251,19 @@
 	.alignRight {
 		text-align: right;
 		flex-direction: row-reverse;
+	}
+
+	.measure-element {
+		position: absolute;
+		visibility: hidden;
+		height: auto;
+		width: auto;
+		white-space: nowrap;
+		font-family: inherit;
+		font-size: inherit;
+		font-style: inherit;
+		font-weight: inherit;
+		text-transform: inherit;
+		letter-spacing: inherit;
 	}
 </style>

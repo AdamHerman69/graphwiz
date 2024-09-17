@@ -58,11 +58,11 @@
 		><span class="material-symbols-outlined"> add </span></button
 	>
 </div>
-<div class="mb-4 mt-2">
-	{#if labelPositions.value.length > 0}
+{#if labelPositions.value.length > 0}
+	<div class="mx-1">
 		<RangeSlider bind:values={labelPositions.value} min={0} max={1} step={0.01} float />
-	{/if}
-</div>
+	</div>
+{/if}
 
 <div class="labelContainer mt-1" use:autoAnimate={{ duration: 250 }}>
 	<!-- todo keyed array -->

@@ -86,12 +86,14 @@
 					</button>
 				</div>
 			{:else}
-				<svelte:self
-					rule={rule.rules[index]}
-					{type}
-					thisIndex={index}
-					deleteFunction={() => deleteRule(index)}
-				/>
+				<div class="my-1 mx-1">
+					<svelte:self
+						rule={rule.rules[index]}
+						{type}
+						thisIndex={index}
+						deleteFunction={() => deleteRule(index)}
+					/>
+				</div>
 			{/if}
 			<div class={`mx-3 ${index < rule.rules.length - 1 ? 'border-b border-gray-200' : ''}`} />
 		{/each}
