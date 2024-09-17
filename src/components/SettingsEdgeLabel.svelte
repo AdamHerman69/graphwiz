@@ -54,7 +54,7 @@
 		Labels
 		<!-- {numSettings.source} -->
 	</div>
-	<button onclick={addLabel} class="flex justify-end items-center"
+	<button onclick={addLabel} class="buttonGeneral"
 		><span class="material-symbols-outlined"> add </span></button
 	>
 </div>
@@ -77,33 +77,47 @@
 							bind:selectedAttribute={label.attribute}
 							filter={(attribute: Attribute) => attribute.owner === 'edge' && (!onlyGeneral || attribute.general === true)}
 						/>
-						<CustomSelect bind:selected={label.position} values={['below', 'above', 'center']} />
+						<CustomSelect
+							bind:selected={label.position}
+							values={['below', 'above', 'center']}
+							fontSize={12}
+						/>
 					</div>
 
 					<div>
 						<button onclick={() => (label.size = label.size + 0.5)} class="mx-1 flex items-center">
-							<span class="material-symbols-outlined text-sm"> text_increase </span>
+							<span class="material-symbols-outlined text-sm hoverScale"> text_increase </span>
 						</button>
 						<button onclick={() => (label.size = label.size - 0.5)} class="mx-1 flex items-center">
-							<span class="material-symbols-outlined text-sm"> text_decrease </span>
+							<span class="material-symbols-outlined text-sm hoverScale"> text_decrease </span>
 						</button>
 					</div>
 
-					<button onclick={() => (label.rotate = !label.rotate)} class="mx-1 flex items-center">
-						<span class="material-symbols-outlined text-sm"> text_rotation_angledown </span>
+					<button
+						onclick={() => (label.rotate = !label.rotate)}
+						class="mx-1 flex items-center rotateButton"
+						class:rotationOn={!label.rotate}
+					>
+						<span class="material-symbols-outlined text-sm hoverScale">
+							text_rotation_angledown
+						</span>
 					</button>
 
 					<div>
 						<button
 							onclick={() => (colorPickers[index] = !colorPickers[index])}
-							class="rounded-full w-6 h-6 flex items-center"
+							class="colorButton hoverScale"
 							style="background-color: {colord(
 								label.color
 							).toRgbString()}; box-shadow: inset 0px 0px 6px 0px rgba(0, 0, 0, 0.5);"
 						/>
 					</div>
 
-					<button class="ml-auto flex items-center" id={index.toString()} onclick={deletelabel}>
+					<button
+						class="ml-auto flex items-center buttonGeneral"
+						id={index.toString()}
+						onclick={deletelabel}
+					>
 						<span class="material-symbols-outlined"> close </span>
 					</button>
 				</div>
@@ -123,3 +137,29 @@
 		<div class={`mx-3 ${index < labels.length - 1 ? 'border-b border-gray-200' : ''}`} />
 	{/each}
 </div>
+
+<style>
+	.buttonGeneral {
+		margin-left: 2px;
+	}
+
+	.colorButton {
+		display: flex;
+		align-items: center;
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+	}
+
+	.rotateButton {
+		transition: all 0.2s ease;
+	}
+
+	.rotateButton:hover {
+		transform: rotate(-55deg);
+	}
+
+	.rotationOn {
+		transform: rotate(-45deg);
+	}
+</style>

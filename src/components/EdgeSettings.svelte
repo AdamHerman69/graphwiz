@@ -52,12 +52,13 @@
 	});
 </script>
 
-<div class="reverse">
+<div class="reverse mb-8">
 	<!-- Add rule button -->
-	<div class="flex justify-center">
-		<div class="card buttonSpacing w-14">
+	<div class="flex justify-center addRuleWrapper">
+		<div class="card buttonSpacing addRuleButton">
 			<button onclick={addRule} class="flex items-center justify-center w-full h-full">
 				<span class="material-symbols-outlined">add</span>
+				<!-- add conditional styles -->
 			</button>
 		</div>
 	</div>
@@ -94,5 +95,32 @@
 	.reverse {
 		display: flex;
 		flex-direction: column-reverse;
+	}
+
+	.addRuleWrapper {
+		height: 25px;
+		transition: all 0.3s ease;
+		pointer-events: auto;
+		margin-top: -9px;
+	}
+
+	.addRuleButton {
+		transition: all 0.3s ease;
+		width: 250px;
+		height: 30px;
+		margin-top: -18px;
+	}
+
+	.addRuleButton button {
+		text-transform: uppercase;
+	}
+
+	.addRuleWrapper:hover {
+		height: 50px;
+	}
+
+	.addRuleWrapper:hover .addRuleButton {
+		width: 100%;
+		margin-top: 10px;
 	}
 </style>

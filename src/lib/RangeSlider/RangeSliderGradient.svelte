@@ -694,7 +694,9 @@
 					)}{#if suffix}<span class="rangeFloat-suffix">{suffix}</span>{/if}
 				</span>
 				{#if activeHandle === index && focus}
-					<button class="pickerButton h-6 w-6" on:click={() => removeColor(index)}> - </button>
+					<button class="pickerButton h-6 w-6" on:click={() => removeColor(index)}
+						><span class="material-symbols-outlined hoverScale">close</span></button
+					>
 				{/if}
 			{/if}
 		</span>
@@ -897,7 +899,9 @@
 		border-radius: 0.2em;
 	} */
 	:global(.pickerButton) {
-		display: block;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		position: absolute;
 		left: 50%;
 		top: 3em;
@@ -911,6 +915,14 @@
 		font-size: 0.9em;
 		padding: 0.2em 0.4em;
 		border-radius: 0.2em;
+	}
+
+	:global(.pickerButton span) {
+		border-radius: 50%;
+		font-size: 12px;
+		background-color: var(--default-bg-color);
+		padding: 3px;
+		box-shadow: 0 0 5px 0.5px rgba(0, 0, 0, 0.3);
 	}
 	:global(.rangeSlider .rangeHandle.active .rangeFloat),
 	:global(.rangeSlider.hoverable .rangeHandle:hover .rangeFloat) {
