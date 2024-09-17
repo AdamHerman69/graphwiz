@@ -104,9 +104,18 @@ body {
 /* rules */
 
 .ruleToggleSettings {
-	margin: 5px 0px;
+	margin: 8px 0px;
 	display: flex;
 	justify-content: center;
+}
+
+.ruleToggleSettings button {
+	transition: flex 0.2s;
+	flex: 1;
+}
+
+.ruleToggleSettings button:hover {
+	flex: 1.5;
 }
 
 .ruleToggleSettings button {
