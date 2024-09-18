@@ -37,8 +37,8 @@ export type Conflict = {
 	type: 'layout' | 'nodeSetting' | 'edgeSetting';
 	property?: string;
 	index?: number;
-	conflictingGuidelineId: number;
-	conflictingGuidelineName?: string;
+	conflictingGuidelineId?: number;
+	conflictingGuidelineName: string;
 };
 
 export type NumericCondition = {
@@ -253,16 +253,16 @@ function getGuidelineStatus(
 		totalRecommendations++;
 		if (
 			graphSettings.graphSettings.layout.value === guideline.recommendations.layout &&
-			graphSettings.graphSettings.layout.source === guideline.id
+			graphSettings.graphSettings.layout.source === guideline.name
 		) {
 			appliedCount++;
 		} else if (
 			graphSettings.graphSettings.layout.source &&
-			graphSettings.graphSettings.layout.source !== guideline.id
+			graphSettings.graphSettings.layout.source !== guideline.name
 		) {
 			status.conflicts.push({
 				type: 'layout',
-				conflictingGuidelineId: graphSettings.graphSettings.layout.source
+				conflictingGuidelineName: graphSettings.graphSettings.layout.source
 			});
 		}
 	}
@@ -272,7 +272,7 @@ function getGuidelineStatus(
 		appliedCount += checkSettings(
 			guideline.recommendations.nodeSettings,
 			graphSettings.graphSettings.nodeSettings,
-			guideline.id,
+			guideline.name,
 			'nodeSetting',
 			status.conflicts
 		);
@@ -284,7 +284,7 @@ function getGuidelineStatus(
 		appliedCount += checkSettings(
 			guideline.recommendations.edgeSettings,
 			graphSettings.graphSettings.edgeSettings,
-			guideline.id,
+			guideline.name,
 			'edgeSetting',
 			status.conflicts
 		);
@@ -305,7 +305,7 @@ function getGuidelineStatus(
 function checkSettings(
 	recommendedSettings: (NodeSettings | EdgeSettings)[],
 	currentSettings: (NodeSettings | EdgeSettings)[],
-	guidelineId: number,
+	guidelineName: string,
 	settingType: 'nodeSetting' | 'edgeSetting',
 	conflicts: Conflict[]
 ): number {
@@ -316,7 +316,7 @@ function checkSettings(
 		appliedCount += checkProperties(
 			recommendedSettings[0],
 			currentSettings[0],
-			guidelineId,
+			guidelineName,
 			settingType,
 			0,
 			conflicts
@@ -331,13 +331,13 @@ function checkSettings(
 		);
 
 		if (currentSetting) {
-			if (currentSetting.source === guidelineId) {
+			if (currentSetting.source === guidelineName) {
 				appliedCount++;
 			} else if (currentSetting.source) {
 				conflicts.push({
 					type: settingType,
 					index: i,
-					conflictingGuidelineId: currentSetting.source
+					conflictingGuidelineName: currentSetting.source
 				});
 			}
 		}
@@ -350,7 +350,7 @@ function checkSettings(
 function checkProperties(
 	recommended: NodeSettings | EdgeSettings,
 	current: NodeSettings | EdgeSettings,
-	guidelineId: number,
+	guidelineName: string,
 	settingType: 'nodeSetting' | 'edgeSetting',
 	index: number,
 	conflicts: Conflict[]
@@ -361,14 +361,14 @@ function checkProperties(
 		if (key !== 'id' && key !== 'priority' && key !== 'rule' && key !== 'source') {
 			const currentValue = current[key] as Setting<any>;
 			if (currentValue) {
-				if (currentValue.source === guidelineId) {
+				if (currentValue.source === guidelineName) {
 					appliedCount++;
 				} else if (currentValue.source) {
 					conflicts.push({
 						type: settingType,
 						property: key,
 						index: index,
-						conflictingGuidelineId: currentValue.source
+						conflictingGuidelineName: currentValue.source
 					});
 				}
 			}

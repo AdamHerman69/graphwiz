@@ -43,9 +43,9 @@
 
 	let guidelines = getContext('guidelines') as Guideline[];
 
-	const conflictingGuidelineName = $derived(
-		guidelines.find((g) => g.id === conflict?.conflictingGuidelineId)?.name
-	);
+	// const conflictingGuidelineName = $derived(
+	// 	guidelines.find((g) => g.id === conflict?.conflictingGuidelineId)?.name
+	// );
 
 	let hovered = $state(false);
 	let valueDisplayWidth = $state(0);
@@ -101,7 +101,7 @@
 	class="settingDisplay"
 	class:hovered={hovered || !collapsed}
 	style="width: {hovered || !collapsed ? expandedWidth : '30px'}; {conflict
-		? 'background-color: #ffcccc;'
+		? 'background-color: rgba(250, 10, 10, 0.2);'
 		: ''}"
 	onmouseenter={() => {
 		if (collapsed) hovered = true;
@@ -138,7 +138,7 @@
 			<div class="iconWrapper {settingTypes[setting.name] === 'color' ? 'pl-2' : ''}">
 				<span class="material-symbols-outlined"> priority_high </span>
 			</div>
-			<div>{conflictingGuidelineName}</div>
+			<div>{conflict.conflictingGuidelineName}</div>
 		{/if}
 	</div>
 </div>
