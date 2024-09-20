@@ -6,14 +6,16 @@
 	let {
 		selected = $bindable(),
 		values,
-		openUp = false
-	}: { selected: string; values: string[]; openUp?: boolean } = $props();
+		openUp = false,
+		disabled = false
+	}: { selected: string; values: string[]; openUp?: boolean; disabled?: boolean } = $props();
 
 	let isOpen = $state(false);
 	let selectedIndex = $state(0);
 	let selectedIndexByKeyboard = $state(false);
 
 	function toggleSelect() {
+		if (disabled) return;
 		isOpen = !isOpen;
 	}
 

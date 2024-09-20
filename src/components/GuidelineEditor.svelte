@@ -99,85 +99,101 @@
 	}
 </script>
 
-<div class="guideline-editor" use:autoAnimate>
-	<input class="title" bind:value={guideline.name} placeholder="Guideline name" />
-	<textarea
-		class="description"
-		bind:value={guideline.description}
-		placeholder="Guideline description"
-	/>
+<div class="grid-container">
+	<div class="grid" use:autoAnimate>
+		<input class="title" bind:value={guideline.name} placeholder="Guideline name" />
+		<textarea
+			class="description"
+			bind:value={guideline.description}
+			placeholder="Guideline description"
+		></textarea>
 
-	<h3>Conditions</h3>
-	<ConditionEditor bind:weightedCondition={guideline.rootCondition} />
-
-	<h3>Recommendations</h3>
-
-	<!-- class:labelContainer={guideline.recommendations.layout ||
-			guideline.recommendations.nodeSettings ||
-			guideline.recommendations.edgeSettings} -->
-	<div class="p-1" use:autoAnimate>
-		<div class="ruleToggleSettings">
-			<button
-				onclick={() => toggleSettings('layout')}
-				class:active={guideline.recommendations.layout}
-			>
-				<span class="material-symbols-outlined"> linked_services </span>
-			</button>
-			<button
-				onclick={() => toggleSettings('nodeSettings')}
-				class:active={guideline.recommendations.nodeSettings}
-			>
-				<span class="material-symbols-outlined"> masked_transitions </span>
-			</button>
-			<button
-				onclick={() => toggleSettings('edgeSettings')}
-				class:active={guideline.recommendations.edgeSettings}
-			>
-				<span class="material-symbols-outlined"> diagonal_line </span>
-			</button>
+		<div>
+			<h3>Conditions</h3>
+			<ConditionEditor bind:weightedCondition={guideline.rootCondition} />
 		</div>
 
-		{#if guideline.recommendations.layout}
-			<h3>Layout</h3>
-			<div use:autoAnimate={{ duration: 300 }} class="flex mx-2 my-2">
-				<div>ALGORITHM</div>
-				<select bind:value={guideline.recommendations.layout} class="bg-transparent ml-auto">
-					{#each layoutTypes as layoutType}
-						<option value={layoutType}>{layoutType}</option>
-					{/each}
-				</select>
-			</div>
-		{/if}
-		{#if guideline.recommendations.nodeSettings}
-			<div class="flex">
-				<h3>Node</h3>
-				<button onclick={() => addRule(guideline.recommendations.nodeSettings!, 'node')}>
-					<span class="material-symbols-outlined"> add </span>
-				</button>
-			</div>
-			<NodeRecommendations nodeSettings={guideline.recommendations.nodeSettings!} />
-		{/if}
+		<div>
+			<!-- Literature -->
+			<h3>Literature</h3>
+			<Literature bind:literature={guideline.literature} editable={true} />
+		</div>
 
-		{#if guideline.recommendations.edgeSettings}
-			<div class="flex">
-				<h3>Edge</h3>
-				<button onclick={() => addRule(guideline.recommendations.edgeSettings!, 'edge')}>
-					<span class="material-symbols-outlined"> add </span>
-				</button>
+		<div class="recommendations">
+			<div class="flex justify-between">
+				<h3>Recommendations</h3>
+
+				<!-- class:labelContainer={guideline.recommendations.layout ||
+			guideline.recommendations.nodeSettings ||
+			guideline.recommendations.edgeSettings} -->
+				<div class="settingToggleButtons">
+					<button
+						onclick={() => toggleSettings('layout')}
+						class:active={guideline.recommendations.layout}
+					>
+						<span class="material-symbols-outlined"> linked_services </span>
+					</button>
+					<button
+						onclick={() => toggleSettings('nodeSettings')}
+						class:active={guideline.recommendations.nodeSettings}
+					>
+						<span class="material-symbols-outlined"> masked_transitions </span>
+					</button>
+					<button
+						onclick={() => toggleSettings('edgeSettings')}
+						class:active={guideline.recommendations.edgeSettings}
+					>
+						<span class="material-symbols-outlined"> diagonal_line </span>
+					</button>
+				</div>
 			</div>
-			<EdgeRecommendations edgeSettings={guideline.recommendations.edgeSettings!} />
-		{/if}
+
+			<div class="p-1 recommendationsGrid" use:autoAnimate>
+				{#if guideline.recommendations.layout}
+					<div class="flex-1">
+						<h3>Layout</h3>
+						<div use:autoAnimate={{ duration: 300 }} class="flex mx-2 my-2">
+							<div>ALGORITHM</div>
+							<select bind:value={guideline.recommendations.layout} class="bg-transparent ml-auto">
+								{#each layoutTypes as layoutType}
+									<option value={layoutType}>{layoutType}</option>
+								{/each}
+							</select>
+						</div>
+					</div>
+				{/if}
+
+				{#if guideline.recommendations.nodeSettings}
+					<div class="flex-1">
+						<div class="flex">
+							<h3>Node</h3>
+							<button onclick={() => addRule(guideline.recommendations.nodeSettings!, 'node')}>
+								<span class="material-symbols-outlined"> add </span>
+							</button>
+						</div>
+						<NodeRecommendations nodeSettings={guideline.recommendations.nodeSettings!} />
+					</div>
+				{/if}
+
+				{#if guideline.recommendations.edgeSettings}
+					<div class="flex-1">
+						<div class="flex">
+							<h3>Edge</h3>
+							<button onclick={() => addRule(guideline.recommendations.edgeSettings!, 'edge')}>
+								<span class="material-symbols-outlined"> add </span>
+							</button>
+						</div>
+						<EdgeRecommendations edgeSettings={guideline.recommendations.edgeSettings!} />
+					</div>
+				{/if}
+			</div>
+		</div>
 	</div>
-
-	<!-- Literature -->
-	<h3>Literature</h3>
-	<Literature bind:literature={guideline.literature} editable={true} />
-
 	<button onclick={saveFunction}>Save Guideline</button>
 </div>
 
 <style>
-	.guideline-editor {
+	/* .guideline-editor {
 		width: 100%;
 		height: 100%;
 		display: flex;
@@ -185,12 +201,17 @@
 		gap: 1rem;
 		overflow-y: scroll;
 		overflow-x: hidden;
-	}
+	} */
 
 	input,
 	textarea {
 		width: 100%;
 		background-color: transparent;
+		field-sizing: content;
+	}
+
+	textarea {
+		min-height: 60px;
 	}
 
 	.title {
@@ -199,7 +220,13 @@
 	}
 
 	.description {
-		font-size: 1rem;
+		font-size: 14px;
+	}
+
+	h3 {
+		font-size: 20px;
+		font-weight: 600;
+		text-transform: uppercase;
 	}
 
 	/* button {
@@ -213,4 +240,38 @@
 	button:hover {
 		background-color: #e0e0e0;
 	} */
+
+	.grid-container {
+		container-type: inline-size;
+		container-name: grid;
+		width: 100%;
+		height: 100%;
+	}
+
+	/* Default card layout */
+	.grid {
+		width: 100%;
+		height: 100%;
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 1rem;
+		overflow-y: scroll;
+	}
+
+	/* Card layout for larger containers */
+	@container grid (min-width: 700px) {
+		.grid {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+
+	.recommendations {
+		grid-column: span 2;
+	}
+
+	.recommendations .recommendationsGrid {
+		display: flex;
+		width: 100%;
+		flex-direction: row-reverse;
+	}
 </style>

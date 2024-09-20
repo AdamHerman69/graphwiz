@@ -123,10 +123,10 @@
 			expandedCardElement.offsetHeight;
 
 			expandedCardElement.style.transition = 'all 0.3s ease-in-out';
-			expandedCardElement.style.top = '25vh';
-			expandedCardElement.style.left = '25vw';
-			expandedCardElement.style.width = '50vw';
-			expandedCardElement.style.height = '50vh';
+			expandedCardElement.style.top = '12.5vh';
+			expandedCardElement.style.left = '12.5vw';
+			expandedCardElement.style.width = '75vw';
+			expandedCardElement.style.height = '75vh';
 		}
 	});
 </script>
@@ -137,6 +137,8 @@
 			log guidelines
 		</button>
 	</div> -->
+	<div class="sectionHeader">Applied</div>
+
 	{#each guidelines as guideline, index (guideline.id)}
 		{#if !guideline.expanded || isClosing}
 			<GuidelineCard
@@ -144,6 +146,9 @@
 				first={index === 0 || (index === 1 && guidelines[0].expanded)}
 				{expand}
 			/>
+			{#if guideline.status?.applied === 'fully' && (guidelines[index + 1]?.status?.applied == 'partially' || guidelines[index + 1]?.status?.applied == 'notApplied')}
+				<div class="sectionHeader">not applied</div>
+			{/if}
 		{/if}
 	{/each}
 	<!-- <div class="card cardSpacing">
@@ -186,5 +191,12 @@
 
 	#log {
 		pointer-events: all;
+	}
+
+	.sectionHeader {
+		font-size: 45px;
+		font-weight: bold;
+		margin: 20px 15px;
+		text-transform: uppercase;
 	}
 </style>

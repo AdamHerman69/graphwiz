@@ -9,8 +9,9 @@
 	import { getContext } from 'svelte';
 	import { node } from 'graphology-metrics';
 	import SettingsSelect from './SettingsSelect.svelte';
-
+	import { setContext } from 'svelte';
 	let { nodeSettings }: { nodeSettings: NodeSettings[] } = $props();
+	setContext('type', 'node');
 
 	function toggleSetting(nodeSettings: NodeSettings, setting: NodeSettingsName) {
 		// todo can't reassign! going to be the same object

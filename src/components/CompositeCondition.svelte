@@ -101,6 +101,7 @@
 			condition: newCondition,
 			weight: 1
 		});
+		collapsed = false;
 	}
 </script>
 

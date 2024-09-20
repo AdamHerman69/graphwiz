@@ -124,6 +124,7 @@ export type Guideline = StaticGuideline & {
 	score: number;
 	status: GuidelineStatus;
 	expanded: boolean;
+	editedGuideline?: Guideline | null;
 	parentDiv?: HTMLDivElement;
 	imported?: boolean;
 };

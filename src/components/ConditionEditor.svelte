@@ -71,7 +71,7 @@
 	}
 </script>
 
-<div use:autoAnimate class="mt-1 labelContainer">
+<div use:autoAnimate class="mt-1 p-2">
 	<div class="pb-1" use:autoAnimate>
 		{#if isComposite(weightedCondition.condition)}
 			{#each weightedCondition.condition.conditions as wc, index (wc.GUIID)}
@@ -85,8 +85,8 @@
 				></div>
 			{/each}
 			<div class="border-b border-gray-200"></div>
-			<div class="flex mb-1 gap-1 overflow-scroll">
-				<span class="material-symbols-outlined text-xs"> add </span>
+			<div class="flex pb-2 mb-1 gap-1 overflow-scroll items-center">
+				<span class="material-symbols-outlined"> add </span>
 				<button onclick={() => addCondition('boolean')}
 					><HoverButton icon="check_box" text="boolean" />
 				</button>

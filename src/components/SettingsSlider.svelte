@@ -11,7 +11,15 @@
 
 	let { numSettings }: { numSettings: NumericalSetting } = $props();
 	const owner = getContext('type');
+	const isGuidelineEditor = getContext('isGuidelineEditor');
 	let guidelines: Guideline[] = getContext('guidelines');
+
+	let attributeFilter = $derived(
+		isGuidelineEditor
+			? (attribute: Attribute) =>
+					attribute.owner === owner && attribute.general === true && attribute.type === 'number'
+			: (attribute: Attribute) => attribute.owner === owner && attribute.type === 'number'
+	);
 
 	// proxy for Range slider which requires an array - two way binding achieved
 	let valueArray = {
@@ -27,9 +35,7 @@
 	function toggleAttributeBinding() {
 		if (numSettings.attribute) numSettings.attribute = undefined;
 		else {
-			numSettings.attribute = availableAttributes.filter(
-				(attribute) => attribute.owner === owner && attribute.type === 'number'
-			)[0] as RangeAttribute;
+			numSettings.attribute = availableAttributes.filter(attributeFilter)[0] as RangeAttribute;
 		}
 	}
 
@@ -56,7 +62,7 @@
 			<div transition:blur={{ duration: 200 }} class="mr-2">
 				<AttributePicker
 					bind:selectedAttribute={numSettings.attribute}
-					filter={(attribute: Attribute) => (attribute.owner === owner && attribute.type === 'number')}
+					filter={attributeFilter}
 					alignRight={true}
 				/>
 			</div>

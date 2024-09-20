@@ -44,11 +44,6 @@
 			{/if}
 			<span class="material-symbols-outlined weight"> weight </span>
 		</div>
-		{#if editable}
-			<button onclick={deleteFunction} class="buttonGeneral">
-				<span class="material-symbols-outlined text-xs">close</span>
-			</button>
-		{/if}
 	</div>
 	<div class="flex-1 py-1 w-full">
 		{#if weightedCondition.condition.type === 'boolean'}
@@ -81,6 +76,13 @@
 				{weightedCondition}
 				{editable}
 			/>
+		{/if}
+		{#if editable}
+			<div class="w-full flex justify-end items-center">
+				<button onclick={deleteFunction} class="buttonGeneral">
+					<span class="material-symbols-outlined text-xs">close</span>
+				</button>
+			</div>
 		{/if}
 	</div>
 </div>

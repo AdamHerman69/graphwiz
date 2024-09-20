@@ -120,6 +120,7 @@
 	<div class="settingToggleButtons">
 		<button
 			onclick={() => toggleSetting('layout', side)}
+			class="hoverScale"
 			class:on={settingsState[side].layout}
 			use:hoverPopup={{ text: 'Toggle layout', position: side === 'left' ? 'right' : 'left' }}
 		>
@@ -127,6 +128,7 @@
 		</button>
 		<button
 			onclick={() => toggleSetting('node', side)}
+			class="hoverScale"
 			class:on={settingsState[side].node}
 			use:hoverPopup={{ text: 'Toggle node', position: side === 'left' ? 'right' : 'left' }}
 		>
@@ -134,6 +136,7 @@
 		</button>
 		<button
 			onclick={() => toggleSetting('edge', side)}
+			class="hoverScale"
 			class:on={settingsState[side].edge}
 			use:hoverPopup={{ text: 'Toggle edge', position: side === 'left' ? 'right' : 'left' }}
 		>
@@ -146,12 +149,14 @@
 	<div class="settingToggleButtons">
 		<button
 			onclick={guidelineExports[side]!.addGuideline}
+			class="hoverScale"
 			use:hoverPopup={{ text: 'Add new guideline', position: side === 'left' ? 'right' : 'left' }}
 		>
 			<span class="material-symbols-outlined"> add </span>
 		</button>
 		<button
 			onclick={downloadGuidelines}
+			class="hoverScale"
 			use:hoverPopup={{ text: 'Download guidelines', position: side === 'left' ? 'right' : 'left' }}
 		>
 			<span class="material-symbols-outlined"> download </span>

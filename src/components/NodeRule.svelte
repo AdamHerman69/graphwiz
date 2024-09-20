@@ -5,7 +5,7 @@
 	import { getContext } from 'svelte';
 	import OperatorSelect from './GUI/OperatorSelect.svelte';
 
-	let { rule, disabled = false }: { rule: AtomicRule; disabled: boolean } = $props();
+	let { rule, disabled = false }: { rule: AtomicRule; disabled?: boolean } = $props();
 	let isGuidelineEditor = getContext('isGuidelineEditor');
 </script>
 
@@ -19,7 +19,7 @@
 
 	<!-- Numerical Operator -->
 	{#if rule.property?.type === 'number'}
-		<OperatorSelect bind:selected={rule.operator} values={['=', '>', '<', '≥', '≤']} />
+		<OperatorSelect bind:selected={rule.operator} values={['=', '>', '<', '≥', '≤']} {disabled} />
 	{:else}
 		<div>is</div>
 	{/if}

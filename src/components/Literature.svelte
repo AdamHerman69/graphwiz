@@ -77,7 +77,7 @@
 {/snippet}
 
 <div class="literature" use:autoAnimate>
-	{#if literature.length > 0}
+	{#if literature.length > 0 || editable}
 		{#if !expanded && !editable}
 			<div class="minimized" onclick={() => (expanded = true)}>
 				<div class="papers">

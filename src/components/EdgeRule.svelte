@@ -20,6 +20,7 @@
 			values={['edge', 'source', 'target']}
 			width={100}
 			fontSize={12}
+			{disabled}
 		/>
 
 		<!-- Left operator settings -->
@@ -45,7 +46,7 @@
 
 	<div class="flex-grow">
 		{#if rule.type === 'number'}
-			<OperatorSelect bind:selected={rule.operator} values={['=', '>', '<', '≥', '≤']} />
+			<OperatorSelect bind:selected={rule.operator} values={['=', '>', '<', '≥', '≤']} {disabled} />
 		{:else}
 			<p>is</p>
 		{/if}

@@ -137,6 +137,8 @@
 		{selected}
 		{#if !disabled}
 			<span class="arrow material-symbols-outlined" aria-hidden="true">keyboard_arrow_down</span>
+		{:else}
+			<span class="px-1"></span>
 		{/if}
 	</button>
 

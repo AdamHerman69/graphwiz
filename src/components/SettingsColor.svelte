@@ -12,14 +12,19 @@
 	import GuidelineSource from './GUI/GuidelineSource.svelte';
 	import { blur } from 'svelte/transition';
 
-	let {
-		colorSetting,
-		isGuidelineEditor = false
-	}: { colorSetting: ColorSetting; guidelineEditor: boolean } = $props();
+	let { colorSetting }: { colorSetting: ColorSetting } = $props();
 	const owner = getContext('type');
+	const isGuidelineEditor = getContext('isGuidelineEditor');
 	let guidelines: Guideline[] = getContext('guidelines');
 
 	let pickerColorIndex: number = $state(-1); // minus one if picker closed
+
+	let attributeFilter = $derived(
+		isGuidelineEditor
+			? (attribute: Attribute) =>
+					attribute.owner === owner && attribute.general === true && attribute.type === 'number'
+			: (attribute: Attribute) => attribute.owner === owner && attribute.type === 'number'
+	);
 
 	function addColor() {
 		colorSetting.value.push([{ r: 255, g: 255, b: 255, a: 1 }, 0]);
@@ -57,9 +62,7 @@
 	function toggleAttributeBinding() {
 		if (colorSetting.attribute) colorSetting.attribute = undefined;
 		else {
-			colorSetting.attribute = availableAttributes.filter(
-				(attribute) => attribute.owner === owner && attribute.type === 'number'
-			)[0] as RangeAttribute;
+			colorSetting.attribute = availableAttributes.filter(attributeFilter)[0] as RangeAttribute;
 			if (colorSetting.value.length < 2) addColor(); // has to be a gradient
 		}
 	}
@@ -88,7 +91,7 @@
 				<div class="mr-2">
 					<AttributePicker
 						bind:selectedAttribute={colorSetting.attribute}
-						filter={(attribute: Attribute) => (attribute.owner === owner && attribute.type === 'number')}
+						filter={attributeFilter}
 						alignRight={true}
 					/>
 				</div>

@@ -55,5 +55,6 @@
 	onChange={handleChange}
 	{alignRight}
 	fontSize={12}
+	{disabled}
 />
 <!-- TODO doesn't work now - doesn't select -->

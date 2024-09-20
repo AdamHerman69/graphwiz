@@ -58,25 +58,24 @@
 		);
 	}
 
-	let editing = $state(false);
-	let editedGuideline: Guideline | null = $state(null);
-
 	function edit() {
-		editedGuideline = $state.snapshot(guideline);
-		editing = true;
+		guideline.editedGuideline = $state.snapshot(guideline);
+		if (!guideline.expanded) {
+			expand(guideline, cardParentDiv);
+		}
 	}
 
 	if (isNewGuideline(guideline)) edit();
 
 	function saveEditedGuideline() {
 		// guideline = $state.snapshot(editedGuideline)!;
-		guideline.name = $state.snapshot(editedGuideline!.name);
-		guideline.description = $state.snapshot(editedGuideline!.description);
-		guideline.literature = $state.snapshot(editedGuideline!.literature);
-		guideline.recommendations = $state.snapshot(editedGuideline!.recommendations);
-		guideline.rootCondition = $state.snapshot(editedGuideline!.rootCondition);
+		guideline.name = $state.snapshot(guideline.editedGuideline!.name);
+		guideline.description = $state.snapshot(guideline.editedGuideline!.description);
+		guideline.literature = $state.snapshot(guideline.editedGuideline!.literature);
+		guideline.recommendations = $state.snapshot(guideline.editedGuideline!.recommendations);
+		guideline.rootCondition = $state.snapshot(guideline.editedGuideline!.rootCondition);
 
-		editing = false;
+		guideline.editedGuideline = null;
 		calculateApplicability(guideline);
 	}
 
@@ -91,8 +90,11 @@
 	class:expanded={guideline.expanded}
 	class:first={first === true}
 >
-	{#if editing}
-		<GuidelineEditor bind:guideline={editedGuideline!} saveFunction={saveEditedGuideline} />
+	{#if guideline.editedGuideline}
+		<GuidelineEditor
+			bind:guideline={guideline.editedGuideline!}
+			saveFunction={saveEditedGuideline}
+		/>
 	{:else}
 		<GuidelineHeader {guideline} />
 		<div class="description">{guideline.description}</div>
@@ -118,7 +120,7 @@
 
 				<button
 					onclick={() => applyGuideline(guideline, graphSettings)}
-					class={guideline.status?.applied === 'fully' ? 'cardInset' : 'card'}
+					class={guideline.status?.applied}
 				>
 					{#if guideline.status?.applied === 'fully'}
 						applied
@@ -172,7 +174,6 @@
 
 	.bottomRow {
 		display: flex;
-		flex-direction: row-reverse;
 	}
 
 	.bottomRow button {
@@ -218,5 +219,29 @@
 	.description {
 		margin: 8px 0px;
 		font-style: italic;
+	}
+
+	.fully {
+		box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+		transition: all 0.2s ease;
+	}
+
+	.partially {
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		transition: all 0.2s ease;
+	}
+
+	.notApplied {
+		box-shadow:
+			inset 0 0 5px rgba(0, 0, 0, 0.1),
+			0 0 10px rgba(0, 0, 0, 0.1);
+		transition: all 0.2s ease;
+	}
+
+	.notApplied:hover {
+		box-shadow:
+			inset 0 0 5px rgba(0, 0, 0, 0.1),
+			0 0 15px rgba(0, 0, 0, 0.2);
+		transform: scale(1.05);
 	}
 </style>
