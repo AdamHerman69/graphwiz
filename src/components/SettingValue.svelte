@@ -13,6 +13,7 @@
 	import RuleDisplay from './RuleDisplay.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import type { EdgeLabel, NodeLabel } from '../utils/graphSettings.svelte';
+	import { onMount } from 'svelte';
 
 	let {
 		setting,
@@ -84,10 +85,60 @@
 		partialEnd: 'number',
 		decorators: 'decorators'
 	};
+
+	let containerRef: HTMLElement;
+	let maxExpandedWidth = $state(0);
+
+	onMount(() => {
+		const resizeObserver = new ResizeObserver((entries) => {
+			for (let entry of entries) {
+				if (entry.target === containerRef.parentElement) {
+					updateMaxExpandedWidth();
+				}
+			}
+		});
+
+		resizeObserver.observe(containerRef.parentElement);
+
+		return () => {
+			resizeObserver.disconnect();
+		};
+	});
+
+	function updateMaxExpandedWidth() {
+		const containerWidth = containerRef.parentElement.clientWidth;
+
+		if (!collapsed) {
+			maxExpandedWidth = containerWidth;
+			return;
+		}
+
+		// Get all siblings and find the index of the current element
+		let allSiblings = Array.from(containerRef.parentElement.children);
+		let currentIndex = allSiblings.indexOf(containerRef);
+
+		// Count preceding siblings with class 'settingDisplay'
+		let precedingSettingDisplays = allSiblings
+			.slice(0, currentIndex)
+			.filter((el) => el.classList.contains('settingDisplay'));
+		const numPrecedingSettingDisplays = precedingSettingDisplays.length;
+
+		const totalPrecedingSiblingsWidth = numPrecedingSettingDisplays * 38;
+
+		const availableWidth = containerWidth - totalPrecedingSiblingsWidth;
+		maxExpandedWidth = Math.min(availableWidth, valueDisplayWidth + 40);
+	}
+
+	$effect(() => {
+		console.log('updating max expanded width');
+		updateMaxExpandedWidth();
+		// console.log('max expanded width: ', maxExpandedWidth);
+	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
+	bind:this={containerRef}
 	use:hoverPopup={{
 		text: setting.name,
 		delay: 700,
@@ -100,14 +151,17 @@
 	}}
 	class="settingDisplay"
 	class:hovered={hovered || !collapsed}
-	style="width: {hovered || !collapsed ? expandedWidth : '30px'}; {conflict
+	style="width: {hovered || !collapsed ? `${maxExpandedWidth}px` : '30px'}; {conflict
 		? 'background-color: rgba(250, 10, 10, 0.2);'
 		: ''}"
 	onmouseenter={() => {
 		if (collapsed) hovered = true;
 	}}
 	onmouseleave={() => {
-		if (collapsed) hovered = false;
+		if (collapsed) {
+			hovered = false;
+			containerRef.scrollLeft = 0;
+		}
 	}}
 >
 	<div class="iconWrapper">
@@ -161,7 +215,8 @@
 		display: flex;
 		justify-content: flex-start;
 		align-items: center;
-		overflow: hidden;
+		overflow: scroll;
+		/* max-width: 100%; */
 	}
 
 	.iconWrapper {
@@ -189,6 +244,9 @@
 
 	.settingDisplay.hovered .valueDisplay {
 		opacity: 1;
+	}
+
+	.settingDisplay.hovered {
 	}
 
 	.colorDisplay {

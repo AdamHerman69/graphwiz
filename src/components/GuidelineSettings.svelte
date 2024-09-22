@@ -62,6 +62,7 @@
 								rule={index > 0 ? ns.rule : null}
 								bind:collapsed={nodeCollapsed}
 								conflict={conflicts?.find((c) => c.property === key)}
+								{index}
 							/>
 						{/if}
 					{/each}
@@ -78,13 +79,11 @@
 			{#each recommendations.edgeSettings as es, index}
 				{#each Object.keys(es) as key}
 					{#if settingTypes.includes(key)}
-						{#if es[key].name === undefined}
-							{console.log('undefiiiined:', key, es[key])}
-						{/if}
 						<SettingValue
 							setting={es[key]}
 							rule={index > 0 ? es.rule : null}
 							bind:collapsed={edgeCollapsed}
+							{index}
 						/>
 					{/if}
 				{/each}

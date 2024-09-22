@@ -181,6 +181,7 @@
 		border-radius: 10px;
 		text-transform: uppercase;
 		font-weight: bold;
+		margin-top: 5px;
 	}
 
 	.conflictButton {
