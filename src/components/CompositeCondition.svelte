@@ -136,8 +136,8 @@
 		{/if}
 		{#if editable}
 			<div class="border-b border-gray-200"></div>
-			<div class="flex mb-1 gap-1 w-full">
-				<span class="material-symbols-outlined text-xs"> add </span>
+			<div class="flex mt-1 gap-1 w-full items-center">
+				<span class="plusSign material-symbols-outlined text-xs"> add </span>
 				<button onclick={() => addCondition('boolean')}
 					><HoverButton icon="check_box" text="boolean" />
 				</button>
@@ -157,3 +157,15 @@
 		{/if}
 	</div>
 </div>
+
+<style>
+	.plusSign {
+		transition: all 0.2s ease-in-out;
+		font-size: 20px;
+	}
+
+	.plusSign:hover {
+		margin-right: 5px;
+		cursor: default;
+	}
+</style>

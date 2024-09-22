@@ -71,22 +71,24 @@
 	}
 </script>
 
-<div use:autoAnimate class="mt-1 p-2">
+<div use:autoAnimate class="mt-1 p-2 labelContainer">
 	<div class="pb-1" use:autoAnimate>
 		{#if isComposite(weightedCondition.condition)}
 			{#each weightedCondition.condition.conditions as wc, index (wc.GUIID)}
+				<!-- <div class="labelContainer"> -->
 				<WeightedCondition
 					weightedCondition={wc}
 					editable={true}
 					deleteFunction={() => deleteFunction(index)}
 				/>
+				<!-- </div> -->
 				<div
 					class={`${index < weightedCondition.condition.conditions.length - 1 ? 'border-b border-gray-200' : ''}`}
 				></div>
 			{/each}
 			<div class="border-b border-gray-200"></div>
-			<div class="flex pb-2 mb-1 gap-1 overflow-scroll items-center">
-				<span class="material-symbols-outlined"> add </span>
+			<div class="flex my-1 gap-1 overflow-scroll items-center">
+				<span class="plusSign material-symbols-outlined"> add </span>
 				<button onclick={() => addCondition('boolean')}
 					><HoverButton icon="check_box" text="boolean" />
 				</button>
@@ -108,4 +110,12 @@
 </div>
 
 <style>
+	.plusSign {
+		transition: all 0.2s ease-in-out;
+	}
+
+	.plusSign:hover {
+		margin-right: 5px;
+		cursor: default;
+	}
 </style>

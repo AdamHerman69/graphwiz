@@ -15,7 +15,7 @@
 	} = $props();
 </script>
 
-<div class="flex-col w-full">
+<div class="w-full flex items-center h-full">
 	<div class="flex justify-between w-full items-center">
 		<div>
 			{#if editable}

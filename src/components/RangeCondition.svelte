@@ -31,10 +31,11 @@
 		{/if}
 		<div class="flex">
 			<!-- <span class="material-symbols-outlined"> arrow_range </span> -->
-			<div class="valueLabel">range:</div>
 			{#if editable}
-				<input type="number" class="w-1/4" bind:value={rangeCondition.min} /> -
-				<input type="number" class="w-1/4" bind:value={rangeCondition.max} />
+				<label for="min">min:</label>
+				<input id="min" type="number" placeholder="min" bind:value={rangeCondition.min} />
+				<label for="max">max:</label>
+				<input id="max" type="number" placeholder="max" bind:value={rangeCondition.max} />
 			{:else}
 				<div class="font-bold">{rangeCondition.min} - {rangeCondition.max}</div>
 			{/if}
@@ -69,5 +70,14 @@
 
 	span.check {
 		font-size: 15px;
+	}
+
+	input {
+		text-align: center;
+	}
+
+	label {
+		margin-right: 5px;
+		font-style: italic;
 	}
 </style>

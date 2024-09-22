@@ -18,6 +18,7 @@
 	import Literature from './Literature.svelte';
 	import { setContext, getContext } from 'svelte';
 	import { availableAttributes } from '../utils/graph.svelte';
+	import CustomSelect from './GUI/CustomSelect.svelte';
 
 	let {
 		guideline = $bindable(),
@@ -120,8 +121,8 @@
 		</div>
 
 		<div class="recommendations">
-			<div class="flex justify-between">
-				<h3>Recommendations</h3>
+			<div class="flex justify-between items-center">
+				<h3>Vizualization settings</h3>
 
 				<!-- class:labelContainer={guideline.recommendations.layout ||
 			guideline.recommendations.nodeSettings ||
@@ -150,24 +151,34 @@
 
 			<div class="p-1 recommendationsGrid" use:autoAnimate>
 				{#if guideline.recommendations.layout}
-					<div class="flex-1">
-						<h3>Layout</h3>
-						<div use:autoAnimate={{ duration: 300 }} class="flex mx-2 my-2">
-							<div>ALGORITHM</div>
-							<select bind:value={guideline.recommendations.layout} class="bg-transparent ml-auto">
-								{#each layoutTypes as layoutType}
-									<option value={layoutType}>{layoutType}</option>
+					<div class="recommendatioContainer">
+						<h4>Layout</h4>
+						<div use:autoAnimate={{ duration: 300 }} class="flex my-2 justify-between">
+							<div class="flex items-center settingName">ALGORITHM</div>
+							<!-- <select bind:value={graphSettings.layout.value} class="bg-transparent ml-auto">
+								{#each graphSettings.layout.values as val}
+									<option value={val}>{val}</option>
 								{/each}
-							</select>
+							</select> -->
+
+							<CustomSelect
+								bind:selected={guideline.recommendations.layout}
+								values={layoutTypes}
+								alignRight={true}
+								width={140}
+							/>
 						</div>
 					</div>
 				{/if}
 
 				{#if guideline.recommendations.nodeSettings}
-					<div class="flex-1">
-						<div class="flex">
-							<h3>Node</h3>
-							<button onclick={() => addRule(guideline.recommendations.nodeSettings!, 'node')}>
+					<div class="recommendatioContainer">
+						<div class="flex justify-between">
+							<h4>Node</h4>
+							<button
+								class="buttonGeneral"
+								onclick={() => addRule(guideline.recommendations.nodeSettings!, 'node')}
+							>
 								<span class="material-symbols-outlined"> add </span>
 							</button>
 						</div>
@@ -176,10 +187,13 @@
 				{/if}
 
 				{#if guideline.recommendations.edgeSettings}
-					<div class="flex-1">
-						<div class="flex">
-							<h3>Edge</h3>
-							<button onclick={() => addRule(guideline.recommendations.edgeSettings!, 'edge')}>
+					<div class="recommendatioContainer">
+						<div class="flex justify-between">
+							<h4>Edge</h4>
+							<button
+								class="buttonGeneral"
+								onclick={() => addRule(guideline.recommendations.edgeSettings!, 'edge')}
+							>
 								<span class="material-symbols-outlined"> add </span>
 							</button>
 						</div>
@@ -189,7 +203,9 @@
 			</div>
 		</div>
 	</div>
-	<button onclick={saveFunction}>Save Guideline</button>
+</div>
+<div class="saveButton">
+	<button class="card" onclick={saveFunction}>Save Guideline</button>
 </div>
 
 <style>
@@ -212,21 +228,41 @@
 
 	textarea {
 		min-height: 60px;
+		border-radius: 12px;
+		padding: 10px;
+		margin: -10px;
+		outline: none;
 	}
 
+	/* textarea:focus {
+		box-shadow: inset 0 0 20px 0px rgba(0, 0, 0, 0.1);
+	} */
+
 	.title {
-		font-size: 1.25rem;
+		font-size: 30px;
 		font-weight: bold;
+		grid-column: span 2;
 	}
 
 	.description {
-		font-size: 14px;
+		font-size: 18px;
+		grid-column: span 2;
+		font-style: italic;
 	}
 
 	h3 {
-		font-size: 20px;
+		font-size: 40px;
 		font-weight: 600;
 		text-transform: uppercase;
+		padding: 20px 0px;
+	}
+
+	h4 {
+		font-size: 25px;
+		font-weight: 600;
+		text-transform: uppercase;
+		font-style: italic;
+		padding: 10px 0px;
 	}
 
 	/* button {
@@ -256,6 +292,7 @@
 		grid-template-columns: 1fr;
 		gap: 1rem;
 		overflow-y: scroll;
+		padding: 1rem;
 	}
 
 	/* Card layout for larger containers */
@@ -272,6 +309,65 @@
 	.recommendations .recommendationsGrid {
 		display: flex;
 		width: 100%;
-		flex-direction: row-reverse;
+		/* flex-direction: row-reverse; */
+		gap: 3rem;
+		flex-wrap: wrap;
+	}
+
+	.recommendatioContainer {
+		flex: 1;
+		max-width: 50%;
+		min-width: 200px;
+	}
+
+	.settingToggleButtons {
+		display: flex;
+		padding: 0.5rem;
+		gap: 10px;
+	}
+
+	.settingToggleButtons button {
+		border-radius: 12px;
+		width: 40px;
+		height: 30px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.2s ease-in-out;
+	}
+
+	.settingToggleButtons button.active {
+		box-shadow: inset 0 0 10px 0px rgba(0, 0, 0, 0.1);
+	}
+
+	.settingToggleButtons button:not(.active) {
+		box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.1);
+	}
+
+	.settingToggleButtons button span {
+		font-size: 18px;
+	}
+
+	.saveButton {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		padding: 1rem;
+		margin-top: 1rem;
+	}
+
+	.saveButton button {
+		width: 20%;
+		padding: 0.5rem 1rem;
+		border: none;
+		cursor: pointer;
+		transition: all 0.2s ease-in-out;
+		font-size: 16px;
+		text-transform: uppercase;
+		font-weight: 600;
+	}
+
+	.saveButton button:hover {
+		width: 25%;
 	}
 </style>

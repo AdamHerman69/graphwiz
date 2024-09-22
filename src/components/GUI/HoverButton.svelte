@@ -40,7 +40,8 @@
 		border-radius: 20px;
 		padding: 2px;
 		margin: 2px 2px;
-		background-color: #f0f0f0;
+		box-shadow: inset 0 0 12px 2px rgba(0, 0, 0, 0.05);
+
 		display: flex;
 		justify-content: flex-start;
 		align-items: center;

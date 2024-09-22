@@ -36,7 +36,10 @@
 			content={stringDisplay}
 			data={weightedCondition.weight.toString()}
 		/> -->
-		<div class="bubble" use:hoverPopup={{ text: 'weight', position: 'right' }}>
+		<div
+			class={editable ? 'weightEditable' : 'bubble'}
+			use:hoverPopup={{ text: 'weight', position: 'right' }}
+		>
 			{#if editable}
 				<input type="number" bind:value={weightedCondition.weight} min="1" />
 			{:else}
@@ -45,7 +48,7 @@
 			<span class="material-symbols-outlined weight"> weight </span>
 		</div>
 	</div>
-	<div class="flex-1 py-1 w-full">
+	<div class="flex-1 py-1">
 		{#if weightedCondition.condition.type === 'boolean'}
 			<BooleanCondition
 				bind:booleanCondition={weightedCondition.condition}
@@ -77,14 +80,14 @@
 				{editable}
 			/>
 		{/if}
-		{#if editable}
-			<div class="w-full flex justify-end items-center">
-				<button onclick={deleteFunction} class="buttonGeneral">
-					<span class="material-symbols-outlined text-xs">close</span>
-				</button>
-			</div>
-		{/if}
 	</div>
+	{#if editable}
+		<div class="flex items-center">
+			<button onclick={deleteFunction} class="buttonGeneral">
+				<span class="material-symbols-outlined text-xs">close</span>
+			</button>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -126,10 +129,26 @@
 		cursor: help;
 	}
 
+	.weightEditable {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		border-radius: 8px;
+		padding: 5px;
+		margin: 5px 6px 2px 0px;
+	}
+
+	.weightEditable input {
+		width: 30px;
+		padding: 0px;
+		font-size: 18px;
+	}
+
 	input {
 		text-align: center;
-		border-bottom: 1px solid black;
-		animation: blink 1s infinite;
+		/* border-bottom: 1px solid black; */
+		/* animation: blink 1s infinite; */
 	}
 
 	@keyframes blink {

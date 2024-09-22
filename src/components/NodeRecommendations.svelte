@@ -116,8 +116,10 @@
 			</div>
 		{/if}
 	</div>
-	<div>
-		<button onclick={deleteFunction}><span class="material-symbols-outlined"> close </span></button>
+	<div class="flex justify-end">
+		<button class="buttonGeneral" onclick={deleteFunction}
+			><span class="material-symbols-outlined"> close </span></button
+		>
 	</div>
 {/snippet}
 
@@ -125,6 +127,7 @@
 	{console.log(nodeSettings.map((ns) => ns.id))}
 	{#each nodeSettings as ns, index (ns.id)}
 		{@render nodeSettingsEditor(ns, () => nodeSettings.splice(index, 1))}
+		<div class={`mb-4 ${index < nodeSettings.length - 1 ? 'border-b border-gray-200' : ''}`}></div>
 	{/each}
 </div>
 
@@ -146,5 +149,10 @@
 
 		/* left: -48px; */
 		top: -16px;
+	}
+
+	.buttonGeneral span {
+		font-size: 24px;
+		padding: 5px;
 	}
 </style>

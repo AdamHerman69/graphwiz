@@ -12,6 +12,7 @@
 	import GuidelineCard from './GuidelineCard.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import { getGraph } from '../utils/graph.svelte';
+	import { isEdited } from '../utils/guideline.svelte';
 
 	let guidelines: Guideline[] = getContext('guidelines') as Guideline[];
 
@@ -40,6 +41,8 @@
 
 	function expand(guideline: Guideline) {
 		if (guideline.expanded) {
+			guideline.editedGuideline = null;
+
 			isClosing = true;
 			blurActive = false;
 			animateClose();

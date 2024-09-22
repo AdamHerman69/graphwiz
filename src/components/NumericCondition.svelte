@@ -38,20 +38,23 @@
 		</div>
 
 		{#if editable}
-			<div class="mr-2 w-full">
+			<div class="flex mr-2 w-full">
 				<!-- <span class="material-symbols-outlined"> arrow_range </span> -->
-				<div class="valueLabel">range:</div>
-
+				<label class="valueLabel" for="min">min:</label>
 				<input
+					id="min"
 					type="number"
-					class="w-1/4"
+					class="valueLabel"
 					bind:value={numericCondition.min}
+					placeholder="min"
 					disabled={numericCondition.ideal && numericCondition.tolerance}
 				/>
-				-
+				<label class="valueLabel" for="max">max:</label>
 				<input
+					id="max"
 					type="number"
-					class="w-1/4"
+					class="valueLabel"
+					placeholder="max"
 					bind:value={numericCondition.max}
 					disabled={numericCondition.ideal && numericCondition.tolerance}
 				/>
@@ -60,14 +63,14 @@
 				<!-- <span class="material-symbols-outlined"> pin_drop </span> -->
 				<div class="valueLabel">ideal:</div>
 
-				<input type="number" class="w-1/4" bind:value={numericCondition.ideal} />
+				<input type="number" class="flex-1" bind:value={numericCondition.ideal} />
 			</div>
 			<div class="flex mr-2 w-full">
 				<!-- <span class="material-symbols-outlined"> arrow_range </span> -->
 				<div class="valueLabel">tolerance:</div>
 				<input
 					type="number"
-					class="w-1/4"
+					class="flex-1"
 					bind:value={numericCondition.tolerance}
 					disabled={numericCondition.min && numericCondition.max}
 				/>
@@ -124,7 +127,8 @@
 
 	input {
 		border: none;
-		border-bottom: 1px solid #000;
-		padding: 0;
+		/* border-bottom: 1px solid #000; */
+		padding: 0px;
+		text-align: center;
 	}
 </style>

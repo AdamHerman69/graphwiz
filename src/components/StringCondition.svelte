@@ -15,8 +15,8 @@
 	} = $props();
 </script>
 
-<div class="flex-col w-full">
-	<div class="flex justify-between">
+<div class="flex items-center h-full">
+	<div class="flex justify-between w-full">
 		<div>
 			{#if editable}
 				<CustomSelect
@@ -31,7 +31,7 @@
 			{/if}
 		</div>
 		{#if editable}
-			<input type="string" class="w-1/2" bind:value={stringCondition.value} />
+			<input type="string" placeholder="value" bind:value={stringCondition.value} />
 		{:else}
 			<div class="flex items-center">
 				<div class="pr-1 font-bold">"{stringCondition.value}"</div>
@@ -50,3 +50,17 @@
 		/>
 	{/if}
 </div>
+
+<style>
+	input {
+		/* border-bottom: 1px solid #000; */
+		font-size: 18px;
+		text-align: right;
+		/* font-style: italic; */
+	}
+
+	input::placeholder {
+		font-style: italic;
+		padding-right: 5px;
+	}
+</style>

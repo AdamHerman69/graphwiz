@@ -108,14 +108,17 @@
 		{/if}
 	</div>
 
-	<div>
-		<button onclick={deleteFunction}><span class="material-symbols-outlined"> close </span></button>
+	<div class="flex justify-end">
+		<button class="buttonGeneral" onclick={deleteFunction}
+			><span class="material-symbols-outlined"> close </span></button
+		>
 	</div>
 {/snippet}
 
 <div class="relative" use:autoAnimate>
 	{#each edgeSettings as es, index (es.id)}
 		{@render edgeSettingsEditor(es, () => edgeSettings.splice(index, 1))}
+		<div class={`mb-4 ${index < edgeSettings.length - 1 ? 'border-b border-gray-200' : ''}`}></div>
 	{/each}
 </div>
 
@@ -137,5 +140,10 @@
 
 		/* left: -48px; */
 		top: -16px;
+	}
+
+	.buttonGeneral span {
+		font-size: 24px;
+		padding: 5px;
 	}
 </style>

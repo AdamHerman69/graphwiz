@@ -534,9 +534,9 @@ export function toStaticGuideline(guideline: Guideline): StaticGuideline {
 	return {
 		name: guideline.name,
 		description: guideline.description,
-		literature: guideline.literature,
-		rootCondition: guideline.rootCondition,
-		recommendations: guideline.recommendations
+		literature: $state.snapshot(guideline.literature),
+		rootCondition: $state.snapshot(guideline.rootCondition),
+		recommendations: $state.snapshot(guideline.recommendations)
 	};
 }
 
@@ -552,4 +552,19 @@ export async function importGuidelines(guidelines: StaticGuideline[], newGUIID: 
 	}
 	getGuidelines().push(...(guidelines as Guideline[]));
 	sortGuidelines(getGuidelines(), getGraph());
+}
+
+// todo doesn't work because of gui IDs
+export function isEdited(guideline: Guideline): boolean {
+	if (!guideline.editedGuideline) {
+		return false;
+	}
+
+	const originalGuideline = toStaticGuideline(guideline);
+	const editedGuideline = toStaticGuideline(guideline.editedGuideline);
+
+	console.log(originalGuideline);
+	console.log(editedGuideline);
+
+	return JSON.stringify(originalGuideline) !== JSON.stringify(editedGuideline);
 }
