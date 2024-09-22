@@ -177,7 +177,7 @@
 	}
 
 	.bottomRow button {
-		padding: 5px 10px;
+		padding: 5px 5px;
 		border-radius: 10px;
 		text-transform: uppercase;
 		font-weight: bold;
@@ -220,6 +220,12 @@
 	.description {
 		margin: 8px 0px;
 		font-style: italic;
+	}
+
+	button.partially,
+	button.notApplied,
+	button.fully {
+		padding: 5px 20px;
 	}
 
 	.fully {
