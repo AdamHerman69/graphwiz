@@ -178,11 +178,13 @@
 
 	.expanded {
 		height: 100%;
+		width: 100%;
 	}
 
 	.bottomRow {
 		display: flex;
 		justify-content: space-between;
+		align-self: flex-end;
 	}
 
 	.bottomRow button {
@@ -237,7 +239,7 @@
 		padding: 5px 20px;
 		background-color: black;
 		color: white;
-		box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 		transition: all 0.2s ease;
 	}
 
@@ -267,7 +269,7 @@
 	.notApplied:hover {
 		box-shadow:
 			inset 0 0 5px rgba(0, 0, 0, 0.1),
-			0 0 15px rgba(0, 0, 0, 0.2);
+			0 0 15px rgba(0, 0, 0, 0.3);
 		transform: scale(1.05);
 	}
 </style>

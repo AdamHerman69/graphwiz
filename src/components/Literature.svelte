@@ -89,7 +89,7 @@
 				<Collapser bind:collapsed={expanded} />
 			</div>
 		{:else}
-			<div class="expanded labelContainer w-full my-2" use:autoAnimate>
+			<div class="expanded labelContainer w-full" use:autoAnimate class:my-2={!editable}>
 				{#each literature as DOI, index (DOI)}
 					{@render citationExpanded(DOI, index === literature.length - 1)}
 				{/each}

@@ -17,7 +17,7 @@
 </script>
 
 <div class="flex justify-between">
-	<div class="flex-1">
+	<div>
 		{#if editable}
 			<CustomSelect
 				bind:selected={rangeCondition.property}

@@ -249,7 +249,7 @@
 	}
 
 	h3 {
-		font-size: 40px;
+		font-size: 20px;
 		font-weight: 600;
 		text-transform: uppercase;
 		padding: 20px 0px;
@@ -357,7 +357,7 @@
 	}
 
 	.saveButton button {
-		width: 20%;
+		width: 180px;
 		padding: 0.5rem 1rem;
 		border: none;
 		cursor: pointer;
@@ -368,6 +368,6 @@
 	}
 
 	.saveButton button:hover {
-		width: 25%;
+		width: 200px;
 	}
 </style>

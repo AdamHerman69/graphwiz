@@ -26,6 +26,7 @@
 	import { blur } from 'svelte/transition';
 	import GraphCharacteristics from '../components/GraphCharacteristics.svelte';
 	import { getEventCoords } from '../utils/helperFunctions';
+	import { hoverPopup } from '../components/GUI/hoverPopup.svelte';
 
 	let graphSettingsLeft = new GraphSettingsClass();
 	let graphSettingsRight: GraphSettingsClass = new GraphSettingsClass();
@@ -113,6 +114,8 @@
 
 	let dragStartX: number;
 	function dragStart(e: MouseEvent | TouchEvent) {
+		e.preventDefault();
+
 		dragStartX = e instanceof MouseEvent ? e.clientX : e.touches[0].clientX;
 		dragStartLeftWidth = width.left;
 
@@ -126,6 +129,7 @@
 	}
 
 	function doDrag(e: MouseEvent | TouchEvent) {
+		e.preventDefault();
 		const currentX = e instanceof MouseEvent ? e.clientX : e.touches[0].clientX;
 		const deltaX = currentX - dragStartX;
 		const deltaPercentage = (deltaX / fullWidth) * 100;
@@ -194,12 +198,26 @@
 
 	{#if splitView.left && splitView.right}
 		<div class="middleContainer" style="left: {width.left}%">
-			<div class="splitButtons">
-				<button onclick={() => toggleSplitView(false, true)}>
+			<div class="splitButtons" style="margin-top: {showTasks.anyGuidelinesVisible ? 65 : 50}px">
+				<button
+					use:hoverPopup={{
+						text: 'close left view',
+						delay: 300,
+						position: 'left'
+					}}
+					onclick={() => toggleSplitView(false, true)}
+				>
 					<span class="material-symbols-outlined"> chevron_left </span>
 				</button>
 
-				<button onclick={() => toggleSplitView(true, false)}>
+				<button
+					use:hoverPopup={{
+						text: 'close right view',
+						delay: 300,
+						position: 'right'
+					}}
+					onclick={() => toggleSplitView(true, false)}
+				>
 					<span class="material-symbols-outlined"> chevron_right </span>
 				</button>
 			</div>
@@ -261,7 +279,7 @@
 <style>
 	.tasks {
 		position: absolute;
-		top: 100px;
+		top: 70px;
 		left: 50%;
 		transform: translate(-50%);
 		display: flex;
@@ -304,7 +322,6 @@
 		align-items: center;
 		color: black;
 		border-radius: 20px;
-		margin-top: 100px; /* 65px is the height of the menu bar */
 		transform: translateY(80%);
 	}
 

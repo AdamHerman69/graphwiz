@@ -71,8 +71,8 @@
 	}
 </script>
 
-<div use:autoAnimate class="mt-1 p-2 labelContainer">
-	<div class="pb-1" use:autoAnimate>
+<div use:autoAnimate class="p-2 labelContainer">
+	<div use:autoAnimate>
 		{#if isComposite(weightedCondition.condition)}
 			{#each weightedCondition.condition.conditions as wc, index (wc.GUIID)}
 				<!-- <div class="labelContainer"> -->

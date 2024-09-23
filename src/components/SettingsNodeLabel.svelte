@@ -110,7 +110,7 @@
 				</div>
 			</div>
 			{#if colorPickers[index]}
-				<div class="pl-4">
+				<div class="mx-3">
 					<ColorPicker
 						bind:rgb={label.color}
 						isDialog={false}

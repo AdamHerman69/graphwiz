@@ -147,17 +147,23 @@
 	{/if}
 
 	{#if pickerColorIndex >= 0}
-		<ColorPicker
-			bind:rgb={colorValue.value as RgbaColor}
-			label="tadyy"
-			isDialog={false}
-			components={{ wrapper: ColorPickerWrapper }}
-			closeFunction={() => console.log('close color picker')}
-		/>
+		<div class="pickerDiv">
+			<ColorPicker
+				bind:rgb={colorValue.value as RgbaColor}
+				label="tadyy"
+				isDialog={false}
+				components={{ wrapper: ColorPickerWrapper }}
+				closeFunction={() => console.log('close color picker')}
+			/>
+		</div>
 	{/if}
 </div>
 
 <style>
+	.pickerDiv {
+		--picker-width: 190px;
+		--picker-height: 150px;
+	}
 	.colorButton {
 		width: 20px;
 		height: 20px;
