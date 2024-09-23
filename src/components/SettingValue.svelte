@@ -14,6 +14,7 @@
 	import autoAnimate from '@formkit/auto-animate';
 	import type { EdgeLabel, NodeLabel } from '../utils/graphSettings.svelte';
 	import { onMount } from 'svelte';
+	import { formatDecimal } from '../utils/helperFunctions';
 
 	let {
 		setting,
@@ -169,7 +170,7 @@
 	</div>
 	<div class="valueDisplay" bind:clientWidth={valueDisplayWidth}>
 		{#if settingTypes[setting.name] === 'number' || settingTypes[setting.name] === 'string'}
-			<div>{setting.value}</div>
+			<div>{formatDecimal(setting.value, 2)}</div>
 		{/if}
 		{#if settingTypes[setting.name] === 'label'}
 			<div>{setting.value}</div>

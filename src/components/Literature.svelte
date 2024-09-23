@@ -132,6 +132,7 @@
 		width: 100%;
 		font-size: 14px;
 		margin-bottom: 5px;
+		font-style: italic;
 	}
 
 	.minimized span {
