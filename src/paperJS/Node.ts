@@ -11,42 +11,155 @@ const labelOffsets = {
 	center: new Paper.Point(0, 0)
 };
 
+// Update NodeShape type to include 'triangle'
+export type NodeShape = 'circle' | 'square' | 'triangle';
+
 export interface IPNode {
 	position: paper.Point;
 	getFinalRadius(): number;
 	updatePosition(newX: number, newY: number): void;
 	updateStyle(style: NodeStyle): void;
+	getConnectionPoint(direction: paper.Point): paper.Point;
 }
 
 export class PNode implements IPNode {
 	position: paper.Point;
-	shape: paper.Shape;
+	shape: paper.Shape.Circle | paper.Shape.Rectangle | paper.Path;
 	style: NodeStyle;
 	labels: { pointText: paper.PointText; offset: paper.Point; verticalOffset: paper.Point }[];
 
 	constructor(label: string, x: number, y: number, style: NodeStyle) {
 		this.style = style;
 		this.position = new Paper.Point(x, y);
-		this.shape = new Paper.Shape.Circle(this.position, style.size);
+		this.shape = this.createShape(style.shape, x, y, style.size);
 		this.labels = [];
-
-		// this.label = new Paper.PointText({
-		// 	point: this.position,
-		// 	content: label,
-		// 	fontSize: 5
-		// });
-		// this.label.position = this.label.position.add(
-		// 	new Paper.Point(-this.label.bounds.width / 2, this.label.bounds.height / 4)
-		// );
-
-		// todo updateLabels
 
 		this.updateStyle(style);
 		this.updateLabels2(style.labels);
 	}
 
+	private createShape(
+		shape: NodeShape,
+		x: number,
+		y: number,
+		size: number
+	): paper.Shape.Circle | paper.Shape.Rectangle | paper.Path {
+		switch (shape) {
+			case 'circle':
+				return new Paper.Shape.Circle(new Paper.Point(x, y), size);
+			case 'square':
+				return new Paper.Shape.Rectangle({
+					point: new Paper.Point(x - size, y - size),
+					size: new Paper.Size(size * 2, size * 2)
+				});
+			case 'triangle':
+				const height = size * Math.sqrt(3);
+				const path = new Paper.Path({
+					segments: [
+						[x, y - height / 2],
+						[x - size, y + height / 2],
+						[x + size, y + height / 2]
+					],
+					closed: true
+				});
+				path.position = new Paper.Point(x, y);
+				return path;
+		}
+	}
+
+	private lineIntersection(
+		p1: paper.Point,
+		p2: paper.Point,
+		p3: paper.Point,
+		p4: paper.Point
+	): paper.Point | null {
+		const dx1 = p2.x - p1.x;
+		const dy1 = p2.y - p1.y;
+		const dx2 = p4.x - p3.x;
+		const dy2 = p4.y - p3.y;
+
+		const denominator = dy2 * dx1 - dx2 * dy1;
+
+		if (denominator === 0) {
+			return null; // Lines are parallel
+		}
+
+		const ua = (dx2 * (p1.y - p3.y) - dy2 * (p1.x - p3.x)) / denominator;
+		return new Paper.Point(p1.x + ua * dx1, p1.y + ua * dy1);
+	}
+
+	private nearestPointOnLine(
+		lineStart: paper.Point,
+		lineEnd: paper.Point,
+		direction: paper.Point
+	): paper.Point {
+		const lineVector = lineEnd.subtract(lineStart);
+		const t = direction.dot(lineVector) / lineVector.dot(lineVector);
+		return lineStart.add(lineVector.multiply(Math.max(0, Math.min(1, t))));
+	}
+
+	getConnectionPoint(direction: paper.Point): paper.Point {
+		const normalizedDirection = direction.normalize();
+		const strokeOffset = this.style.strokeWidth / 2;
+
+		switch (this.style.shape) {
+			case 'circle':
+				return this.position.add(normalizedDirection.multiply(this.getFinalRadius()));
+
+			case 'square':
+				const halfSize = this.style.size + strokeOffset;
+				const dx = Math.abs(normalizedDirection.x);
+				const dy = Math.abs(normalizedDirection.y);
+
+				if (dx > dy) {
+					return this.position.add(
+						new Paper.Point(
+							Math.sign(normalizedDirection.x) * halfSize,
+							normalizedDirection.y * (halfSize / dx)
+						)
+					);
+				} else {
+					return this.position.add(
+						new Paper.Point(
+							normalizedDirection.x * (halfSize / dy),
+							Math.sign(normalizedDirection.y) * halfSize
+						)
+					);
+				}
+
+			case 'triangle':
+				if (!(this.shape instanceof Paper.Path)) {
+					return this.position; // Fallback if shape is not a Path
+				}
+
+				// Get the actual points of the triangle
+				const points = this.shape.segments.map((segment) => segment.point);
+
+				// Calculate intersections with each edge
+				const intersections = [
+					this.lineIntersection(this.position, this.position.add(direction), points[0], points[1]),
+					this.lineIntersection(this.position, this.position.add(direction), points[1], points[2]),
+					this.lineIntersection(this.position, this.position.add(direction), points[2], points[0])
+				].filter(Boolean) as paper.Point[];
+
+				// Find the intersection point in the correct direction and closest to the position
+				const intersectionPoint = intersections.reduce(
+					(closest, current) => {
+						const vectorToIntersection = current.subtract(this.position);
+						return vectorToIntersection.dot(normalizedDirection) > 0 &&
+							(!closest || vectorToIntersection.length < closest.subtract(this.position).length)
+							? current
+							: closest;
+					},
+					null as paper.Point | null
+				);
+
+				return intersectionPoint || this.position;
+		}
+	}
+
 	getFinalRadius(): number {
-		return (this.shape.radius as number) + this.shape.strokeWidth / 2;
+		return this.style.size + this.style.strokeWidth / 2;
 	}
 
 	updatePosition(newX: number, newY: number) {
@@ -54,35 +167,17 @@ export class PNode implements IPNode {
 		this.position.y = newY;
 		this.shape.position = this.position;
 		this.updateLabelPositions2();
-		// this.label.point = this.position.add(
-		// 	new Paper.Point(-this.label.bounds.width / 2, this.label.bounds.height / 4)
-		// );
 	}
 
-	updateLabelPosition() {
-		for (const [key, label] of Object.entries(this.labels)) {
-			if (label.pointText) {
-				let offsetScaledToSize = label.offset.add(
-					label.offset.normalize().multiply(this.getFinalRadius())
-				);
-				label.pointText.position = this.position.add(offsetScaledToSize);
-			}
-		}
-	}
-
-	// todo support different shapes and stuff
 	updateStyle(style: NodeStyle) {
-		// move labels on size change
-		// if (this.style.size != style.size || this.style.strokeWidth != style.strokeWidth)
-		// 	this.updateLabelPosition();
-
 		this.style = style;
 
-		// handle color
+		// Handle color
 		let color: paper.Color;
 		let stringGradient = toStringGradient(style.color);
-		if (stringGradient.length === 1) color = new Paper.Color(stringGradient[0][0]);
-		else {
+		if (stringGradient.length === 1) {
+			color = new Paper.Color(stringGradient[0][0]);
+		} else {
 			// gradient
 			color = new Paper.Color({
 				gradient: {
@@ -94,7 +189,7 @@ export class PNode implements IPNode {
 			});
 		}
 
-		// apply style
+		// Apply style
 		let strokeColorGradient = toStringGradient(style.strokeColor);
 		this.shape.style = {
 			fillColor: color,
@@ -102,7 +197,7 @@ export class PNode implements IPNode {
 			strokeWidth: style.strokeWidth
 		};
 
-		// apply shadow
+		// Apply shadow
 		if (style.shadow) {
 			this.shape.style.shadowColor = new Paper.Color(0, 0, 0, 0.7);
 			this.shape.style.shadowBlur = 7;
@@ -111,48 +206,48 @@ export class PNode implements IPNode {
 			this.shape.style.shadowBlur = 0;
 		}
 
-		this.shape.radius = style.size;
+		// Update shape and size
+		if (this.shape.constructor !== this.getShapeConstructor(style.shape)) {
+			const newShape = this.createShape(style.shape, this.position.x, this.position.y, style.size);
+			newShape.style = this.shape.style;
+			this.shape.remove();
+			this.shape = newShape;
+		} else {
+			this.updateShapeSize(style.size);
+		}
 
-		// todo optimize, when changing?
 		this.updateLabels2(style.labels);
 	}
 
-	// updateLabels(nodeLabels: NodeLabel[]) {
-	// 	let _labels: {
-	// 		above: NodeLabel[];
-	// 		below: NodeLabel[];
-	// 		left: NodeLabel[];
-	// 		right: NodeLabel[];
-	// 		center: NodeLabel[];
-	// 	} = { above: [], below: [], left: [], right: [], center: [] };
-	// 	if (!nodeLabels) return;
-	// 	nodeLabels.forEach((nodeLabel) => {
-	// 		_labels[nodeLabel.position].push(nodeLabel);
-	// 	});
+	private getShapeConstructor(
+		shape: NodeShape
+	): typeof Paper.Shape.Circle | typeof Paper.Shape.Rectangle | typeof Paper.Path {
+		switch (shape) {
+			case 'circle':
+				return Paper.Shape.Circle;
+			case 'square':
+				return Paper.Shape.Rectangle;
+			case 'triangle':
+				return Paper.Path;
+		}
+	}
 
-	// 	for (const [key, nodeLabels] of Object.entries(_labels)) {
-	// 		if (nodeLabels.length === 0) {
-	// 			this.labels[key].pointText?.remove();
-	// 		} else {
-	// 			let text = '';
-	// 			nodeLabels.forEach((nodeLabel, index) => {
-	// 				text = text + nodeLabel.text;
-	// 				if (index < nodeLabels.length - 1) text = text + '\n';
-	// 			});
-
-	// 			if (!Object.hasOwn(this.labels[key], 'pointText')) {
-	// 				// position map or something
-	// 				this.labels[key].pointText = new Paper.PointText({
-	// 					content: text,
-	// 					fontSize: nodeLabels[0].size,
-	// 					fillColor: nodeLabels[0].color
-	// 				});
-	// 				console.log('creted label: ', this.labels[key]);
-	// 			}
-	// 			this.labels[key].pointText.content = text;
-	// 		}
-	// 	}
-	// }
+	private updateShapeSize(size: number) {
+		if (this.shape instanceof Paper.Shape.Circle) {
+			this.shape.radius = size;
+		} else if (this.shape instanceof Paper.Shape.Rectangle) {
+			this.shape.bounds.size = new Paper.Size(size * 2, size * 2);
+			this.shape.position = this.position;
+		} else if (this.shape instanceof Paper.Path) {
+			const height = size * Math.sqrt(3);
+			this.shape.segments = [
+				new Paper.Segment(new Paper.Point(0, -height / 2)),
+				new Paper.Segment(new Paper.Point(-size, height / 2)),
+				new Paper.Segment(new Paper.Point(size, height / 2))
+			];
+			this.shape.position = this.position;
+		}
+	}
 
 	calculateVerticalOffset(total: number, rank: number, position: string) {
 		if (total === 1) return 0;
@@ -190,21 +285,26 @@ export class PNode implements IPNode {
 			);
 
 			if (index >= this.labels.length) {
+				const pointText = new Paper.PointText({
+					content: label.text,
+					fontSize: label.size,
+					fillColor: colord(label.color).toRgbString()
+				});
 				this.labels.push({
-					pointText: new Paper.PointText({
-						content: label.text,
-						fontSize: label.size,
-						fillColor: colord(label.color).toRgbString()
-					}),
+					pointText: pointText,
 					verticalOffset: verticalOffset,
 					offset: labelOffsets[label.position]
 				});
+				// Ensure the new label is on top
+				pointText.bringToFront();
 			} else {
 				this.labels[index].pointText.content = label.text;
 				this.labels[index].pointText.fontSize = label.size;
 				this.labels[index].pointText.fillColor = new Paper.Color(colord(label.color).toRgbString());
 				this.labels[index].offset = labelOffsets[label.position];
 				this.labels[index].verticalOffset = verticalOffset;
+				// Ensure existing label is on top
+				this.labels[index].pointText.bringToFront();
 			}
 
 			labelPositions[label.position].rank++;
@@ -224,6 +324,8 @@ export class PNode implements IPNode {
 			);
 			let finalOffset = offsetScaledToSize.add(labelObject.verticalOffset);
 			labelObject.pointText.position = this.position.add(finalOffset);
+			// Ensure label is always on top after repositioning
+			labelObject.pointText.bringToFront();
 		});
 	}
 }

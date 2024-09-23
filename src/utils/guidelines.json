@@ -1,0 +1,328 @@
+[
+	{
+		"name": "Sparse undirected graphs",
+		"description": "Visualization guideline for sparse, undirected graphs",
+		"literature": [
+			"10.1109/IV.2006.130",
+			"10.1007/3-540-31190-4",
+			"10.1145/2245276.2245469",
+			"10.1145/142750.143054"
+		],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"weight": 7,
+						"condition": {
+							"type": "numeric",
+							"property": "density",
+							"min": 0,
+							"max": 0.1,
+							"ideal": 0.05
+						}
+					},
+					{
+						"weight": 3,
+						"condition": {
+							"type": "string",
+							"property": "type",
+							"value": "undirected"
+						}
+					},
+					{
+						"weight": 2,
+						"condition": {
+							"type": "composite",
+							"conditions": [
+								{
+									"weight": 1,
+									"condition": {
+										"type": "numeric",
+										"property": "nodeCount",
+										"ideal": 12,
+										"tolerance": 5
+									}
+								},
+								{
+									"weight": 1,
+									"condition": {
+										"type": "numeric",
+										"property": "edgeCount",
+										"ideal": 15,
+										"tolerance": 5
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"nodeSettings": [
+				{
+					"size": { "name": "size", "value": 6, "min": 1, "max": 10 },
+					"color": {
+						"name": "color",
+						"value": [[{ "r": 240, "g": 15, "b": 100, "a": 1 }, 1]]
+					},
+					"strokeWidth": { "name": "strokeWidth", "value": 0, "min": 0, "max": 10 }
+				}
+			]
+		}
+	},
+	{
+		"name": "Large trees",
+		"description": "Visualization guideline for large trees (RULES)",
+		"literature": ["10.1007/3-540-31190-4"],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"weight": 6,
+						"condition": {
+							"type": "boolean",
+							"property": "isDAG",
+							"value": true
+						}
+					},
+					{
+						"weight": 4,
+						"condition": {
+							"type": "numeric",
+							"property": "nodeCount",
+							"ideal": 100,
+							"tolerance": 50
+						}
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"nodeSettings": [
+				{
+					"size": { "name": "size", "value": 6, "min": 1, "max": 10 },
+					"color": {
+						"name": "color",
+						"value": [[{ "r": 240, "g": 15, "b": 100, "a": 1 }, 1]]
+					},
+					"strokeWidth": { "name": "strokeWidth", "value": 0, "min": 0, "max": 10 }
+				},
+				{
+					"rule": {
+						"operator": "AND",
+						"rules": [
+							{
+								"operator": ">",
+								"type": "number",
+								"target": "node",
+								"value": "3",
+								"property": { "name": "degree", "type": "number", "owner": "node", "general": true }
+							},
+							{
+								"operator": "<",
+								"type": "number",
+								"target": "node",
+								"value": 1,
+								"property": {
+									"name": "inDegree",
+									"type": "number",
+									"owner": "node",
+									"general": true
+								}
+							}
+						]
+					},
+					"size": { "name": "size", "value": 2.423652341, "min": 1, "max": 10 },
+					"color": {
+						"name": "color",
+						"value": [[{ "r": 0, "g": 15, "b": 100, "a": 1 }, 1]]
+					}
+				}
+			]
+		}
+	},
+	{
+		"name": "guideline_003",
+		"description": "Visualization guideline for small graphs affects edges. Likely longer descriptions very likely.",
+		"literature": ["10.1038/502295a"],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"weight": 6,
+						"condition": {
+							"type": "boolean",
+							"property": "isDAG",
+							"value": false
+						}
+					},
+					{
+						"weight": 4,
+						"condition": {
+							"type": "numeric",
+							"property": "nodeCount",
+							"ideal": 12,
+							"tolerance": 4
+						}
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"edgeSettings": [
+				{
+					"width": {
+						"name": "width",
+						"value": 4,
+						"min": 0,
+						"max": 5,
+						"increment": 0.5,
+						"source": null
+					},
+					"partialStart": {
+						"name": "partialStart",
+						"value": 0,
+						"min": 0,
+						"max": 1,
+						"increment": 0.05,
+						"source": null
+					},
+					"partialEnd": {
+						"name": "partialEnd",
+						"value": 0.75,
+						"min": 0,
+						"max": 1,
+						"increment": 0.05,
+						"source": null
+					}
+				}
+			]
+		}
+	},
+	{
+		"name": "guideline_004",
+		"description": "Visualization guideline dense larger graphs, not really sure if the descriptions will be longer.",
+		"literature": [],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"weight": 4,
+						"condition": {
+							"type": "numeric",
+							"property": "nodeCount",
+							"ideal": 100,
+							"tolerance": 50
+						}
+					},
+					{
+						"weight": 4,
+						"condition": {
+							"type": "numeric",
+							"property": "density",
+							"ideal": 0.5,
+							"tolerance": 0.3
+						}
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"nodeSettings": [
+				{
+					"size": { "name": "size", "value": 3, "min": 1, "max": 10 },
+					"color": {
+						"name": "color",
+						"value": [[{ "r": 240, "g": 215, "b": 15, "a": 1 }, 1]]
+					},
+					"strokeWidth": { "name": "strokeWidth", "value": 0, "min": 0, "max": 10 }
+				}
+			]
+		}
+	},
+	{
+		"name": "guideline_0025",
+		"description": "Visualization guideline for large trees (RULES). This is a longer description because they'll largely be longer.",
+		"literature": [],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"weight": 6,
+						"condition": {
+							"type": "boolean",
+							"property": "isDAG",
+							"value": true
+						}
+					},
+					{
+						"weight": 4,
+						"condition": {
+							"type": "numeric",
+							"property": "nodeCount",
+							"ideal": 100,
+							"tolerance": 50
+						}
+					},
+					{
+						"weight": 2,
+						"condition": { "type": "range", "property": "edgeCount", "min": 5, "max": 15 }
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"nodeSettings": [
+				{
+					"color": {
+						"name": "color",
+						"value": [[{ "r": 240, "g": 15, "b": 100, "a": 1 }, 1]]
+					},
+					"strokeWidth": { "name": "strokeWidth", "value": 0, "min": 0, "max": 10 }
+				},
+				{
+					"rule": {
+						"operator": "AND",
+						"rules": [
+							{
+								"operator": ">",
+								"type": "number",
+								"target": "node",
+								"value": "3",
+								"property": { "name": "degree", "type": "number", "owner": "node", "general": true }
+							},
+							{
+								"operator": "<",
+								"type": "number",
+								"target": "node",
+								"value": 1,
+								"property": {
+									"name": "inDegree",
+									"type": "number",
+									"owner": "node",
+									"general": true
+								}
+							}
+						]
+					},
+					"size": { "name": "size", "value": 2.423652341, "min": 1, "max": 10 },
+					"color": {
+						"name": "color",
+						"value": [[{ "r": 0, "g": 15, "b": 100, "a": 1 }, 1]]
+					}
+				}
+			]
+		}
+	}
+]

@@ -9,15 +9,20 @@
 	import { setContext } from 'svelte';
 	import { availableAttributes } from '../utils/graph.svelte';
 	import { getContext } from 'svelte';
+	import SettingsSelect from './SettingsSelect.svelte';
+	import { graph } from 'graphology-metrics';
+	import { hoverPopup } from './GUI/hoverPopup.svelte';
 
-	let graphSettings: GraphSettingsClass = getContext('graphSettings');
-
-	let collapsed = $state(false);
+	let { side }: { side: 'left' | 'right' } = $props();
+	setContext('side', side);
 
 	setContext('type', 'node');
 
+	let graphSettings: GraphSettingsClass = getContext('graphSettings');
+	let collapsed = $state(false);
+
 	function addRule() {
-		// todo priority and ID
+		console.log('addRule');
 		graphSettings.graphSettings.nodeSettings.push({
 			id: graphSettings.newGUIID(),
 			priority: graphSettings.graphSettings.nodeSettings.length + 1,
@@ -38,35 +43,90 @@
 			source: null
 		});
 	}
+
+	// Reverse the order of the node settings (we have to render them in reverse order because of stacking context and select dropdowns)
+	let reverseIndexes = $derived.by(() => {
+		return graphSettings.graphSettings.nodeSettings.map(
+			(setting, index) => graphSettings.graphSettings.nodeSettings.length - index - 1
+		);
+	});
 </script>
 
-<div use:autoAnimate={{ duration: 300 }}>
-	{#each graphSettings.graphSettings.nodeSettings as setting, index (setting.id)}
-		{#if index === 0}
-			<div use:autoAnimate={{ duration: 300 }} class="card cardSpacing">
-				<SettingsHeader title="node" bind:collapsed />
-				<!-- Settings -->
-				{#if !collapsed}
-					<SettingsSlider numSettings={setting.size!} />
-					<SettingsColor colorSetting={setting.color!} />
-					<SettingsSlider numSettings={setting.strokeWidth!} />
-					<SettingsColor colorSetting={setting.strokeColor!} />
-					<SettingsNodeLabel labels={setting.labels!} />
-				{/if}
-			</div>
-		{:else}
-			<div class="card cardSpacing">
-				<RuleNodeSettings nodeSettings={setting} />
-			</div>
-		{/if}
-	{/each}
-</div>
+<div class="reverse">
+	<!-- Add rule button -->
+	<div class="flex justify-center addRuleWrapper">
+		<div class="card buttonSpacing addRuleButton">
+			<button
+				onclick={addRule}
+				use:hoverPopup={{ text: 'add conditional settings', delay: 300, position: 'left' }}
+				class="flex items-center justify-center w-full h-full"
+			>
+				<span class="material-symbols-outlined">add</span>
+				<!-- add conditional styles -->
+			</button>
+		</div>
+	</div>
 
-<!-- Add rule button -->
-<div class="flex justify-center">
-	<div class="card buttonSpacing w-14">
-		<button onclick={addRule} class="flex items-center justify-center w-full h-full">
-			<span class="material-symbols-outlined">add</span>
-		</button>
+	<div class="reverse" use:autoAnimate={{ duration: 300 }}>
+		{#each reverseIndexes as index (graphSettings.graphSettings.nodeSettings[index].id)}
+			{#if index === 0}
+				<div use:autoAnimate={{ duration: 300 }} class="card cardSpacing settingContainer">
+					<SettingsHeader title="node" bind:collapsed />
+					<!-- Settings -->
+					{#if !collapsed}
+						<SettingsSelect
+							selectSetting={graphSettings.graphSettings.nodeSettings[index].shape!}
+						/>
+						<SettingsSlider numSettings={graphSettings.graphSettings.nodeSettings[index].size!} />
+						<SettingsColor colorSetting={graphSettings.graphSettings.nodeSettings[index].color!} />
+						<SettingsSlider
+							numSettings={graphSettings.graphSettings.nodeSettings[index].strokeWidth!}
+						/>
+						<SettingsColor
+							colorSetting={graphSettings.graphSettings.nodeSettings[index].strokeColor!}
+						/>
+						<SettingsNodeLabel labels={graphSettings.graphSettings.nodeSettings[index].labels!} />
+					{/if}
+				</div>
+			{:else}
+				<div class="card cardSpacing">
+					<RuleNodeSettings nodeSettings={graphSettings.graphSettings.nodeSettings[index]} />
+				</div>
+			{/if}
+		{/each}
 	</div>
 </div>
+
+<style>
+	.reverse {
+		display: flex;
+		flex-direction: column-reverse;
+	}
+
+	.addRuleWrapper {
+		height: 25px;
+		transition: all 0.3s ease;
+		pointer-events: auto;
+		margin-top: -9px;
+	}
+
+	.addRuleButton {
+		transition: all 0.3s ease;
+		width: 250px;
+		height: 30px;
+		margin-top: -18px;
+	}
+
+	.addRuleButton button {
+		text-transform: uppercase;
+	}
+
+	.addRuleWrapper:hover {
+		height: 50px;
+	}
+
+	.addRuleWrapper:hover .addRuleButton {
+		width: 100%;
+		margin-top: 10px;
+	}
+</style>

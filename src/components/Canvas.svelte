@@ -7,14 +7,20 @@
 	import ReadabilityMetrics from './ReadabilityMetrics.svelte';
 	import { spring, type Spring } from 'svelte/motion';
 	import NodeInfo from './NodeInfo.svelte';
+	import { computeGuidelineStatuses } from '../utils/guideline.svelte';
+	import { type Guideline } from '../utils/guideline.svelte';
+	import { blur } from 'svelte/transition';
+	import { hoverPopup } from './GUI/hoverPopup.svelte';
+	import { graphCharacteristics } from '../utils/graph.svelte';
 
 	let graphSettings: GraphSettingsClass = getContext('graphSettings');
+	let guidelines = getContext('guidelines') as Guideline[];
 
 	let canvas: HTMLCanvasElement;
 	let width: number = $state(0);
 	let height: number = $state(0);
 
-	let canvasHandler: ICanvasHandler = new WebWorkerCanvasHandler();
+	let canvasHandler: ICanvasHandler = getContext('canvasHandler');
 
 	// react to graph change
 	$effect(() => {
@@ -22,12 +28,22 @@
 		let g = getGraph();
 
 		untrack(() => {
+			console.log('----------------------canvasHandler init');
 			canvasHandler.initialize(canvas, width, height, g);
 
-			canvasHandler.startForceSimulation(
-				graphSettings.computeNodeStyles(),
-				graphSettings.computeEdgeStyles()
-			);
+			if (canvasHandler.started) {
+				canvasHandler.graphChange(
+					graphSettings.graphSettings.layout.value,
+					graphSettings.computeNodeStyles(),
+					graphSettings.computeEdgeStyles()
+				);
+			} else {
+				canvasHandler.start(
+					graphSettings.graphSettings.layout.value,
+					graphSettings.computeNodeStyles(),
+					graphSettings.computeEdgeStyles()
+				);
+			}
 		});
 	});
 
@@ -45,23 +61,51 @@
 	// todo debounce if graph large
 	let nodeDebounceTimer: number;
 	const DEBOUNCE_TIME = 50;
+	const DEBOUNCE_GRAPH_SIZE = 2500; // nodes + edges
+	let shouldDebounce = $derived(
+		graphCharacteristics['nodeCount'].value + graphCharacteristics['edgeCount'].value >
+			DEBOUNCE_GRAPH_SIZE
+	);
+
 	$effect(() => {
 		JSON.stringify(graphSettings.graphSettings.nodeSettings); // just to make the effect run
-		clearTimeout(nodeDebounceTimer);
-		nodeDebounceTimer = setTimeout(() => {
-			canvasHandler.updateNodeStyles(graphSettings.computeNodeStyles());
-			graphSettings.saveState();
-		}, DEBOUNCE_TIME);
+
+		if (shouldDebounce) {
+			console.log('Node settings changed, debounced');
+			clearTimeout(nodeDebounceTimer);
+			nodeDebounceTimer = setTimeout(() => {
+				canvasHandler.updateNodeStyles(graphSettings.computeNodeStyles());
+				computeGuidelineStatuses(guidelines, graphSettings);
+				graphSettings.saveState();
+			}, DEBOUNCE_TIME);
+		} else {
+			untrack(() => {
+				canvasHandler.updateNodeStyles(graphSettings.computeNodeStyles());
+				computeGuidelineStatuses(guidelines, graphSettings);
+				graphSettings.saveState();
+				console.log('Node settings changed, ran');
+			});
+		}
 	});
 
 	let edgeDebounceTimer: number;
 	$effect(() => {
 		JSON.stringify(graphSettings.graphSettings.edgeSettings); // just to make the effect run
-		clearTimeout(edgeDebounceTimer);
-		edgeDebounceTimer = setTimeout(() => {
-			canvasHandler.updateEdgeStyles(graphSettings.computeEdgeStyles());
-			graphSettings.saveState();
-		}, DEBOUNCE_TIME);
+
+		if (shouldDebounce) {
+			clearTimeout(edgeDebounceTimer);
+			edgeDebounceTimer = setTimeout(() => {
+				canvasHandler.updateEdgeStyles(graphSettings.computeEdgeStyles());
+				computeGuidelineStatuses(guidelines, graphSettings);
+				graphSettings.saveState();
+			}, DEBOUNCE_TIME);
+		} else {
+			untrack(() => {
+				canvasHandler.updateEdgeStyles(graphSettings.computeEdgeStyles());
+				computeGuidelineStatuses(guidelines, graphSettings);
+				graphSettings.saveState();
+			});
+		}
 	});
 
 	// Node Info location, when a node is selected
@@ -69,6 +113,7 @@
 	onMount(() => {
 		// initialize spring with the middle of canvas
 		selectedNodeSpring = spring({ x: width / 2, y: height / 2 }, { stiffness: 0.05, damping: 0.2 });
+		console.log('----------------canvas mounting');
 	});
 	$effect(() => {
 		if (canvasHandler.selectedNode && canvasHandler.selectedNodePosition) {
@@ -87,7 +132,7 @@
 
 <div class="relative h-full w-full">
 	<canvas
-		resize="true"
+		resize={true}
 		class="h-full w-full"
 		bind:this={canvas}
 		bind:clientWidth={width}
@@ -95,14 +140,29 @@
 		onmousemove={canvasHandler.detectHover}
 		onclick={canvasHandler.canvasClicked}
 	></canvas>
-	<div class="absolute top-10 left-1/2 transform -translate-x-1/2 pointer-events-none">
+	<!-- <div class="absolute top-10 left-1/2 transform -translate-x-1/2 pointer-events-none">
 		<DynamicIsland exportSVG={canvasHandler.exportSVG} bind:sticky={canvasHandler.sticky} />
-	</div>
+	</div> -->
 	<ReadabilityMetrics bind:readability={canvasHandler.readability} />
 
 	{#if canvasHandler.selectedNode}
-		<div class="nodeInfo" style="left: {$selectedNodeSpring.x}px; top: {$selectedNodeSpring.y}px;">
+		<div
+			class="nodeInfo"
+			style="left: {$selectedNodeSpring.x}px; top: {$selectedNodeSpring.y}px;"
+			transition:blur
+		>
 			<NodeInfo nodeID={canvasHandler.selectedNode.id} />
+		</div>
+	{/if}
+
+	{#if canvasHandler.zoomed}
+		<div class="resetTransform" transition:blur>
+			<button
+				onclick={canvasHandler.resetTransform}
+				use:hoverPopup={{ text: 'reset zoom', delay: 300, position: 'left' }}
+			>
+				<span class="material-symbols-outlined"> reset_focus </span>
+			</button>
 		</div>
 	{/if}
 </div>
@@ -125,5 +185,12 @@
 	.nodeInfo {
 		position: absolute;
 		transform: translate(-50%, 20px);
+		z-index: 100;
+	}
+
+	.resetTransform {
+		position: absolute;
+		bottom: 10px;
+		right: 10px;
 	}
 </style>

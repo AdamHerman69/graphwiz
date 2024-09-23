@@ -35,13 +35,18 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@citation-js/core": "^0.7.14",
+		"@citation-js/plugin-doi": "^0.7.14",
 		"@formkit/auto-animate": "^0.8.2",
 		"colord": "^2.9.3",
 		"d3": "^7.9.0",
 		"elkjs": "^0.9.3",
 		"file-selector": "^0.6.0",
 		"graphology": "^0.25.4",
+		"graphology-bipartite": "^0.0.3",
+		"graphology-dag": "^0.4.1",
 		"graphology-graphml": "^0.5.2",
+		"graphology-metrics": "^2.3.0",
 		"gsap": "^3.12.5",
 		"lottie-web": "^5.12.2",
 		"paper": "^0.12.17"

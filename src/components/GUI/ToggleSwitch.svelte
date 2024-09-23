@@ -1,5 +1,6 @@
 <script lang="ts">
-	let { selected = $bindable() }: { selected: string } = $props();
+	let { selected = $bindable(), disabled = false }: { selected: string; disabled: boolean } =
+		$props();
 
 	let checked = $state(false);
 
@@ -9,7 +10,7 @@
 </script>
 
 <label class="switch">
-	<input type="checkbox" bind:checked />
+	<input type="checkbox" bind:checked {disabled} />
 	<span class="slider" />
 </label>
 
@@ -32,9 +33,8 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background-color: #3c3c3c;
-		-webkit-transition: 0.4s;
-		transition: 0.4s;
+		background-color: black;
+		transition: 0.3s;
 		border-radius: 34px;
 	}
 
@@ -46,9 +46,14 @@
 		left: 4px;
 		bottom: 4px;
 		background-color: white;
-		-webkit-transition: 0.4s;
 		transition: 0.4s;
-		border-radius: 50%;
+		border-radius: 12px;
+		box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.4);
+	}
+
+	.slider:hover:before {
+		height: 16px;
+		width: 20px;
 	}
 
 	input:checked + .slider {
@@ -61,14 +66,15 @@
 	}
 
 	input:checked + .slider:before {
-		-webkit-transform: translateX(10px);
-		-ms-transform: translateX(10px);
 		transform: translateX(36px);
 		background-color: black;
 		box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.2);
 	}
 
-	/*------ ADDED CSS ---------*/
+	input:checked + .slider:hover:before {
+		transform: translateX(32px);
+	}
+
 	.slider:after {
 		content: 'AND';
 		color: white;
@@ -87,6 +93,4 @@
 		left: 30%;
 		color: black;
 	}
-
-	/*--------- END --------*/
 </style>

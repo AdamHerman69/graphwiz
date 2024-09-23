@@ -2,39 +2,77 @@
 	import type { AtomicRule } from '../utils/rules.svelte';
 	import type { Attribute } from '../utils/graph.svelte';
 	import AttributePicker from './AttributePicker.svelte';
+	import { getContext } from 'svelte';
+	import OperatorSelect from './GUI/OperatorSelect.svelte';
+	import CustomSelect from './GUI/CustomSelect.svelte';
 
-	let { rule }: { rule: AtomicRule } = $props();
+	let { rule, disabled = false }: { rule: AtomicRule; disabled: boolean } = $props();
+
+	let isGuidelineEditor = getContext('isGuidelineEditor');
 </script>
 
-<div class="flex justify-between">
+<div class="flex justify-between items-center flex-1">
 	<!-- Select rule target -->
-	<select class="flex-auto bg-transparent w-1/4" bind:value={rule.target}>
-		<option value="edge">edge</option>
-		<option value="source">source</option>
-		<option value="target">target</option>
-	</select>
+	<!-- todo disabled -->
+	<div class="beforeOperator">
+		<CustomSelect
+			bind:selected={rule.target}
+			values={['edge', 'source', 'target']}
+			width={100}
+			fontSize={12}
+			{disabled}
+		/>
 
-	<!-- Left operator settings -->
-	<!-- todo proper filter -->
-	<AttributePicker
-		bind:selectedAttribute={rule.property}
-		filter={(attribute: Attribute) => (attribute.owner === (rule.target === 'edge' ? 'edge' : 'node'))}
-	/>
+		<!-- Left operator settings -->
+		<!-- todo proper filter -->
+		{#if rule.target === 'edge'}
+			<AttributePicker
+				bind:selectedAttribute={rule.property}
+				filter={(attribute: Attribute) =>
+				attribute.owner === 'edge' &&
+				(!isGuidelineEditor || attribute.general === true)}
+				{disabled}
+			/>
+		{:else}
+			<AttributePicker
+				bind:selectedAttribute={rule.property}
+				filter={(attribute: Attribute) =>
+			attribute.owner === 'node' &&
+			(!isGuidelineEditor || attribute.general === true)}
+				{disabled}
+			/>
+		{/if}
+	</div>
+
+	<div class="flex-grow">
+		{#if rule.type === 'number'}
+			<OperatorSelect bind:selected={rule.operator} values={['=', '>', '<', '≥', '≤']} {disabled} />
+		{:else}
+			<p>is</p>
+		{/if}
+	</div>
 
 	<!-- Numerical Operator -->
 	{#if rule.type === 'number'}
-		<select class="bg-transparent w-1/4" bind:value={rule.operator}>
-			<option value="=">=</option>
-			<option value=">">&gt</option>
-			<option value="<">&lt</option>
-			<option value=">=">≥</option>
-			<option value="<=">≤</option>
-		</select>
-		<input type="number" class="bg-transparent w-1/6" bind:value={rule.value} />
+		<input type="number" bind:value={rule.value} />
 	{:else}
-		<div class="flex">
-			<p>is</p>
-			<input type="string" class="bg-transparent mx-1 w-1/4" bind:value={rule.value} />
-		</div>
+		<input type="string" bind:value={rule.value} />
 	{/if}
 </div>
+
+<style>
+	.beforeOperator {
+		display: flex;
+		max-width: 150px;
+		flex-wrap: wrap;
+		flex-grow: 1;
+	}
+
+	input {
+		text-align: center;
+		background-color: transparent;
+		margin: 0 5px;
+		width: 100%;
+		max-width: 70px;
+	}
+</style>

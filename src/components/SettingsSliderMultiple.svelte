@@ -4,9 +4,12 @@
 	import { type NumericalSetting } from '../utils/graphSettings.svelte';
 	import AttributePicker from './AttributePicker.svelte';
 	import { getContext } from 'svelte';
+	import type { Guideline } from '../utils/guideline.svelte';
+	import { blur } from 'svelte/transition';
 
 	let { name, numSettings }: { name: string; numSettings: NumericalSetting[] } = $props();
 	const owner = getContext('type');
+	let guidelines: Guideline[] = getContext('guidelines');
 
 	// proxy for Range slider which requires an array - two way binding achieved
 	let valueArray = {
@@ -14,7 +17,10 @@
 			return numSettings.map((setting) => setting.value);
 		},
 		set value(val: number[]) {
-			numSettings.forEach((setting, index) => (setting.value = val[index]));
+			numSettings.forEach((setting, index) => {
+				if (setting.value !== val[index]) setting.source = null; // now manually set
+				setting.value = val[index];
+			});
 		}
 	};
 
@@ -40,27 +46,33 @@
 </script>
 
 <div class="flex justify-between items-center">
-	<div class="text-m uppercase">
+	<div class="settingName">
 		{name}
-		{numSettings.map((setting) => setting.value).join(', ')}
+		<!-- TODO proper source -->
 
 		<!-- {numSettings.source} -->
 	</div>
-	<div class="flex justify-end items-center">
+	<!-- Binding partial edges hidden for now -->
+	<!-- <div class="flex justify-end items-center">
 		{#each numSettings as numSetting, index}
-			{#if numSetting.attribute}
-				<AttributePicker
-					bind:selectedAttribute={numSetting.attribute}
-					filter={(attribute: Attribute) => (attribute.owner === owner && attribute.type === 'number')}
-				/>
-			{/if}
-			<button onclick={() => toggleAttributeBinding(index)}>
-				<span class="material-symbols-outlined"
-					>{numSetting.attribute ? 'link_off' : 'add_link'}</span
-				>
-			</button>
+			<div class="flex justify-end items-center" class:bindContainer={numSetting.attribute}>
+				{#if numSetting.attribute}
+					<div transition:blur={{ duration: 200 }} class="mr-2">
+						<AttributePicker
+							bind:selectedAttribute={numSetting.attribute}
+							filter={(attribute: Attribute) => (attribute.owner === owner && attribute.type === 'number')}
+							alignRight={true}
+						/>
+					</div>
+				{/if}
+				<button onclick={() => toggleAttributeBinding(index)} class="buttonGeneral">
+					<span class="material-symbols-outlined">
+						{numSetting.attribute ? 'link_off' : 'add_link'}</span
+					>
+				</button>
+			</div>
 		{/each}
-	</div>
+	</div> -->
 </div>
 
 {#each numSettings as numSetting, index}

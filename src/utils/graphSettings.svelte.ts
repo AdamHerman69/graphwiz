@@ -1,19 +1,26 @@
 import { type Attribute, type RangeAttribute, getAttributeValue, getGraph } from './graph.svelte';
-import type { Guideline } from './guidelines.svelte';
-import { type Rule, stripAttributeBasedRules, evalRule } from './rules.svelte';
+import type { Guideline } from './guideline.svelte';
+import { type Rule, stripAttributeBasedRules, evalRule, type AtomicRule } from './rules.svelte';
 import type { RgbaColor } from 'colord';
-import { scaleLinear } from './scaleLinear';
+import { scaleLinear } from './helperFunctions';
 import { getGradientColor } from './gradient';
-
+import { edge } from 'graphology-metrics';
+import { Map } from 'svelte/reactivity';
 export type Setting<T> = {
 	name: string;
 	value: T;
 	attribute?: RangeAttribute;
-	source: null | Guideline;
+	source: null | string; // guideline name
 };
 
 export type SelectSetting<T> = Setting<T> & {
 	readonly values: T[];
+	condition?: string;
+};
+
+export type SelectCondition<T> = {
+	selectSettingName: string;
+	valuesNotAccepted: T[];
 };
 
 export type NumericalSetting = Setting<number> & {
@@ -29,6 +36,7 @@ export type DecoratorData = {
 	id: number;
 	type: DecoratorType;
 	position: number;
+	source?: null | string;
 };
 
 const decoratorTypes = ['triangle', 'circle', 'square'] as const;
@@ -49,6 +57,7 @@ type LabelStyle = {
 	color: RgbaColor;
 	size: number;
 	attribute?: Attribute;
+	source?: null | string;
 };
 
 export type NodeLabel = LabelStyle & {
@@ -69,10 +78,20 @@ export type NodeProperties = {
 	strokeWidth?: NumericalSetting;
 	strokeColor?: ColorSetting;
 	labels?: NodeLabel[];
-	// todo shape?
+	shape?: SelectSetting<NodeShape>;
 };
 
-const nodeSettingsTypes = ['size', 'color', 'strokeWidth', 'strokeColor', 'labels'] as const;
+const nodeShapes = ['circle', 'square', 'triangle'] as const;
+export type NodeShape = (typeof nodeShapes)[number];
+
+const nodeSettingsTypes = [
+	'shape',
+	'size',
+	'color',
+	'strokeWidth',
+	'strokeColor',
+	'labels'
+] as const;
 export type NodeSettingsName = (typeof nodeSettingsTypes)[number];
 
 const edgeSettingsTypes = [
@@ -90,7 +109,7 @@ type RuleSettings = {
 	id: number; // for keyed each blocks
 	priority: number;
 	rule?: Rule;
-	source: null | Guideline;
+	source: null | string;
 };
 
 export type NodeSettings = NodeProperties & RuleSettings;
@@ -100,7 +119,7 @@ const edgeTypes = ['straight', 'orthogonal', 'conical'] as const;
 export type EdgeType = (typeof edgeTypes)[number];
 
 // todo layout specific settings in a layout object. swich layouts based on this object, not other
-const layoutTypes = [
+export const layoutTypes = [
 	'force-graph',
 	'layered',
 	'stress',
@@ -146,12 +165,20 @@ export const edgeSettingsDefaults: EdgeProperties = {
 } as const;
 
 export const nodeSettingsDefaults: NodeProperties = {
+	shape: { name: 'shape', values: Array.from(nodeShapes), value: 'circle', source: null },
 	size: { name: 'size', value: 5, min: 1, max: 10, source: null },
 	color: { name: 'color', value: [[{ r: 80, g: 220, b: 180, a: 1 }, 1]], source: null },
 	strokeWidth: { name: 'strokeWidth', value: 1, min: 0, max: 10, source: null },
 	strokeColor: { name: 'strokeColor', value: [[{ r: 80, g: 220, b: 180, a: 1 }, 1]], source: null },
 	labels: []
 } as const;
+
+export const layoutSettingsDefaults: SelectSetting<LayoutType> = {
+	name: 'layout',
+	values: Array.from(layoutTypes),
+	value: 'force-graph',
+	source: null
+};
 
 // let guiID = $state(0);
 
@@ -174,13 +201,8 @@ export class GraphSettingsClass {
 	edgeStyles: Map<string, EdgeStyle>;
 
 	graphSettings: GraphSettings = $state({
-		guiID: 0,
-		layout: {
-			name: 'layout',
-			values: Array.from(layoutTypes),
-			value: 'force-graph',
-			source: null
-		},
+		guiID: 1,
+		layout: structuredClone(layoutSettingsDefaults),
 		nodeSettings: [
 			{
 				...structuredClone(nodeSettingsDefaults),
@@ -198,6 +220,8 @@ export class GraphSettingsClass {
 			}
 		]
 	});
+
+	draggable = $derived(this.graphSettings.edgeSettings[0].type?.value != 'orthogonal');
 
 	constructor() {
 		this.exportState = this.exportState.bind(this);
@@ -233,6 +257,78 @@ export class GraphSettingsClass {
 		});
 		this.edgeStyles = es;
 		return es;
+	}
+
+	assignGUIIDs(rule: Rule | AtomicRule): Rule | AtomicRule {
+		// Assign a new ID to the current rule
+		rule.id = this.newGUIID();
+
+		// If it's a Rule (not an AtomicRule), recursively assign IDs to nested rules
+		if ('rules' in rule) {
+			rule.rules = rule.rules.map((nestedRule: Rule | AtomicRule) => this.assignGUIIDs(nestedRule));
+		}
+
+		return rule;
+	}
+
+	applyGuideline(layout: LayoutType, nodeSettings: NodeSettings[], edgeSettings: EdgeSettings[]) {
+		if (layout) {
+			// todo
+		}
+
+		if (nodeSettings) {
+			nodeSettings = $state.snapshot(nodeSettings); // TODO this sometimes ommits source no idea why
+			if (nodeSettings[0].shape) this.graphSettings.nodeSettings[0].shape = nodeSettings[0].shape;
+			if (nodeSettings[0].size) this.graphSettings.nodeSettings[0].size = nodeSettings[0].size;
+			if (nodeSettings[0].color) this.graphSettings.nodeSettings[0].color = nodeSettings[0].color;
+			if (nodeSettings[0].strokeWidth)
+				this.graphSettings.nodeSettings[0].strokeWidth = nodeSettings[0].strokeWidth;
+			if (nodeSettings[0].strokeColor)
+				this.graphSettings.nodeSettings[0].strokeColor = nodeSettings[0].strokeColor;
+			if (nodeSettings[0].labels)
+				nodeSettings[0].labels.forEach((label) => {
+					this.graphSettings.nodeSettings[0].labels!.push({ ...label, id: this.newGUIID() });
+				});
+
+			// add new rules
+			nodeSettings.slice(1).forEach((ns) => {
+				this.graphSettings.nodeSettings.push({
+					...ns,
+					rule: this.assignGUIIDs(ns.rule),
+					id: this.newGUIID()
+				});
+			});
+		}
+
+		if (edgeSettings) {
+			edgeSettings = $state.snapshot(edgeSettings);
+			if (edgeSettings[0].type) this.graphSettings.edgeSettings[0].type = edgeSettings[0].type;
+			if (edgeSettings[0].width) this.graphSettings.edgeSettings[0].width = edgeSettings[0].width;
+			if (edgeSettings[0].color) this.graphSettings.edgeSettings[0].color = edgeSettings[0].color;
+			if (edgeSettings[0].partialStart)
+				this.graphSettings.edgeSettings[0].partialStart = edgeSettings[0].partialStart;
+			if (edgeSettings[0].partialEnd)
+				this.graphSettings.edgeSettings[0].partialEnd = edgeSettings[0].partialEnd;
+			if (edgeSettings[0].decorators)
+				edgeSettings[0].decorators.value.forEach((decorator) => {
+					this.graphSettings.edgeSettings[0].decorators!.value.push({
+						...decorator,
+						id: this.newGUIID()
+					});
+				});
+			if (edgeSettings[0].labels)
+				edgeSettings[0].labels.forEach((label) => {
+					this.graphSettings.edgeSettings[0].labels!.push({ ...label, id: this.newGUIID() });
+				});
+
+			edgeSettings.slice(1).forEach((es) => {
+				this.graphSettings.edgeSettings.push({
+					...es,
+					rule: this.assignGUIIDs(es.rule),
+					id: this.newGUIID()
+				});
+			});
+		}
 	}
 
 	exportState(): GraphSettings {
@@ -372,6 +468,7 @@ export function isValidSettings(object: any): boolean {
 
 // Types for renderer
 export type NodeStyle = {
+	shape: NodeShape;
 	size: number;
 	color: Gradient;
 	strokeWidth: number;
@@ -402,6 +499,7 @@ export function getNodeStyle(id: string, nodeSettings: NodeSettings[]): NodeStyl
 	// TODO BIG BUG says it's undefined while still running evalRule
 	nodeSettings.forEach((ns, index) => {
 		if (ns.rule === undefined || evalRule(ns.rule!, id)) {
+			if (ns.shape) chosenSettings['shape'] = ns.shape;
 			if (ns.size) chosenSettings['size'] = ns.size;
 			if (ns.color) chosenSettings['color'] = ns.color;
 			if (ns.strokeWidth) chosenSettings['strokeWidth'] = ns.strokeWidth;

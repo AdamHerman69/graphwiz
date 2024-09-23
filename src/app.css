@@ -3,11 +3,31 @@
 @tailwind utilities;
 
 /*place global styles here */
+
+/* Type */
+@font-face {
+	font-family: 'UncutSans';
+	src: url('/font/UncutSans-Variable.woff2') format('woff2-variations');
+	font-weight: 100 900;
+	font-stretch: 75% 125%;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'WhyteInktrap';
+	src: url('/font/ABCWhyteInktrapVariable-Trial.woff2') format('woff2-variations');
+	font-weight: 100 900;
+	font-stretch: 75% 125%;
+	font-style: normal;
+}
+
+/* --- */
 html,
 body {
 	@apply h-full;
 	background-color: var(--default-bg-color);
 	overflow-x: hidden;
+	font-family: 'UncutSans', sans-serif;
 }
 
 :root {
@@ -20,12 +40,19 @@ body {
 	--settingsCard-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.1);
 
 	/* Range slider colors */
-	--range-slider: var(--card-bg-color);
-	--range-handle-inactive: var(--default-bg-color);
-	--range-handle: var(--default-bg-color);
-	--range-handle-focus: #b0b0b0;
-	--range-float-text: purple; /* todo */
+	--range-slider: white;
+	--range-handle-inactive: white;
+	--range-handle: white;
+	--range-handle-focus: white;
+	--range-float-text: white; /* todo */
 	--range-range-inactive: #b0b0b0;
+	--range-range-active: #b0b0b0;
+	--range-float: black;
+	--range-handle-border: transparent;
+
+	/* Color picker */
+	--picker-width: 170px;
+	--picker-height: 150px;
 }
 
 /* Material Icons */
@@ -56,6 +83,14 @@ body {
 	pointer-events: auto;
 }
 
+.cardInset {
+	background-color: var(--card-bg-color);
+	border-radius: var(--outer-br);
+	box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+	backdrop-filter: blur(15px);
+	pointer-events: auto;
+}
+
 .cardSpacing {
 	padding: 16px;
 	margin-bottom: 8px;
@@ -63,11 +98,6 @@ body {
 
 .buttonSpacing {
 	margin-bottom: 8px;
-}
-
-.settingsHeader {
-	font-size: 32px;
-	font-weight: 1000;
 }
 
 .labelContainer {
@@ -82,9 +112,18 @@ body {
 /* rules */
 
 .ruleToggleSettings {
-	margin: 5px 0px;
+	margin: 8px 0px;
 	display: flex;
 	justify-content: center;
+}
+
+.ruleToggleSettings button {
+	transition: flex 0.2s;
+	flex: 1;
+}
+
+.ruleToggleSettings button:hover {
+	flex: 1.5;
 }
 
 .ruleToggleSettings button {
@@ -112,4 +151,140 @@ body {
 
 .ruleToggleSettings span {
 	font-size: 18px;
+}
+
+@keyframes popupShowBottom {
+	from {
+		opacity: 0;
+		transform: translateX(-50%) translateY(0%) scaleY(0);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(-50%) translateY(10px) scaleY(1);
+	}
+}
+
+@keyframes popupShowTop {
+	from {
+		opacity: 0;
+		transform: translateX(-50%) translateY(0%) scaleY(0);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(-50%) translateY(-10px) scaleY(1);
+	}
+}
+
+@keyframes popupShowLeft {
+	from {
+		opacity: 0;
+		transform: translateY(-50%) translateX(0%) scaleX(0);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(-50%) translateX(-10px) scaleX(1);
+	}
+}
+
+@keyframes popupShowRight {
+	from {
+		opacity: 0;
+		transform: translateY(-50%) translateX(0%) scaleX(0);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(-50%) translateX(10px) scaleX(1);
+	}
+}
+
+.hover-popup {
+	border-radius: 14px;
+	color: white;
+	background-color: rgba(0, 0, 0, 1);
+	padding: 8px 12px;
+	font-size: 12px;
+	/* max-width: 200px; */
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.hover-popup-bottom {
+	transform-origin: top center;
+	animation: popupShowBottom 0.1s ease forwards;
+}
+
+.hover-popup-top {
+	transform-origin: bottom center;
+	animation: popupShowTop 0.1s ease forwards;
+}
+
+.hover-popup-left {
+	transform-origin: right center;
+	animation: popupShowLeft 0.1s ease forwards;
+}
+
+.hover-popup-right {
+	transform-origin: left center;
+	animation: popupShowRight 0.1s ease forwards;
+}
+
+html,
+body {
+	overflow: hidden;
+}
+
+.reverse {
+	display: flex;
+	flex-direction: column-reverse;
+}
+
+.settingName {
+	font-size: 14px;
+	text-transform: uppercase;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+}
+
+.settingName span {
+	margin-left: 5px;
+	font-size: 16px;
+}
+
+.bindContainer {
+	background-color: var(--inset-bg-color);
+	border-radius: var(--inner-br);
+	box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+	transition: height 0.3s ease;
+	padding-right: 5px;
+	display: flex;
+	align-items: center;
+}
+
+.buttonGeneral span {
+	font-size: 19px;
+	transition: all 0.2s;
+}
+
+.buttonGeneral {
+	/* margin-left: 10px; */
+	display: flex;
+	align-items: center;
+}
+
+.buttonGeneral span:hover {
+	transform: scale(1.2);
+}
+
+.settingContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.hoverScale {
+	transition: all 0.2s;
+}
+
+.hoverScale:hover {
+	transform: scale(1.1);
 }

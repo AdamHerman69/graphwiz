@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Texts } from '$lib/colorPicker/utils/texts';
+	import autoAnimate from '@formkit/auto-animate';
 	import type { RgbaColor, HsvaColor } from 'colord';
 	import { createEventDispatcher } from 'svelte';
 
@@ -63,7 +64,7 @@
 
 <div class="text-input">
 	<div class="input-container">
-		<div class="underColor">
+		<div class="underColor" use:autoAnimate>
 			{#if mode === 0}
 				<input class="hex-input" aria-label={texts.label.hex} value={hex} on:input={updateHex} />
 			{:else if mode === 1}
@@ -190,6 +191,7 @@ _N.A._
 
 	.text-input {
 		margin: var(--text-input-margin, 5px 0 0);
+		width: calc(var(--picker-width) + 33px); /* cycle button directly under the two bars */
 	}
 	.input-container {
 		display: flex;
@@ -248,6 +250,11 @@ _N.A._
 		justify-content: center;
 		align-items: center;
 		display: flex;
+		transition: transform 0.2s;
+	}
+
+	.cycleButton:hover {
+		transform: scale(1.2) rotate(90deg);
 	}
 
 	.cycleButton span {

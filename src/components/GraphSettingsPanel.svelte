@@ -13,16 +13,6 @@
 	});
 </script>
 
-{#snippet addRuleButton(addRuleFunc : () => void)}
-	<div class="flex justify-center">
-		<div class="settingsCard w-14">
-			<button onclick={addRuleFunc} class="flex items-center justify-center w-full h-full">
-				<span class="material-symbols-outlined">add</span>
-			</button>
-		</div>
-	</div>
-{/snippet}
-
 <div class="cardStack">
 	<LayoutSettings />
 	<NodeSettings />

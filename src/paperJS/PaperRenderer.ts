@@ -29,11 +29,13 @@ export interface Renderer {
 		inputNodes: NodePositionDatum[],
 		inputEdges: EdgeDatum[],
 		nodeStyles: Map<string, NodeStyle>,
-		edgeStyles: Map<string, EdgeStyle>
+		edgeStyles: Map<string, EdgeStyle>,
+		canvas?: HTMLCanvasElement
 	): void;
 	zoomed(zoomEvent: d3.ZoomBehavior<HTMLCanvasElement, any>): d3.ZoomTransform;
 	exportSVG(): string;
 	resize(width: number, height: number): void;
+	resetZoom(): void;
 }
 
 export class PaperRenderer implements Renderer {
@@ -76,7 +78,7 @@ export class PaperRenderer implements Renderer {
 			node.updateStyle(styles.get(key)!);
 		});
 
-		// if node changes size
+		// if node changes size TODO check
 		this.edges.forEach((edge) => edge.updatePosition());
 	}
 
@@ -99,10 +101,17 @@ export class PaperRenderer implements Renderer {
 		inputNodes: NodePositionDatum[],
 		inputEdges: EdgeDatum[],
 		nodeStyles: Map<string, NodeStyle>,
-		edgeStyles: Map<string, EdgeStyle>
+		edgeStyles: Map<string, EdgeStyle>,
+		canvas?: HTMLCanvasElement
 	) {
-		this.paperScope.activate();
-		this.paperScope.project.clear();
+		// todo if canvas is provided fucks things up!
+		if (canvas) {
+			this.paperScope = new Paper.PaperScope();
+			this.paperScope.setup(canvas);
+		} else {
+			this.paperScope.activate();
+			this.paperScope.project.clear();
+		}
 
 		this.nodes = new Map<string, IPNode>();
 		this.edges = new Map<string, PEdge>();
@@ -157,6 +166,21 @@ export class PaperRenderer implements Renderer {
 		this.paperScope.view.center = newCenter;
 
 		return transform;
+	}
+
+	resetZoom(): void {
+		this.paperScope.activate();
+
+		// Reset zoom to default (1)
+		this.paperScope.view.zoom = 1;
+
+		// Reset the center of the view to the original center of the canvas
+		const originalCenter = new this.paperScope.Point(
+			this.paperScope.view.bounds.width / 2,
+			this.paperScope.view.bounds.height / 2
+		);
+
+		this.paperScope.view.center = originalCenter;
 	}
 
 	exportSVG() {

@@ -2,50 +2,41 @@
 	import type { AtomicRule } from '../utils/rules.svelte';
 	import type { Attribute } from '../utils/graph.svelte';
 	import AttributePicker from './AttributePicker.svelte';
+	import { getContext } from 'svelte';
+	import OperatorSelect from './GUI/OperatorSelect.svelte';
 
-	let { rule }: { rule: AtomicRule } = $props();
+	let { rule, disabled = false }: { rule: AtomicRule; disabled?: boolean } = $props();
+	let isGuidelineEditor = getContext('isGuidelineEditor');
 </script>
 
-<div class="flex justify-between">
+<div class="flex justify-between items-center flex-1 my-1">
 	<!-- todo proper filter -->
 	<AttributePicker
 		bind:selectedAttribute={rule.property}
-		filter={(attribute: Attribute) => (attribute.owner === 'node')}
+		filter={(attribute: Attribute) => (attribute.owner === 'node' && (!isGuidelineEditor ||  attribute.general === true))}
+		{disabled}
 	/>
 
 	<!-- Numerical Operator -->
 	{#if rule.property?.type === 'number'}
-		<select class="bg-transparent w-1/4" bind:value={rule.operator}>
-			<option value="=">=</option>
-			<option value=">">&gt</option>
-			<option value="<">&lt</option>
-			<option value=">=">≥</option>
-			<option value="<=">≤</option>
-		</select>
-		<!-- <RadialSelector bind:selected={rule.operator} options={['=', '>', '<', '≥', '≤']} width={25} /> -->
-		<input type="number" class="bg-transparent w-1/4" bind:value={rule.value} />
+		<OperatorSelect bind:selected={rule.operator} values={['=', '>', '<', '≥', '≤']} {disabled} />
 	{:else}
-		is
-		<input type="string" class="bg-transparent mx-1 w-1/2" bind:value={rule.value} />
+		<div>is</div>
 	{/if}
+
+	<input type={rule.property?.type} bind:value={rule.value} {disabled} />
 </div>
 
 <style>
-	select,
 	input {
 		flex: 1;
-		border-radius: 0.5rem;
-		padding: 0.25rem;
-		transition: box-shadow 0.2s ease-in-out;
 		text-align: center;
+		background-color: transparent;
+		margin: 0 5px;
+		max-width: 70px;
+		min-width: none;
 	}
 
-	/* select:hover,
-	input:hover {
-		box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
-	} */
-
-	select:focus,
 	input:focus {
 		outline: none;
 	}

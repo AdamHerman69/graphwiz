@@ -1,6 +1,10 @@
 import Graph from 'graphology';
 import { parse } from 'graphology-graphml';
+import { density, diameter } from 'graphology-metrics/graph';
+import hasCycle from 'graphology-dag/has-cycle';
+import isBipartiteBy from 'graphology-bipartite/is-bipartite-by';
 //import { unbindAttributes } from './graphSettings.svelte';
+import { sortGuidelines, type Task, tasks } from './guideline.svelte';
 
 export type Attribute = {
 	name: string;
@@ -16,6 +20,24 @@ export type RangeAttribute = Attribute & {
 export type StringAttribute = Attribute & {
 	values: string[];
 };
+
+export function areAttributesEqual(
+	attr1: Attribute | undefined,
+	attr2: Attribute | undefined
+): boolean {
+	if (attr1 === undefined && attr2 === undefined) {
+		return true;
+	}
+	if (attr1 === undefined || attr2 === undefined) {
+		return false;
+	}
+	return (
+		attr1.name === attr2.name &&
+		attr1.type === attr2.type &&
+		attr1.owner === attr2.owner &&
+		attr1.general === attr2.general
+	);
+}
 
 const generalAttributes: Attribute[] = [
 	{ name: 'degree', type: 'number', owner: 'node', general: true },
@@ -214,12 +236,22 @@ export function isValidGraph(object: any): boolean {
 	return true;
 }
 
+// unbind attributes
+export const onGraphImport: ((graph: Graph) => void)[] = [
+	computeAttributes,
+	recomputeCharacteristics
+];
+
+function onGraphImportRun(graph: Graph) {
+	onGraphImport.forEach((func) => func(graph));
+}
+
 export function importGraphJSON(newGraphObject: object): void {
 	//unbindAttributes();
 
 	let newGraph = new Graph();
 	newGraph.import(newGraphObject);
-	computeAttributes(newGraph);
+	onGraphImportRun(newGraph);
 	graphObject = newGraph;
 
 	// todo clear history
@@ -229,7 +261,7 @@ export function importGraphOther(graphString: string): void {
 	//unbindAttributes();
 
 	graphObject = parse(Graph, graphString);
-	computeAttributes(graphObject);
+	onGraphImportRun(graphObject);
 	// todo unbind attributes
 	// recompute attributes
 	// clear history
@@ -246,4 +278,81 @@ export function getEdgeSource(edge: string): string {
 
 export function getEdgeTarget(edge: string): string {
 	return graphObject.target(edge);
+}
+
+////// Guidelines
+
+export type CharacteristicType = 'boolean' | 'number' | 'string' | 'numberArray' | 'objectMap';
+
+export type CharacteristicValue = boolean | number | string | number[] | { [key: string]: number };
+
+export type Characteristic<T extends CharacteristicValue> = {
+	type: CharacteristicType;
+	value?: T;
+	getter: (graph: Graph) => T;
+};
+
+// more here: https://graphology.github.io/standard-library/metrics.html#extent
+export const graphCharacteristics: { [key: string]: Characteristic<CharacteristicValue> } = $state({
+	type: {
+		// 'directed' | 'mixed' | 'undirected'
+		type: 'string',
+		getter: (graph: Graph) => {
+			return graph.type;
+		}
+	},
+	nodeCount: {
+		type: 'number',
+		getter: (graph: Graph) => graph.order
+	},
+	edgeCount: {
+		type: 'number',
+		getter: (graph: Graph) => graph.size
+	},
+	density: {
+		type: 'number',
+		getter: (graph: Graph) => {
+			return density(graph);
+		}
+	},
+	diameter: {
+		type: 'number',
+		getter: (graph: Graph) => {
+			return diameter(graph);
+		}
+	},
+	averageDegree: {
+		type: 'number',
+		getter: (graph: Graph) => {
+			return graph.size / graph.order;
+		}
+	},
+	isDAG: {
+		type: 'boolean',
+		getter: (graph: Graph) => {
+			hasCycle(graph);
+			return false;
+		}
+	},
+	task: {
+		type: 'string',
+		getter: (graph: Graph) => {
+			return tasks.selectedTask;
+		}
+	}
+	// isBipartite: {
+	// 	type: 'boolean',
+	// 	getter: (graph: Graph) => {
+	// 		return isBipartiteBy(graph);
+	// 	}
+	// }
+});
+
+export function recomputeCharacteristics(graph: Graph) {
+	console.log('recomputing characteristics');
+	for (const [key, characteristic] of Object.entries(graphCharacteristics)) {
+		console.log('recomputing', key);
+		characteristic.value = characteristic.getter(graph);
+	}
+	console.log('recomputed characteristics');
 }

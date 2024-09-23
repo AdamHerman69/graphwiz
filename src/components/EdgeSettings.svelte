@@ -12,6 +12,10 @@
 	import { availableAttributes } from '../utils/graph.svelte';
 	import SettingsSelect from './SettingsSelect.svelte';
 	import { getContext } from 'svelte';
+	import { hoverPopup } from './GUI/hoverPopup.svelte';
+
+	let { side }: { side: 'left' | 'right' } = $props();
+	setContext('side', side);
 
 	let graphSettings: GraphSettingsClass = getContext('graphSettings');
 
@@ -40,40 +44,88 @@
 			source: null
 		});
 	}
+
+	// Reverse the order of the node settings (we have to render them in reverse order because of stacking context and select dropdowns)
+	let reverseIndexes = $derived.by(() => {
+		return graphSettings.graphSettings.edgeSettings.map(
+			(setting, index) => graphSettings.graphSettings.edgeSettings.length - index - 1
+		);
+	});
 </script>
 
-<div use:autoAnimate={{ duration: 300 }}>
-	{#each graphSettings.graphSettings.edgeSettings as setting, index (setting.id)}
-		{#if index === 0}
-			<div use:autoAnimate={{ duration: 300 }} class="card cardSpacing">
-				<SettingsHeader title="edge" bind:collapsed />
-				<!-- Settings -->
-				{#if !collapsed}
-					<SettingsSelect selectSetting={setting.type!} />
-					<SettingsSlider numSettings={setting.width!} />
-					<SettingsSliderMultiple
-						name="Partial Edge"
-						numSettings={[graphSettings.graphSettings.edgeSettings[0].partialStart!, graphSettings.graphSettings.edgeSettings[0].partialEnd!]}
-					/>
-					<SettingsColor colorSetting={setting.color!} />
+<div class="reverse mb-8">
+	<!-- Add rule button -->
+	<div class="flex justify-center addRuleWrapper">
+		<div class="card buttonSpacing addRuleButton">
+			<button
+				use:hoverPopup={{ text: 'add conditional settings', delay: 300, position: 'left' }}
+				onclick={addRule}
+				class="flex items-center justify-center w-full h-full"
+			>
+				<span class="material-symbols-outlined">add</span>
+				<!-- add conditional styles -->
+			</button>
+		</div>
+	</div>
 
-					<!-- TODO Decorators -->
-					<SettingsEdgeLabel labels={setting.labels!} />
-				{/if}
-			</div>
-		{:else}
-			<div class="card cardSpacing">
-				<RuleEdgeSettings edgeSettings={setting} />
-			</div>
-		{/if}
-	{/each}
-</div>
+	<div class="reverse" use:autoAnimate={{ duration: 300 }}>
+		{#each reverseIndexes as index (graphSettings.graphSettings.edgeSettings[index].id)}
+			{#if index === 0}
+				<div use:autoAnimate={{ duration: 300 }} class="card cardSpacing settingContainer">
+					<SettingsHeader title="edge" bind:collapsed />
+					<!-- Settings -->
+					{#if !collapsed}
+						<SettingsSelect selectSetting={graphSettings.graphSettings.edgeSettings[index].type!} />
+						<SettingsSlider numSettings={graphSettings.graphSettings.edgeSettings[index].width!} />
+						<SettingsSliderMultiple
+							name="Partial Edge"
+							numSettings={[graphSettings.graphSettings.edgeSettings[0].partialStart!, graphSettings.graphSettings.edgeSettings[0].partialEnd!]}
+						/>
+						<SettingsColor colorSetting={graphSettings.graphSettings.edgeSettings[index].color!} />
 
-<!-- Add rule button -->
-<div class="flex justify-center">
-	<div class="card buttonSpacing w-14">
-		<button onclick={addRule} class="flex items-center justify-center w-full h-full">
-			<span class="material-symbols-outlined">add</span>
-		</button>
+						<!-- TODO Decorators -->
+						<SettingsEdgeLabel labels={graphSettings.graphSettings.edgeSettings[index].labels!} />
+					{/if}
+				</div>
+			{:else}
+				<div class="card cardSpacing">
+					<RuleEdgeSettings edgeSettings={graphSettings.graphSettings.edgeSettings[index]} />
+				</div>
+			{/if}
+		{/each}
 	</div>
 </div>
+
+<style>
+	.reverse {
+		display: flex;
+		flex-direction: column-reverse;
+	}
+
+	.addRuleWrapper {
+		height: 25px;
+		transition: all 0.3s ease;
+		pointer-events: auto;
+		margin-top: -9px;
+	}
+
+	.addRuleButton {
+		transition: all 0.3s ease;
+		width: 250px;
+		height: 30px;
+		margin-top: -18px;
+	}
+
+	.addRuleButton button {
+		text-transform: uppercase;
+	}
+
+	.addRuleWrapper:hover {
+		height: 50px;
+	}
+
+	.addRuleWrapper:hover .addRuleButton {
+		width: 100%;
+		margin-top: 10px;
+	}
+</style>

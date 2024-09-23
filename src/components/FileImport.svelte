@@ -1,13 +1,17 @@
 <script lang="ts">
 	import Dropzone from '$lib/fileDropZone/src/lib/components/Dropzone.svelte';
-	import { isValidSettings } from '../utils/graphSettings.svelte';
+	import { isValidSettings, type GraphSettings } from '../utils/graphSettings.svelte';
 	import { isValidGraph, importGraphJSON, importGraphOther } from '../utils/graph.svelte';
 	import { parse } from 'svelte/compiler';
 	import { getContext } from 'svelte';
+	import { type Guideline, importGuidelines } from '../utils/guideline.svelte';
 
-	let importState: () => void = getContext('graphSettings').importState;
+	let {
+		importState,
+		closeMenu
+	}: { importState: (graphSettings: GraphSettings) => void; closeMenu: () => void } = $props();
 
-	let { closeMenu }: { closeMenu: () => void } = $props();
+	let newGUIID = getContext('arbitraryGUIDI') as () => number;
 
 	// TODO: fix flow and error handeling
 	async function handleFile(e: Event) {
@@ -33,6 +37,7 @@
 				const graphString = await file.text();
 				importGraphOther(graphString);
 				closeMenu();
+				console.log('Graph Import successful');
 				// todo toast
 			} catch (error) {
 				// todo toast
@@ -53,6 +58,10 @@
 			if (parsed.hasOwnProperty('settings') && isValidSettings(parsed.settings)) {
 				// todo full state import binding gone on import
 				importState(parsed.settings);
+				imported = true;
+			}
+			if (parsed.hasOwnProperty('guidelines')) {
+				importGuidelines(parsed.guidelines, newGUIID);
 				imported = true;
 			}
 

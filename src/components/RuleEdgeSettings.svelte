@@ -16,6 +16,8 @@
 
 	let { graphSettings }: { graphSettings: GraphSettings } = getContext('graphSettings');
 
+	let side: 'left' | 'right' = getContext('side');
+
 	let { edgeSettings }: { edgeSettings: EdgeSettings } = $props();
 
 	function toggleSetting(setting: EdgeSettingsName) {
@@ -35,14 +37,47 @@
 
 <div class="relative">
 	<!-- Delete rules button -->
-	<div class="card deleteRuleButton">
+	<div
+		class="card deleteRuleButton hoverScale"
+		style={side === 'right' ? 'left: -48px;' : 'right: -48px;'}
+	>
 		<button onclick={deleteRuleSettings}>
 			<span class="material-symbols-outlined text-base"> close </span>
 		</button>
 	</div>
 
-	<div>
-		<Rules rule={edgeSettings.rule} type="edge" />
+	<div class="reverse">
+		<div use:autoAnimate={{ duration: 300 }} class="settingsContainer">
+			{#if edgeSettings.width}
+				<div>
+					<SettingsSlider numSettings={edgeSettings.width} />
+				</div>
+			{/if}
+
+			{#if edgeSettings.partialStart && edgeSettings.partialEnd}
+				<SettingsSliderMultiple
+					name="Partial Edge"
+					numSettings={[edgeSettings.partialStart, edgeSettings.partialEnd]}
+				/>
+			{/if}
+
+			{#if edgeSettings.color}
+				<div>
+					<SettingsColor colorSetting={edgeSettings.color} />
+				</div>
+			{/if}
+
+			{#if edgeSettings.decorators}
+				<div>decorators</div>
+			{/if}
+
+			{#if edgeSettings.labels}
+				<div>
+					<SettingsEdgeLabel labels={edgeSettings.labels} />
+				</div>
+			{/if}
+		</div>
+
 		<div class="ruleToggleSettings">
 			<button onclick={() => toggleSetting('width')} class={edgeSettings['width'] ? 'active' : ''}>
 				<span class="material-symbols-outlined"> line_weight </span>
@@ -77,36 +112,7 @@
 			</button>
 		</div>
 
-		<div use:autoAnimate={{ duration: 300 }} class="settingsContainer">
-			{#if edgeSettings.width}
-				<div>
-					<SettingsSlider numSettings={edgeSettings.width} />
-				</div>
-			{/if}
-
-			{#if edgeSettings.partialStart && edgeSettings.partialEnd}
-				<SettingsSliderMultiple
-					name="Partial Edge"
-					numSettings={[edgeSettings.partialStart, edgeSettings.partialEnd]}
-				/>
-			{/if}
-
-			{#if edgeSettings.color}
-				<div>
-					<SettingsColor colorSetting={edgeSettings.color} />
-				</div>
-			{/if}
-
-			{#if edgeSettings.decorators}
-				<div>decorators</div>
-			{/if}
-
-			{#if edgeSettings.labels}
-				<div>
-					<SettingsEdgeLabel labels={edgeSettings.labels} />
-				</div>
-			{/if}
-		</div>
+		<Rules rule={edgeSettings.rule} type="edge" />
 	</div>
 </div>
 
@@ -126,7 +132,6 @@
 		align-items: center;
 		justify-content: center;
 
-		left: -48px;
 		top: -16px;
 	}
 </style>

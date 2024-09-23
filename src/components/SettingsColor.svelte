@@ -8,23 +8,49 @@
 	import ColorPickerWrapper from '$lib/RangeSlider/ColorPickerWrapper.svelte';
 	import { getContext } from 'svelte';
 	import autoAnimate from '@formkit/auto-animate';
+	import type { Guideline } from '../utils/guideline.svelte';
+	import GuidelineSource from './GUI/GuidelineSource.svelte';
+	import { blur } from 'svelte/transition';
+	import { hoverPopup } from './GUI/hoverPopup.svelte';
 
 	let { colorSetting }: { colorSetting: ColorSetting } = $props();
 	const owner = getContext('type');
+	const isGuidelineEditor = getContext('isGuidelineEditor');
+	let guidelines: Guideline[] = getContext('guidelines');
 
 	let pickerColorIndex: number = $state(-1); // minus one if picker closed
 
+	let attributeFilter = $derived(
+		isGuidelineEditor
+			? (attribute: Attribute) =>
+					attribute.owner === owner && attribute.general === true && attribute.type === 'number'
+			: (attribute: Attribute) => attribute.owner === owner && attribute.type === 'number'
+	);
+
 	function addColor() {
 		colorSetting.value.push([{ r: 255, g: 255, b: 255, a: 1 }, 0]);
+		colorSetting.source = null;
 	}
 
 	function removeColor(index: number) {
 		if (pickerColorIndex === index) pickerColorIndex = -1;
 		if (pickerColorIndex > index) pickerColorIndex--;
 		colorSetting.value.splice(index, 1);
+		colorSetting.source = null;
 	}
 
-	// For range slider gradient positions
+	// proxy just to set source to manual (null)
+	let colorValue = {
+		get value() {
+			return colorSetting.value[pickerColorIndex][0];
+		},
+		set value(val: RgbaColor) {
+			colorSetting.value[pickerColorIndex][0] = val;
+			colorSetting.source = null;
+		}
+	};
+
+	// For range slider gradient positions, runs only if position changes
 	let colorPositions = {
 		get value() {
 			return colorSetting.value.map((colorPosTuple) => colorPosTuple[1]);
@@ -37,9 +63,7 @@
 	function toggleAttributeBinding() {
 		if (colorSetting.attribute) colorSetting.attribute = undefined;
 		else {
-			colorSetting.attribute = availableAttributes.filter(
-				(attribute) => attribute.owner === owner && attribute.type === 'number'
-			)[0] as RangeAttribute;
+			colorSetting.attribute = availableAttributes.filter(attributeFilter)[0] as RangeAttribute;
 			if (colorSetting.value.length < 2) addColor(); // has to be a gradient
 		}
 	}
@@ -56,23 +80,44 @@
 </script>
 
 <div class="flex justify-between items-center">
-	<div class="text-m uppercase">
+	<div class="settingName">
 		{colorSetting.name}
-		<!-- {colorSettings.source} -->
-	</div>
-	<div class="flex justify-end items-center">
-		{#if colorSetting.attribute}
-			<AttributePicker
-				bind:selectedAttribute={colorSetting.attribute}
-				filter={(attribute: Attribute) => (attribute.owner === owner && attribute.type === 'number')}
-			/>
+		{#if colorSetting.source}
+			<GuidelineSource guidelineName={colorSetting.source} />
 		{/if}
-		<button onclick={addColor} class="mx-2">+</button>
+	</div>
+	<div class="flex justify-end items-center gap-1">
+		<div class:bindContainer={colorSetting.attribute}>
+			{#if colorSetting.attribute}
+				<div class="mr-2">
+					<AttributePicker
+						bind:selectedAttribute={colorSetting.attribute}
+						filter={attributeFilter}
+						alignRight={true}
+					/>
+				</div>
+			{/if}
+
+			<button
+				onclick={toggleAttributeBinding}
+				use:hoverPopup={{
+					text: colorSetting.attribute ? 'remove attribute binding' : 'bind attribute',
+					delay: 300,
+					position: 'left'
+				}}
+				class="buttonGeneral"
+				class:linkMargin={colorSetting.value.length <= 1}
+			>
+				<span class="material-symbols-outlined">
+					{colorSetting.attribute ? 'link_off' : 'add_link'}</span
+				>
+			</button>
+		</div>
 		<!-- TODO iset shadow variable -->
 		{#if colorSetting.value.length == 1}
 			<button
 				onclick={() => toggleColorPicker(0)}
-				class="rounded-full w-6 h-6"
+				class="colorButton"
 				style="background-color: {colord(
 					colorSetting.value[0][0]
 				).toRgbString()}; box-shadow: inset 0px 0px 10px 0px rgba(0, 0, 0, 0.5);"
@@ -80,11 +125,9 @@
 			</button>
 		{/if}
 
-		<button onclick={toggleAttributeBinding}>
-			<span class="material-symbols-outlined">
-				{colorSetting.attribute ? 'link_off' : 'add_link'}</span
-			>
-		</button>
+		<button onclick={addColor} class="buttonGeneral"
+			><span class="material-symbols-outlined"> add</span></button
+		>
 	</div>
 </div>
 
@@ -104,12 +147,35 @@
 	{/if}
 
 	{#if pickerColorIndex >= 0}
-		<ColorPicker
-			bind:rgb={colorSetting.value[pickerColorIndex][0] as RgbaColor}
-			label="tadyy"
-			isDialog={false}
-			components={{ wrapper: ColorPickerWrapper }}
-			closeFunction={() => console.log('close color picker')}
-		/>
+		<div class="pickerDiv">
+			<ColorPicker
+				bind:rgb={colorValue.value as RgbaColor}
+				label="tadyy"
+				isDialog={false}
+				components={{ wrapper: ColorPickerWrapper }}
+				closeFunction={() => console.log('close color picker')}
+			/>
+		</div>
 	{/if}
 </div>
+
+<style>
+	.pickerDiv {
+		--picker-width: 190px;
+		--picker-height: 150px;
+	}
+	.colorButton {
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		transition: all 0.2s ease;
+	}
+
+	.colorButton:hover {
+		transform: scale(1.1);
+	}
+
+	.linkMargin {
+		margin-right: 3px;
+	}
+</style>

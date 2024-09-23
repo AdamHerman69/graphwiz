@@ -1,9 +1,10 @@
 <svelte:options immutable={false} />
 
 <script>
-	import { spring } from 'svelte/motion';
+	import { spring, tweened } from 'svelte/motion';
 	import { createEventDispatcher } from 'svelte';
 	import RangePips from './RangePips.svelte';
+	import { cubicOut, cubicInOut, backOut, elasticOut } from 'svelte/easing';
 
 	// dom references
 	export let slider = undefined;
@@ -91,9 +92,13 @@
 		if (valueLength !== values.length) {
 			// set the initial spring values when the slider initialises,
 			// or when values array length has changed
-			springPositions = spring(
+			// springPositions = spring(
+			// 	values.map((v) => percentOf(v)),
+			// 	springValues
+			// );
+			springPositions = tweened(
 				values.map((v) => percentOf(v)),
-				springValues
+				{ duration: 100, easing: cubicOut }
 			);
 		} else {
 			// update the value of the spring function for animated handles
@@ -714,10 +719,13 @@
 	}
 
 	:global(.rangeSlider > .rangeHandle > .rangeNub) {
-		box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.7);
+		box-shadow:
+			0px 0px 8px 0px rgba(0, 0, 0, 0.3),
+			inset 0px 0px 10px 0px rgba(0, 0, 0, 0.15);
 		/* top: 1px;
 		height: 1.8em;
 		width: 1.8em; */
+		transition: all 0.2s ease;
 	}
 
 	:global(.rangeSlider) {
@@ -726,10 +734,10 @@
 		--handle: var(--range-handle, #838de7);
 		--handle-focus: var(--range-handle-focus, #4a40d4);
 		--handle-border: var(--range-handle-border, var(--handle));
-		--range-inactive: var(--range-range-inactive, var(--handle-inactive));
-		--range: var(--range-range, var(--handle-focus));
-		--float-inactive: var(--range-float-inactive, var(--handle-inactive));
-		--float: var(--range-float, var(--handle-focus));
+		--range-inactive: var(--range-range-inactive);
+		--range: var(--range-range-active);
+		--float-inactive: var(--range-float, var(--handle-inactive));
+		--float: var(--range-float);
 		--float-text: var(--range-float-text, white);
 	}
 	:global(.rangeSlider) {
@@ -766,7 +774,7 @@
 	:global(.rangeSlider .rangeHandle) {
 		position: absolute;
 		display: block;
-		height: 1.4em;
+		height: 1em;
 		width: 1.4em;
 		top: 0.25em;
 		bottom: auto;
@@ -806,9 +814,9 @@
 		box-shadow: 0 0 0 0px var(--handle-border);
 		opacity: 0;
 	}
-	:global(.rangeSlider.hoverable:not(.disabled) .rangeHandle:hover:before) {
-		box-shadow: 0 0 0 8px var(--handle-border);
-		opacity: 0.2;
+	:global(.rangeSlider.hoverable:not(.disabled) .rangeHandle:hover .rangeNub) {
+		transform: scale(1.2);
+		/* opacity: 0.2; */
 	}
 	:global(.rangeSlider.hoverable:not(.disabled) .rangeHandle.press:before),
 	:global(.rangeSlider.hoverable:not(.disabled) .rangeHandle.press:hover:before) {
@@ -821,27 +829,18 @@
 	:global(.rangeSlider.range .rangeHandle:nth-of-type(1) .rangeNub) {
 		transform: rotate(-135deg);
 	}
+	:global(.rangeSlider.range .rangeHandle:hover:nth-of-type(1) .rangeNub) {
+		transform: scale(1.2) rotate(-135deg);
+	}
+
 	:global(.rangeSlider.range .rangeHandle:nth-of-type(2) .rangeNub) {
 		transform: rotate(45deg);
 	}
-	:global(.rangeSlider.range.reversed .rangeHandle:nth-of-type(1) .rangeNub) {
-		transform: rotate(45deg);
+
+	:global(.rangeSlider.range .rangeHandle:hover:nth-of-type(2) .rangeNub) {
+		transform: scale(1.2) rotate(45deg);
 	}
-	:global(.rangeSlider.range.reversed .rangeHandle:nth-of-type(2) .rangeNub) {
-		transform: rotate(-135deg);
-	}
-	:global(.rangeSlider.range.vertical .rangeHandle:nth-of-type(1) .rangeNub) {
-		transform: rotate(135deg);
-	}
-	:global(.rangeSlider.range.vertical .rangeHandle:nth-of-type(2) .rangeNub) {
-		transform: rotate(-45deg);
-	}
-	:global(.rangeSlider.range.vertical.reversed .rangeHandle:nth-of-type(1) .rangeNub) {
-		transform: rotate(-45deg);
-	}
-	:global(.rangeSlider.range.vertical.reversed .rangeHandle:nth-of-type(2) .rangeNub) {
-		transform: rotate(135deg);
-	}
+
 	:global(.rangeSlider .rangeFloat) {
 		display: block;
 		position: absolute;
@@ -856,7 +855,7 @@
 		transition: all 0.2s ease;
 		font-size: 0.9em;
 		padding: 0.2em 0.4em;
-		border-radius: 0.2em;
+		border-radius: 0.5em;
 	}
 	:global(.rangeSlider .rangeHandle.active .rangeFloat),
 	:global(.rangeSlider.hoverable .rangeHandle:hover .rangeFloat) {
@@ -891,8 +890,11 @@
 		background-color: var(--range);
 	}
 	:global(.rangeSlider .rangeNub) {
-		background-color: #99a2a2;
+		background-color: pink;
 		background-color: var(--handle-inactive);
+		box-shadow:
+			0px 0px 10px 0px rgba(0, 0, 0, 0.4),
+			inset 0px 0px 10px 0px rgba(0, 0, 0, 0.15);
 	}
 	:global(.rangeSlider.focus .rangeNub) {
 		background-color: #838de7;
@@ -901,9 +903,11 @@
 	:global(.rangeSlider .rangeHandle.active .rangeNub) {
 		background-color: #4a40d4;
 		background-color: var(--handle-focus);
+		box-shadow:
+			0px 0px 15px 0px rgba(0, 0, 0, 0.5),
+			inset 0px 0px 10px 0px rgba(0, 0, 0, 0.15) !important;
 	}
 	:global(.rangeSlider .rangeFloat) {
-		color: white;
 		color: var(--float-text);
 		background-color: #99a2a2;
 		background-color: var(--float-inactive);

@@ -290,13 +290,9 @@ export class PEdge {
 		if (this.source.position.equals(this.target.position))
 			return [this.source.position, this.target.position];
 
-		const direction = this.target.position.subtract(this.source.position).normalize();
-		let sourceConnectionPoint = this.source.position.add(
-			direction.multiply(this.source.getFinalRadius())
-		);
-		let targetConnectionPoint = this.target.position.subtract(
-			direction.multiply(this.target.getFinalRadius())
-		);
+		const direction = this.target.position.subtract(this.source.position);
+		let sourceConnectionPoint = this.source.getConnectionPoint(direction);
+		let targetConnectionPoint = this.target.getConnectionPoint(direction.multiply(-1));
 
 		// partial edge
 		const sourcePartial = getRelativeEdgePoint(
@@ -314,6 +310,9 @@ export class PEdge {
 	}
 
 	updatePosition() {
+		// orthogonal is static
+		if (this.type === 'orthogonal') return;
+
 		[this.sourceConnectionPoint, this.targetConnectionPoint] = this.getConnectionPoints();
 		this.lineShape.updatePosition(this.sourceConnectionPoint, this.targetConnectionPoint);
 
