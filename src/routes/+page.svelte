@@ -162,6 +162,8 @@
 	// 	const hoverCircle = document.getElementById('hoverCircle');
 	// 	hoverCircle.style.visibility = 'hidden';
 	// }
+
+	let dividerWidth = $state(0.5);
 </script>
 
 <div class="graphCharacteristics">
@@ -208,29 +210,22 @@
 				class="divider"
 				onmousedown={dragStart}
 				ontouchstart={dragStart}
+				onmouseenter={() => (dividerWidth = 1.5)}
+				onmouseleave={() => (dividerWidth = 0.5)}
 				height="100%"
 				width="19"
 			>
-				<!-- <defs>
-					<filter id="split-effect" width="400%" x="-150%" height="400%" y="-150%">
-						<feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
-						<feColorMatrix
-							in="blur"
-							type="matrix"
-							values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 25 -10"
-							result="matrix"
-						/>
-					</filter>
-					<filter id="drop-shadow" x="-50%" y="-50%" width="200%" height="200%">
-						<feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="rgba(0,0,0,0.5)" />
-					</filter>
-				</defs> -->
-				<!-- <g filter="url(#drop-shadow)">
-						<g filter="url(#split-effect)">
-							<rect width="100%" height="100%" fill="#000000"></rect>
-						</g>
-					</g> -->
-				<g><rect x="9" width="1" height="100%" fill="black"></rect></g>
+				<g>
+					<rect
+						x="9"
+						width={dividerWidth}
+						height="100%"
+						fill="black"
+						rx="1"
+						ry="1"
+						class="divider-rect"
+					></rect>
+				</g>
 			</svg>
 		</div>
 	{/if}
