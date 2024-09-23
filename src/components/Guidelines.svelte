@@ -140,7 +140,9 @@
 			log guidelines
 		</button>
 	</div> -->
-	<div class="sectionHeader">Applied</div>
+	{#if guidelines[0].status?.applied === 'fully'}
+		<div class="sectionHeader">Applied</div>
+	{/if}
 
 	{#each guidelines as guideline, index (guideline.id)}
 		{#if !guideline.expanded || isClosing}

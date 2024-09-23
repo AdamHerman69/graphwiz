@@ -109,7 +109,7 @@
 		const containerWidth = containerRef.parentElement.clientWidth;
 
 		if (!collapsed) {
-			maxExpandedWidth = containerWidth;
+			maxExpandedWidth = Math.min(valueDisplayWidth + 40, containerWidth);
 			return;
 		}
 

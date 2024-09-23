@@ -132,33 +132,35 @@
 				</button>
 			</div>
 
-			<button
-				onclick={applyInSplitView}
-				class="splitButton buttonGeneral"
-				transition:blur={{ duration: 100 }}
-				use:hoverPopup={{ text: 'open in split view', delay: 400, position: 'left' }}
-			>
-				<span class="material-symbols-outlined"> splitscreen_right </span>
-			</button>
+			<div class="flex">
+				<button
+					onclick={applyInSplitView}
+					class="splitButton buttonGeneral"
+					transition:blur={{ duration: 100 }}
+					use:hoverPopup={{ text: 'open in split view', delay: 400, position: 'left' }}
+				>
+					<span class="material-symbols-outlined"> splitscreen_right </span>
+				</button>
 
-			<button
-				class="buttonGeneral"
-				onclick={() => {guideline.parentDiv = cardParentDiv; expand(guideline, cardParentDiv!)}}
-				><span class="material-symbols-outlined"> open_in_full </span></button
-			>
-			<button class="buttonGeneral" onclick={downloadGuideline}
-				><span class="material-symbols-outlined"> download </span></button
-			>
+				<button
+					class="buttonGeneral"
+					onclick={() => {guideline.parentDiv = cardParentDiv; expand(guideline, cardParentDiv!)}}
+					><span class="material-symbols-outlined"> open_in_full </span></button
+				>
+				<button class="buttonGeneral" onclick={downloadGuideline}
+					><span class="material-symbols-outlined"> download </span></button
+				>
 
-			<button class="buttonGeneral" onclick={edit}
-				><span class="material-symbols-outlined"> edit </span></button
-			>
+				<button class="buttonGeneral" onclick={edit}
+					><span class="material-symbols-outlined"> edit </span></button
+				>
 
-			<!-- {#if guideline.status?.conflicts.length > 0}
+				<!-- {#if guideline.status?.conflicts.length > 0}
 				<button class="conflictButton">
 					<span class="material-symbols-outlined"> error </span>
 				</button>
 			{/if} -->
+			</div>
 		</div>
 	{/if}
 </div>
@@ -174,10 +176,11 @@
 
 	.bottomRow {
 		display: flex;
+		justify-content: space-between;
 	}
 
 	.bottomRow button {
-		padding: 5px 5px;
+		padding: 5px 3px;
 		border-radius: 10px;
 		text-transform: uppercase;
 		font-weight: bold;
@@ -226,24 +229,34 @@
 	button.notApplied,
 	button.fully {
 		padding: 5px 20px;
-	}
-
-	.fully {
-		box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+		background-color: black;
+		color: white;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 		transition: all 0.2s ease;
 	}
+
+	button.fully {
+		box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+		transition: all 0.2s ease;
+		background-color: transparent;
+		color: black;
+	}
+
+	/* 
 
 	.partially {
 		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 		transition: all 0.2s ease;
+		background-color: black;
+		color: white;
 	}
 
 	.notApplied {
 		box-shadow:
-			inset 0 0 5px rgba(0, 0, 0, 0.1),
-			0 0 10px rgba(0, 0, 0, 0.1);
+			inset 0 0 5px rgba(255, 255, 255, 0.7),
+			0 0 10px rgba(255, 255, 255, 0.5);
 		transition: all 0.2s ease;
-	}
+	} */
 
 	.notApplied:hover {
 		box-shadow:

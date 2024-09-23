@@ -46,6 +46,8 @@
 		text-transform: uppercase;
 		height: auto;
 		line-height: normal;
+		/* font-family: 'WhyteInktrap'; */
+		/* font-weight: 600; */
 	}
 
 	.plusButton {
