@@ -4,8 +4,8 @@
 	import autoAnimate from '@formkit/auto-animate';
 	import WeightedCondition from './WeightedCondition.svelte';
 	import { formatDecimal } from '../utils/helperFunctions';
-	// import collapseAnimation from '../assets/animated_icons/alternating_arrow.json';
-	// import lottie, { type AnimationItem } from 'lottie-web';
+	import collapseAnimation from '../assets/animated_icons/alternating_arrow.json';
+	import lottie, { type AnimationItem } from 'lottie-web';
 	import { onMount } from 'svelte';
 
 	let { guideline }: { guideline: Guideline } = $props();
@@ -14,26 +14,26 @@
 	let collapseAnimationInstance: AnimationItem;
 	let collapseButton: HTMLButtonElement;
 
-	// function collapse() {
-	// 	collapsed
-	// 		? collapseAnimationInstance.playSegments([0, 5], true)
-	// 		: collapseAnimationInstance.playSegments([7, 11], true);
-	// 	collapsed = !collapsed;
-	// }
+	function collapse() {
+		collapsed
+			? collapseAnimationInstance.playSegments([0, 5], true)
+			: collapseAnimationInstance.playSegments([7, 11], true);
+		collapsed = !collapsed;
+	}
 
-	// onMount(() => {
-	// 	collapseAnimationInstance = lottie.loadAnimation({
-	// 		container: collapseButton,
-	// 		loop: false,
-	// 		autoplay: false,
-	// 		animationData: collapseAnimation,
-	// 		initialSegment: [0, 5],
-	// 		rendererSettings: {
-	// 			preserveAspectRatio: 'xMidYMid slice',
-	// 			progressiveLoad: true
-	// 		}
-	// 	});
-	// });
+	onMount(() => {
+		collapseAnimationInstance = lottie.loadAnimation({
+			container: collapseButton,
+			loop: false,
+			autoplay: false,
+			animationData: collapseAnimation,
+			initialSegment: [0, 5],
+			rendererSettings: {
+				preserveAspectRatio: 'xMidYMid slice',
+				progressiveLoad: true
+			}
+		});
+	});
 </script>
 
 <div class="flex justify-between align-middle mb-2">
