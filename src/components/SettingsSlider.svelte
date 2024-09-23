@@ -8,6 +8,7 @@
 	import type { Guideline } from '../utils/guideline.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import { blur } from 'svelte/transition';
+	import { hoverPopup } from './GUI/hoverPopup.svelte';
 
 	let { numSettings }: { numSettings: NumericalSetting } = $props();
 	const owner = getContext('type');
@@ -67,7 +68,15 @@
 				/>
 			</div>
 		{/if}
-		<button onclick={toggleAttributeBinding} class="buttonGeneral">
+		<button
+			onclick={toggleAttributeBinding}
+			use:hoverPopup={{
+				text: numSettings.attribute ? 'remove attribute binding' : 'bind attribute',
+				delay: 300,
+				position: 'left'
+			}}
+			class="buttonGeneral"
+		>
 			<span class="material-symbols-outlined">
 				{numSettings.attribute ? 'link_off' : 'add_link'}</span
 			>

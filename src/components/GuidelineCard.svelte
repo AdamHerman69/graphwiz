@@ -137,22 +137,28 @@
 					onclick={applyInSplitView}
 					class="splitButton buttonGeneral"
 					transition:blur={{ duration: 100 }}
-					use:hoverPopup={{ text: 'open in split view', delay: 400, position: 'left' }}
+					use:hoverPopup={{ text: 'open in split view', delay: 300, position: 'right' }}
 				>
 					<span class="material-symbols-outlined"> splitscreen_right </span>
 				</button>
 
 				<button
 					class="buttonGeneral"
+					use:hoverPopup={{ text: 'expand guideline', delay: 300, position: 'right' }}
 					onclick={() => {guideline.parentDiv = cardParentDiv; expand(guideline, cardParentDiv!)}}
 					><span class="material-symbols-outlined"> open_in_full </span></button
 				>
-				<button class="buttonGeneral" onclick={downloadGuideline}
+				<button
+					class="buttonGeneral"
+					use:hoverPopup={{ text: 'download guideline', delay: 300, position: 'right' }}
+					onclick={downloadGuideline}
 					><span class="material-symbols-outlined"> download </span></button
 				>
 
-				<button class="buttonGeneral" onclick={edit}
-					><span class="material-symbols-outlined"> edit </span></button
+				<button
+					class="buttonGeneral"
+					use:hoverPopup={{ text: 'edit guideline', delay: 300, position: 'right' }}
+					onclick={edit}><span class="material-symbols-outlined"> edit </span></button
 				>
 
 				<!-- {#if guideline.status?.conflicts.length > 0}

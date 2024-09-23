@@ -11,6 +11,7 @@
 	import type { Guideline } from '../utils/guideline.svelte';
 	import GuidelineSource from './GUI/GuidelineSource.svelte';
 	import { blur } from 'svelte/transition';
+	import { hoverPopup } from './GUI/hoverPopup.svelte';
 
 	let { colorSetting }: { colorSetting: ColorSetting } = $props();
 	const owner = getContext('type');
@@ -99,6 +100,11 @@
 
 			<button
 				onclick={toggleAttributeBinding}
+				use:hoverPopup={{
+					text: colorSetting.attribute ? 'remove attribute binding' : 'bind attribute',
+					delay: 300,
+					position: 'left'
+				}}
 				class="buttonGeneral"
 				class:linkMargin={colorSetting.value.length <= 1}
 			>

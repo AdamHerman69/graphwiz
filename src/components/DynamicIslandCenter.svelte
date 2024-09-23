@@ -8,6 +8,7 @@
 	import type { ICanvasHandler } from '../utils/canvas.svelte';
 	import { downloadFile } from '../utils/helperFunctions';
 	import { cubicInOut } from 'svelte/easing';
+	import { hoverPopup } from './GUI/hoverPopup.svelte';
 
 	let {
 		stickyLeft = $bindable(),
@@ -64,19 +65,31 @@
 			{
 				icon: 'keep',
 				action: () => (stickyLeft = !stickyLeft),
-				label: 'Sticky Right'
+				label: 'Sticky Right',
+				tooltip: 'toggle sticky nodes'
 			},
-			{ icon: 'undo', action: graphSettingsLeft.undo, label: 'Right Undo' },
-			{ icon: 'redo', action: graphSettingsLeft.redo, label: 'Right Redo' },
+			{ icon: 'undo', action: graphSettingsLeft.undo, label: 'Right Undo', tooltip: 'undo' },
+			{ icon: 'redo', action: graphSettingsLeft.redo, label: 'Right Redo', tooltip: 'redo' },
 			{
 				icon: 'splitscreen_vertical_add',
 				action: () => {
 					toggleSplitView(true, true);
 				},
-				label: 'Split View'
+				label: 'Split View',
+				tooltip: 'open split view'
 			},
-			{ icon: 'upload_file', action: () => (menuOpen = 'import'), label: 'Import' },
-			{ icon: 'download', action: () => (menuOpen = 'export'), label: 'Export' }
+			{
+				icon: 'upload_file',
+				action: () => (menuOpen = 'import'),
+				label: 'Import',
+				tooltip: 'import files'
+			},
+			{
+				icon: 'download',
+				action: () => (menuOpen = 'export'),
+				label: 'Export',
+				tooltip: 'export files'
+			}
 		],
 		right: [
 			{
@@ -84,16 +97,27 @@
 				action: () => {
 					toggleSplitView(true, true);
 				},
-				label: 'Split View'
+				label: 'Split View',
+				tooltip: 'open split view'
 			},
-			{ icon: 'upload_file', action: () => (menuOpen = 'import'), label: 'Import' },
-			{ icon: 'download', action: () => (menuOpen = 'export'), label: 'Export' },
-			{ icon: 'undo', action: graphSettingsLeft.undo, label: 'Right Undo' },
-			{ icon: 'redo', action: graphSettingsLeft.redo, label: 'Right Redo' },
+			{
+				icon: 'upload_file',
+				action: () => (menuOpen = 'import'),
+				label: 'Import',
+				tooltip: 'import files'
+			},
+			{
+				icon: 'download',
+				action: () => (menuOpen = 'export'),
+				label: 'Export',
+				tooltip: 'export files'
+			},
+			{ icon: 'redo', action: graphSettingsLeft.redo, label: 'Right Redo', tooltip: 'redo' },
 			{
 				icon: 'keep',
 				action: () => (stickyLeft = !stickyLeft),
-				label: 'Sticky Right'
+				label: 'Sticky Right',
+				tooltip: 'toggle sticky nodes'
 			}
 		],
 		double: [
@@ -102,16 +126,27 @@
 				action: () => (stickyLeft = !stickyLeft),
 				label: 'Sticky Left'
 			},
-			{ icon: 'undo', action: graphSettingsLeft.undo, label: 'Left Undo' },
-			{ icon: 'redo', action: graphSettingsLeft.redo, label: 'Left Redo' },
-			{ icon: 'upload_file', action: () => (menuOpen = 'import'), label: 'Import' },
-			{ icon: 'download', action: () => (menuOpen = 'export'), label: 'Export' },
-			{ icon: 'undo', action: graphSettingsRight.undo, label: 'Right Undo' },
-			{ icon: 'redo', action: graphSettingsRight.redo, label: 'Right Redo' },
+			{ icon: 'undo', action: graphSettingsLeft.undo, label: 'Left Undo', tooltip: 'undo' },
+			{ icon: 'redo', action: graphSettingsLeft.redo, label: 'Left Redo', tooltip: 'redo' },
+			{
+				icon: 'upload_file',
+				action: () => (menuOpen = 'import'),
+				label: 'Import',
+				tooltip: 'import files'
+			},
+			{
+				icon: 'download',
+				action: () => (menuOpen = 'export'),
+				label: 'Export',
+				tooltip: 'export files'
+			},
+			{ icon: 'undo', action: graphSettingsRight.undo, label: 'Right Undo', tooltip: 'undo' },
+			{ icon: 'redo', action: graphSettingsRight.redo, label: 'Right Redo', tooltip: 'redo' },
 			{
 				icon: 'keep',
 				action: () => (stickyRight = !stickyRight),
-				label: 'Sticky Right'
+				label: 'Sticky Right',
+				tooltip: 'toggle sticky nodes'
 			}
 		]
 	};
@@ -449,6 +484,11 @@
 							transition:blur|global
 							onclick={button.action}
 							style={`left: ${getButtonPosition(index)}px`}
+							use:hoverPopup={{
+								text: button.tooltip,
+								delay: 300,
+								position: 'bottom'
+							}}
 						>
 							<span class="material-symbols-outlined">{button.icon}</span>
 						</button>
@@ -460,6 +500,11 @@
 					{#if index != buttons['right'].length - 1}
 						<button
 							transition:blur|global
+							use:hoverPopup={{
+								text: button.tooltip,
+								delay: 300,
+								position: 'bottom'
+							}}
 							onclick={button.action}
 							style={`left: ${getButtonPosition(index)}px`}
 						>
@@ -473,6 +518,11 @@
 					{#if index != buttons['double'].length - 1 && index != 0}
 						<button
 							transition:blur|global
+							use:hoverPopup={{
+								text: button.tooltip,
+								delay: 300,
+								position: 'bottom'
+							}}
 							onclick={button.action}
 							style={`left: ${getButtonPosition(index)}px`}
 						>
@@ -487,6 +537,11 @@
 		{#if (view === 'right' || view === 'double') && (stickyRight || !menuOpen)}
 			<button
 				transition:blur|global
+				use:hoverPopup={{
+					text: 'toggle sticky nodes',
+					delay: 300,
+					position: 'bottom'
+				}}
 				onclick={() => (stickyRight = !stickyRight)}
 				style={`left: ${RIGHT_STICKY_X_MIDDLE - BUTTON_WIDTH / 2}px;`}
 				disabled={graphSettingsRight.graphSettings.layout.value != 'force-graph'}
@@ -497,6 +552,11 @@
 		<!-- Sticky Left -->
 		{#if (view === 'left' || view === 'double') && (stickyLeft || !menuOpen)}
 			<button
+				use:hoverPopup={{
+					text: 'toggle sticky nodes',
+					delay: 300,
+					position: 'bottom'
+				}}
 				transition:blur|global
 				onclick={() => (stickyLeft = !stickyLeft)}
 				style={`left: ${LEFT_STICKY_X_MIDDLE - BUTTON_WIDTH / 2}px;`}

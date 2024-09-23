@@ -11,6 +11,7 @@
 	import { getContext } from 'svelte';
 	import SettingsSelect from './SettingsSelect.svelte';
 	import { graph } from 'graphology-metrics';
+	import { hoverPopup } from './GUI/hoverPopup.svelte';
 
 	let { side }: { side: 'left' | 'right' } = $props();
 	setContext('side', side);
@@ -55,7 +56,11 @@
 	<!-- Add rule button -->
 	<div class="flex justify-center addRuleWrapper">
 		<div class="card buttonSpacing addRuleButton">
-			<button onclick={addRule} class="flex items-center justify-center w-full h-full">
+			<button
+				onclick={addRule}
+				use:hoverPopup={{ text: 'add conditional settings', delay: 300, position: 'left' }}
+				class="flex items-center justify-center w-full h-full"
+			>
 				<span class="material-symbols-outlined">add</span>
 				<!-- add conditional styles -->
 			</button>

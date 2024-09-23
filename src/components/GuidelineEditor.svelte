@@ -241,12 +241,10 @@
 	.title {
 		font-size: 30px;
 		font-weight: bold;
-		grid-column: span 2;
 	}
 
 	.description {
 		font-size: 18px;
-		grid-column: span 2;
 		font-style: italic;
 	}
 
@@ -300,10 +298,12 @@
 		.grid {
 			grid-template-columns: 1fr 1fr;
 		}
-	}
 
-	.recommendations {
-		grid-column: span 2;
+		.recommendations,
+		.title,
+		.description {
+			grid-column: span 2;
+		}
 	}
 
 	.recommendations .recommendationsGrid {
