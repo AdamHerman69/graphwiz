@@ -130,9 +130,13 @@ export type Guideline = StaticGuideline & {
 };
 
 const normalizeWeights = (conditions: WeightedCondition[]): WeightedCondition[] => {
-	const totalWeight = conditions.reduce((sum, wc) => sum + wc.weight, 0);
+	const totalWeight = conditions.reduce((sum, wc) => (wc.weight === -1 ? sum : sum + wc.weight), 0);
 	conditions.forEach((wc) => {
-		wc.weightNormalized = wc.weight / totalWeight;
+		if (wc.weight === -1) {
+			wc.weightNormalized = 0; // Ultimate conditions don't contribute to normalized weight
+		} else {
+			wc.weightNormalized = wc.weight / totalWeight;
+		}
 	});
 
 	return conditions;
@@ -196,7 +200,21 @@ const evaluateBooleanCondition = (condition: BooleanCondition): number => {
 
 const evaluateCompositeCondition = (condition: CompositeCondition): number => {
 	const normalizedConditions = normalizeWeights(condition.conditions);
+
+	// Check for ultimate conditions first
+	const ultimateConditions = normalizedConditions.filter((wc) => wc.weight === -1);
+	for (const ultimateCondition of ultimateConditions) {
+		const score = evaluateCondition(ultimateCondition.condition);
+		if (score === 0) {
+			return 0; // Nullify all sibling conditions
+		}
+	}
+
+	// If all ultimate conditions are satisfied, evaluate the rest
 	return normalizedConditions.reduce((sum, wc) => {
+		if (wc.weight === -1) {
+			return sum; // Ultimate conditions don't contribute to the score
+		}
 		wc.score = evaluateCondition(wc.condition);
 		wc.scoreWeighted = wc.score * wc.weightNormalized!;
 		return sum + wc.scoreWeighted;

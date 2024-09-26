@@ -43,7 +43,9 @@
 			{#if editable}
 				<input type="number" bind:value={weightedCondition.weight} min="1" />
 			{:else}
-				<div class="weightNumber">{weightedCondition.weight}</div>
+				<div class="weightNumber">
+					{weightedCondition.weight > 0 ? weightedCondition.weight : '!'}
+				</div>
 			{/if}
 			<span class="material-symbols-outlined weight"> weight </span>
 		</div>
