@@ -33,6 +33,8 @@
 
 	let applyHovered: boolean = $state(false);
 
+	let side = getContext('side');
+
 	let toggleSplitView: (left: boolean, right: boolean) => void = getContext('toggleSplitView');
 
 	function applyInSplitView() {
@@ -137,27 +139,43 @@
 					onclick={applyInSplitView}
 					class="splitButton buttonGeneral"
 					transition:blur={{ duration: 100 }}
-					use:hoverPopup={{ text: 'open in split view', delay: 300, position: 'right' }}
+					use:hoverPopup={{
+						text: 'open in split view',
+						delay: 300,
+						position: side === 'left' ? 'right' : 'left'
+					}}
 				>
 					<span class="material-symbols-outlined"> splitscreen_right </span>
 				</button>
 
 				<button
 					class="buttonGeneral"
-					use:hoverPopup={{ text: 'expand guideline', delay: 300, position: 'right' }}
+					use:hoverPopup={{
+						text: 'expand guideline',
+						delay: 300,
+						position: side === 'left' ? 'right' : 'left'
+					}}
 					onclick={() => {guideline.parentDiv = cardParentDiv; expand(guideline, cardParentDiv!)}}
 					><span class="material-symbols-outlined"> open_in_full </span></button
 				>
 				<button
 					class="buttonGeneral"
-					use:hoverPopup={{ text: 'download guideline', delay: 300, position: 'right' }}
+					use:hoverPopup={{
+						text: 'download guideline',
+						delay: 300,
+						position: side === 'left' ? 'right' : 'left'
+					}}
 					onclick={downloadGuideline}
 					><span class="material-symbols-outlined"> download </span></button
 				>
 
 				<button
 					class="buttonGeneral"
-					use:hoverPopup={{ text: 'edit guideline', delay: 300, position: 'right' }}
+					use:hoverPopup={{
+						text: 'edit guideline',
+						delay: 300,
+						position: side === 'left' ? 'right' : 'left'
+					}}
 					onclick={edit}><span class="material-symbols-outlined"> edit </span></button
 				>
 

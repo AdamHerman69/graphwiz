@@ -7,12 +7,15 @@
 		isComposite,
 		sortGuidelines
 	} from '../utils/guideline.svelte';
-	import { getContext } from 'svelte';
+	import { getContext, setContext } from 'svelte';
 	import type { GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import GuidelineCard from './GuidelineCard.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import { getGraph } from '../utils/graph.svelte';
 	import { isEdited } from '../utils/guideline.svelte';
+
+	let { side }: { side: 'left' | 'right' } = $props();
+	setContext('side', side);
 
 	let guidelines: Guideline[] = getContext('guidelines') as Guideline[];
 

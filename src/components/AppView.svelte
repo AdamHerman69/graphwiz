@@ -174,7 +174,7 @@
 				<div class="cardStackContainer" class:hintSlideLeft use:autoAnimate>
 					{#if !hidden.left && panelState.left === 'guidelines'}
 						<div class="cardStack">
-							<Guidelines bind:this={leftGuidelinesExports} />
+							<Guidelines bind:this={leftGuidelinesExports} side="left" />
 						</div>
 					{:else if !hidden.left && panelState.left === 'settings'}
 						<div class="cardStack" use:autoAnimate>
@@ -225,7 +225,7 @@
 				<div class="cardStackContainer" class:hintSlideRight use:autoAnimate>
 					{#if !hidden.right && panelState.right === 'guidelines'}
 						<div class="cardStack">
-							<Guidelines bind:this={rightGuidelinesExports} />
+							<Guidelines bind:this={rightGuidelinesExports} side="right" />
 						</div>
 					{:else if !hidden.right && panelState.right === 'settings'}
 						<div class="cardStack reverse" use:autoAnimate>
