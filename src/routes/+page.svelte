@@ -13,6 +13,7 @@
 	import {
 		loadGuidelines,
 		sortGuidelines,
+		getGuidelines,
 		type Guideline,
 		applyGuideline,
 		type Task,
@@ -39,6 +40,10 @@
 	setContext('showTasks', showTasks);
 
 	let graph = $state(initGraph());
+
+	$effect(() => {
+		sortGuidelines(getGuidelines(), graph);
+	});
 
 	function initGraph(): Graph {
 		let graph = loadSampleGraph();

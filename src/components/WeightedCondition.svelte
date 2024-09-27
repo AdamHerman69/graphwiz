@@ -38,6 +38,7 @@
 		/> -->
 		<div
 			class={editable ? 'weightEditable' : 'bubble'}
+			class:ultimate={weightedCondition.weight === -1}
 			use:hoverPopup={{ text: 'weight', position: 'right' }}
 		>
 			{#if editable}
@@ -47,7 +48,9 @@
 					{weightedCondition.weight > 0 ? weightedCondition.weight : '!'}
 				</div>
 			{/if}
-			<span class="material-symbols-outlined weight"> weight </span>
+			{#if weightedCondition.weight != -1}
+				<span class="material-symbols-outlined weight"> weight </span>
+			{/if}
 		</div>
 	</div>
 	<div class="flex-1 py-1">
@@ -129,6 +132,12 @@
 		padding: 5px;
 		margin: 5px 6px 2px 0px;
 		cursor: help;
+	}
+
+	.bubble.ultimate {
+		background-color: black;
+		color: white;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 	}
 
 	.weightEditable {

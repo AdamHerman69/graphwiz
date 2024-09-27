@@ -47,6 +47,7 @@
 		"graphology-dag": "^0.4.1",
 		"graphology-graphml": "^0.5.2",
 		"graphology-metrics": "^2.3.0",
+		"graphology-traversal": "^0.3.1",
 		"gsap": "^3.12.5",
 		"lottie-web": "^5.12.2",
 		"paper": "^0.12.17"

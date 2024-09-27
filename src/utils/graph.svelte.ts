@@ -5,6 +5,7 @@ import hasCycle from 'graphology-dag/has-cycle';
 import isBipartiteBy from 'graphology-bipartite/is-bipartite-by';
 //import { unbindAttributes } from './graphSettings.svelte';
 import { sortGuidelines, type Task, tasks } from './guideline.svelte';
+import { bfs } from 'graphology-traversal';
 
 export type Attribute = {
 	name: string;
@@ -339,13 +340,13 @@ export const graphCharacteristics: { [key: string]: Characteristic<Characteristi
 		getter: (graph: Graph) => {
 			return tasks.selectedTask;
 		}
+	},
+	isBipartite: {
+		type: 'boolean',
+		getter: (graph: Graph) => {
+			return isBipartiteCheck(graph);
+		}
 	}
-	// isBipartite: {
-	// 	type: 'boolean',
-	// 	getter: (graph: Graph) => {
-	// 		return isBipartiteBy(graph);
-	// 	}
-	// }
 });
 
 export function recomputeCharacteristics(graph: Graph) {
@@ -355,4 +356,33 @@ export function recomputeCharacteristics(graph: Graph) {
 		characteristic.value = characteristic.getter(graph);
 	}
 	console.log('recomputed characteristics');
+}
+
+function isBipartiteCheck(graph: Graph) {
+	const colors = new Map();
+	let isBipartite = true;
+
+	bfs(graph, (node) => {
+		if (!colors.has(node)) {
+			colors.set(node, 0);
+		}
+
+		const nodeColor = colors.get(node);
+
+		graph.forEachNeighbor(node, (neighbor) => {
+			if (!colors.has(neighbor)) {
+				colors.set(neighbor, 1 - nodeColor);
+			} else if (colors.get(neighbor) === nodeColor) {
+				isBipartite = false;
+				return true; // Stop the traversal
+			}
+		});
+
+		console.log('returning bipartite: ', isBipartite);
+
+		return !isBipartite; // Stop if not bipartite
+	});
+
+	console.log('returning bipartite: ', isBipartite);
+	return isBipartite;
 }
