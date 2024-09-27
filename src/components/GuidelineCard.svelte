@@ -68,8 +68,6 @@
 		}
 	}
 
-	if (isNewGuideline(guideline)) edit();
-
 	function saveEditedGuideline() {
 		// guideline = $state.snapshot(editedGuideline)!;
 		guideline.name = $state.snapshot(guideline.editedGuideline!.name);
@@ -85,6 +83,7 @@
 	onMount(() => {
 		guideline.parentDiv = cardParentDiv;
 		console.log('onMount', guideline, cardParentDiv);
+		if (isNewGuideline(guideline)) edit();
 	});
 </script>
 

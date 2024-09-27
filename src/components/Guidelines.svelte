@@ -51,8 +51,10 @@
 			animateClose();
 			setTimeout(() => (overlay.on = false), 700);
 		} else {
+			console.log('expanding, else guideline: ', guideline);
 			overlay.on = true;
 			expandedGuidelineOriginalDims = guideline.parentDiv!.getBoundingClientRect();
+			console.log('after rect');
 			expandedGuideline = guideline;
 			guideline.expanded = true;
 			isClosing = false;
@@ -70,10 +72,18 @@
 			rootCondition: {
 				weight: 1,
 				condition: {
-					type: 'numeric',
-					property: 'nodeCount',
-					ideal: 69,
-					tolerance: 33
+					type: 'composite',
+					conditions: [
+						{
+							weight: 1,
+							condition: {
+								type: 'numeric',
+								property: 'nodeCount',
+								min: 50,
+								max: 250
+							}
+						}
+					]
 				}
 			},
 			recommendations: {},
@@ -88,9 +98,9 @@
 	export function addGuideline() {
 		let newG = newGuideline();
 		guidelines.push(newG);
-		setTimeout(() => {
-			expand(newG);
-		}, 50);
+		// setTimeout(() => {
+		// 	expand(newG);
+		// }, 50);
 	}
 
 	function animateClose() {
