@@ -63,7 +63,6 @@
 	function edit() {
 		guideline.editedGuideline = $state.snapshot(guideline);
 		if (!guideline.expanded) {
-			console.log('expanding', guideline, cardParentDiv);
 			expand(guideline, cardParentDiv);
 		}
 	}
@@ -82,7 +81,6 @@
 
 	onMount(() => {
 		guideline.parentDiv = cardParentDiv;
-		console.log('onMount', guideline, cardParentDiv);
 		if (isNewGuideline(guideline)) edit();
 	});
 </script>
