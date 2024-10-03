@@ -13,7 +13,7 @@
 	import SettingsSelect from './SettingsSelect.svelte';
 	import { getContext } from 'svelte';
 	import { hoverPopup } from './GUI/hoverPopup.svelte';
-
+	import DecoratorSettings from './DecoratorSettings.svelte';
 	let { side }: { side: 'left' | 'right' } = $props();
 	setContext('side', side);
 
@@ -85,6 +85,9 @@
 
 						<!-- TODO Decorators -->
 						<SettingsEdgeLabel labels={graphSettings.graphSettings.edgeSettings[index].labels!} />
+						<DecoratorSettings
+							decoratorSetting={graphSettings.graphSettings.edgeSettings[index].decorators!}
+						/>
 					{/if}
 				</div>
 			{:else}
