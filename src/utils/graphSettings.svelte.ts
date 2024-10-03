@@ -37,6 +37,7 @@ export type DecoratorData = {
 	type: DecoratorType;
 	position: number;
 	source?: null | string;
+	color?: RgbaColor; // if no color is set, the edge color is used
 };
 
 const decoratorTypes = ['triangle', 'circle', 'square'] as const;

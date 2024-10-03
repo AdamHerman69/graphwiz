@@ -1,6 +1,12 @@
 import Paper from 'paper';
 import type { IPNode } from './Node';
-import type { DecoratorData, EdgeStyle, EdgeType, EdgeLabel } from '../utils/graphSettings.svelte';
+import type {
+	DecoratorData,
+	EdgeStyle,
+	EdgeType,
+	EdgeLabel,
+	Gradient
+} from '../utils/graphSettings.svelte';
 import {
 	type Decorator,
 	createIsoscelesTriangle,
@@ -320,12 +326,16 @@ export class PEdge {
 		this.updateLabelPositions();
 	}
 
-	updateDecorators() {
-		this.decorators?.forEach((decTuple) => {
+	updateDecorators(decoratorData?: DecoratorData[], edgeColor?: Gradient) {
+		this.decorators?.forEach((decTuple, index) => {
 			decTuple[0].update(
 				getRelativeEdgePoint(this.sourceConnectionPoint, this.targetConnectionPoint, decTuple[1]),
 				this.getDirection()
 			);
+
+			if (decoratorData && edgeColor) {
+				decTuple[0].updateStyle(decoratorData[index], edgeColor);
+			}
 		});
 	}
 
@@ -373,7 +383,7 @@ export class PEdge {
 
 		// decorators
 		this.addRemoveDecorators(style.decorators);
-		this.updateDecorators();
+		this.updateDecorators(style.decorators, style.color);
 		//this.addRemoveLabels(style.labels);
 		this.updateLabels(style.labels);
 

@@ -1,6 +1,8 @@
 import Paper from 'paper';
 import { Color } from 'paper/dist/paper-core';
-import type { DecoratorType } from '../utils/graphSettings.svelte';
+import type { DecoratorData, DecoratorType, Gradient } from '../utils/graphSettings.svelte';
+import { colord } from 'colord';
+import { getGradientColorAsString } from '../utils/gradient';
 
 export function createIsoscelesTriangleEdge(
 	topPoint: paper.Point,
@@ -64,6 +66,7 @@ export function getIsoscelesTrianglePoints(
 
 export interface Decorator {
 	update(newPosition: paper.Point, direction: paper.Point): void;
+	updateStyle(decoratorData: DecoratorData, edgeColor: Gradient): void;
 	delete(): void;
 	type: DecoratorType;
 }
@@ -96,6 +99,19 @@ export class TriangleDecorator implements Decorator {
 			this.triangle.segments[1].point,
 			this.triangle.segments[2].point
 		] = getIsoscelesTrianglePoints(newPosition, this.width, this.length, direction);
+	}
+
+	updateStyle(decoratorData: DecoratorData, edgeColor: Gradient): void {
+		// update color
+		let color: paper.Color;
+		if (decoratorData.color) {
+			color = new Paper.Color(colord(decoratorData.color).toRgbString());
+		} else {
+			// we use the edge color at the point (if gradient)
+			color = new Paper.Color(getGradientColorAsString(edgeColor, decoratorData.position));
+		}
+
+		this.triangle.fillColor = color;
 	}
 
 	delete() {
