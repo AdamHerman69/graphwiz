@@ -13,6 +13,7 @@
 	import SettingsSliderMultiple from './SettingsSliderMultiple.svelte';
 	import { getContext } from 'svelte';
 	import GraphSettingsPanel from './GraphSettingsPanel.svelte';
+	import DecoratorSettings from './DecoratorSettings.svelte';
 
 	let { graphSettings }: { graphSettings: GraphSettings } = getContext('graphSettings');
 
@@ -68,7 +69,7 @@
 			{/if}
 
 			{#if edgeSettings.decorators}
-				<div>decorators</div>
+				<div><DecoratorSettings decoratorSetting={edgeSettings.decorators} /></div>
 			{/if}
 
 			{#if edgeSettings.labels}

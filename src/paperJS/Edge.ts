@@ -13,7 +13,9 @@ import {
 	getIsoscelesTrianglePoints,
 	createIsoscelesTriangleEdge,
 	getIsoscelesTrianglePointsEdge,
-	TriangleDecorator
+	TriangleDecorator,
+	CircleDecorator,
+	SquareDecorator
 } from './Triangle';
 import { toStringGradient } from './Color';
 import { colord } from 'colord';
@@ -249,14 +251,13 @@ export class PEdge {
 					decorator[0].type === decoratorDatum.type && decorator[1] === decoratorDatum.position
 				);
 			});
-
 			if (isNew) {
 				if (decoratorDatum.type === 'triangle') {
 					this.decorators.push([new TriangleDecorator(3, 3), decoratorDatum.position]);
 				} else if (decoratorDatum.type === 'circle') {
-					// todo not implemented
+					this.decorators.push([new CircleDecorator(1.5), decoratorDatum.position]);
 				} else if (decoratorDatum.type === 'square') {
-					// todo not implemented
+					this.decorators.push([new SquareDecorator(3), decoratorDatum.position]);
 				}
 			}
 		});

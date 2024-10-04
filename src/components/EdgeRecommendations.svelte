@@ -8,6 +8,7 @@
 	import SettingsEdgeLabel from './SettingsEdgeLabel.svelte';
 	import SettingsSliderMultiple from './SettingsSliderMultiple.svelte';
 	import { edge } from 'graphology-metrics';
+	import DecoratorSettings from './DecoratorSettings.svelte';
 
 	let { edgeSettings }: { edgeSettings: EdgeSettings[] } = $props();
 
@@ -98,7 +99,7 @@
 		{/if}
 
 		{#if edgeSettings.decorators}
-			<div>decorators</div>
+			<div><DecoratorSettings decoratorSetting={edgeSettings.decorators} /></div>
 		{/if}
 
 		{#if edgeSettings.labels}

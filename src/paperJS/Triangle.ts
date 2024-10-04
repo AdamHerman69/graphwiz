@@ -77,22 +77,20 @@ export class TriangleDecorator implements Decorator {
 	width: number;
 	length: number;
 
-	constructor(lenght: number, width: number) {
+	constructor(length: number, width: number) {
 		this.triangle = createIsoscelesTriangle(
 			new Paper.Point(1, 1),
 			width,
-			lenght,
+			length,
 			new Paper.Point(2, 2)
 		); // init at random place
 
 		this.triangle.fillColor = new Paper.Color('white');
 		this.width = width;
-		this.length = lenght;
+		this.length = length;
 		this.type = 'triangle';
 	}
 
-	// todo only update the path -> much better performance!
-	// todo triangles stay there on graph change??
 	update(newPosition: paper.Point, direction: paper.Point): void {
 		[
 			this.triangle.segments[0].point,
@@ -102,12 +100,10 @@ export class TriangleDecorator implements Decorator {
 	}
 
 	updateStyle(decoratorData: DecoratorData, edgeColor: Gradient): void {
-		// update color
 		let color: paper.Color;
 		if (decoratorData.color) {
 			color = new Paper.Color(colord(decoratorData.color).toRgbString());
 		} else {
-			// we use the edge color at the point (if gradient)
 			color = new Paper.Color(getGradientColorAsString(edgeColor, decoratorData.position));
 		}
 
@@ -116,5 +112,75 @@ export class TriangleDecorator implements Decorator {
 
 	delete() {
 		this.triangle.remove();
+	}
+}
+
+export class CircleDecorator implements Decorator {
+	type: DecoratorType;
+	circle: paper.Path.Circle;
+	radius: number;
+
+	constructor(radius: number) {
+		this.circle = new Paper.Path.Circle({
+			center: new Paper.Point(1, 1),
+			radius: radius,
+			fillColor: new Paper.Color('white')
+		});
+		this.radius = radius;
+		this.type = 'circle';
+	}
+
+	update(newPosition: paper.Point, direction: paper.Point): void {
+		this.circle.position = newPosition;
+	}
+
+	updateStyle(decoratorData: DecoratorData, edgeColor: Gradient): void {
+		let color: paper.Color;
+		if (decoratorData.color) {
+			color = new Paper.Color(colord(decoratorData.color).toRgbString());
+		} else {
+			color = new Paper.Color(getGradientColorAsString(edgeColor, decoratorData.position));
+		}
+
+		this.circle.fillColor = color;
+	}
+
+	delete() {
+		this.circle.remove();
+	}
+}
+
+export class SquareDecorator implements Decorator {
+	type: DecoratorType;
+	square: paper.Path.Rectangle;
+	size: number;
+
+	constructor(size: number) {
+		this.square = new Paper.Path.Rectangle({
+			point: new Paper.Point(1, 1),
+			size: new Paper.Size(size, size),
+			fillColor: new Paper.Color('white')
+		});
+		this.size = size;
+		this.type = 'square';
+	}
+
+	update(newPosition: paper.Point, direction: paper.Point): void {
+		this.square.position = newPosition;
+	}
+
+	updateStyle(decoratorData: DecoratorData, edgeColor: Gradient): void {
+		let color: paper.Color;
+		if (decoratorData.color) {
+			color = new Paper.Color(colord(decoratorData.color).toRgbString());
+		} else {
+			color = new Paper.Color(getGradientColorAsString(edgeColor, decoratorData.position));
+		}
+
+		this.square.fillColor = color;
+	}
+
+	delete() {
+		this.square.remove();
 	}
 }

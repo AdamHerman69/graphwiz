@@ -7,12 +7,17 @@
 	import RangeSlider from '$lib/RangeSlider/RangeSlider.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import { getContext } from 'svelte';
+	import ColorPicker from '$lib/colorPicker/components/ColorPicker.svelte';
+	import ColorPickerWrapper from '$lib/RangeSlider/ColorPickerWrapper.svelte';
+	import { colord } from 'colord';
+	import CustomSelect from './GUI/CustomSelect.svelte';
 
 	let { newGUIID } = getContext('graphSettings') as GraphSettingsClass;
 
 	let { decoratorSetting }: { decoratorSetting: DecoratorSetting } = $props();
 
 	let decoratorID = 0;
+	let colorPickers: boolean[] = $state(Array(decoratorSetting.value.length).fill(false));
 
 	// For range slider relative positions
 	let decoratorPositions = {
@@ -37,6 +42,14 @@
 	function removeDecorator(event: MouseEvent) {
 		let index = parseInt(event.currentTarget!.id);
 		decoratorSetting.value.splice(index, 1);
+	}
+
+	function toggleColor(decorator: DecoratorData) {
+		if (decorator.color) {
+			decorator.color = undefined;
+		} else {
+			decorator.color = { r: 255, g: 255, b: 255, a: 1 };
+		}
 	}
 </script>
 
@@ -67,22 +80,67 @@
 			<div class="flex-1 my-1 py-1">
 				<div class="flex items-center">
 					<div class="flex flex-grow">
-						<select bind:value={decorator.type} class="bg-transparent">
-							{#each decoratorSetting.types as decoratorType}
-								<option value={decoratorType}>{decoratorType}</option>
-							{/each}
-						</select>
+						<CustomSelect
+							bind:selected={decorator.type}
+							values={decoratorSetting.types}
+							fontSize={12}
+						/>
 
-						<button
-							class="ml-auto flex items-center buttonGeneral"
-							id={index.toString()}
-							onclick={removeDecorator}
-						>
-							<span class="material-symbols-outlined"> close </span>
-						</button>
+						<div class="ml-auto flex gap-1 justify-center" use:autoAnimate>
+							<button
+								class="flex items-center buttonGeneral"
+								id={index.toString()}
+								onclick={() => toggleColor(decorator)}
+							>
+								<span class="material-symbols-outlined">
+									{decorator.color ? 'format_color_reset' : 'invert_colors'}</span
+								>
+							</button>
+
+							{#if decorator.color}
+								<div>
+									<button
+										onclick={() => (colorPickers[index] = !colorPickers[index])}
+										class="colorButton hoverScale"
+										style="background-color: {colord(
+											decorator.color
+										).toRgbString()}; box-shadow: inset 0px 0px 6px 0px rgba(0, 0, 0, 0.5);"
+									></button>
+								</div>
+							{/if}
+
+							<button
+								class="flex items-center buttonGeneral"
+								id={index.toString()}
+								onclick={removeDecorator}
+							>
+								<span class="material-symbols-outlined"> close </span>
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+		{#if colorPickers[index]}
+			<div class="mx-3">
+				<ColorPicker
+					bind:rgb={decorator.color}
+					label="tadyy"
+					isDialog={false}
+					components={{ wrapper: ColorPickerWrapper }}
+					closeFunction={() => (colorPickers[index] = false)}
+				/>
+			</div>
+		{/if}
 	{/each}
 </div>
+
+<style>
+	.colorButton {
+		display: flex;
+		align-items: center;
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+	}
+</style>

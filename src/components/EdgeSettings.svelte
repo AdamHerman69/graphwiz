@@ -83,7 +83,6 @@
 						/>
 						<SettingsColor colorSetting={graphSettings.graphSettings.edgeSettings[index].color!} />
 
-						<!-- TODO Decorators -->
 						<SettingsEdgeLabel labels={graphSettings.graphSettings.edgeSettings[index].labels!} />
 						<DecoratorSettings
 							decoratorSetting={graphSettings.graphSettings.edgeSettings[index].decorators!}
