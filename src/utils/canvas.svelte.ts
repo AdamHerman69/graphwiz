@@ -15,12 +15,17 @@ import {
 } from '../paperJS/PaperRenderer';
 import Worker from './forceSimulation.worker.ts?worker';
 import ReadabilityWorker from '$lib/greadability/greadability.worker.ts?worker';
+import BundleEdgesWorker from './bundleEdges.worker.ts?worker';
 import { greadability } from '$lib/greadability/greadability';
 import { type ILayoutProvieder, ElkLayoutProvider, type NodePositions } from './elk.svelte';
 import { spring } from 'svelte/motion';
 import gsap from 'gsap';
 import { get } from 'svelte/store';
 import { getEventCoords } from './helperFunctions';
+import { edgeBendPoints } from './graphSettings.svelte';
+import { forceEdgeBundling } from '$lib/d3-force-bundle';
+import { edge } from 'graphology-metrics';
+import type { EdgeLayoutType, EdgeType, SelectSetting } from './graphSettings.svelte';
 
 const ANIMATE_LAYOUT = true;
 
@@ -38,16 +43,26 @@ export type ReadabilityMetrics = {
 const CLICK_RADIUS = 10;
 
 export interface ICanvasHandler {
-	start(layout: LayoutType, nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void;
+	start(
+		layout: SelectSetting<LayoutType>,
+		edgeLayout: SelectSetting<EdgeLayoutType>,
+		nodeStyles: NodeStyles,
+		edgeStyles: EdgeStyles
+	): void;
 	updateNodeStyles(nodeStyles: NodeStyles): void;
-	updateEdgeStyles(edgeStyles: EdgeStyles): void;
+	updateEdgeStyles(edgeStyles: EdgeStyles, edgeLayout: SelectSetting<EdgeLayoutType>): void;
 	initialize(canvas: HTMLCanvasElement, width: number, height: number, graph: Graph): void;
-	graphChange(layout: LayoutType, nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void;
+	graphChange(
+		layout: SelectSetting<LayoutType>,
+		edgeLayout: SelectSetting<EdgeLayoutType>,
+		nodeStyles: NodeStyles,
+		edgeStyles: EdgeStyles
+	): void;
 
 	detectHover(event: MouseEvent): void;
 	canvasClicked(event: MouseEvent): void;
 	exportSVG(): string;
-	changeLayout(layout: LayoutType): Promise<void>;
+	changeLayout(layout: SelectSetting<LayoutType>): Promise<void>;
 	resize(width: number, height: number): void;
 	resetTransform(): void;
 
@@ -69,8 +84,10 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	transform: d3.ZoomTransform = $state(d3.zoomIdentity);
 	simulationWorker: Worker;
 	elkLayoutProvider: ILayoutProvieder;
+	bundleEdgesWorker: BundleEdgesWorker;
 
 	currentLayout: LayoutType;
+	edgeLayout: EdgeLayoutType = $state('straight');
 	nodeStyles: NodeStyles;
 	edgeStyles: EdgeStyles;
 
@@ -80,6 +97,9 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	staticPosition: boolean = $state(false);
 
 	started: boolean = $state(false);
+
+	//todo delete
+	tickCounter = 0;
 
 	hoveredNodeKey: string | undefined = $state(undefined);
 	selectedNode: D3Node | null = $state(null);
@@ -106,14 +126,19 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 
 	lastTickTimestamp: number | undefined;
 
+	// todo change to edgeLayout
 	draggable: boolean = $derived.by(() => {
-		for (const edgeStyle of this.edgeStyles) {
-			if (edgeStyle[1].type === 'orthogonal') {
-				return false;
-			}
-		}
-		return true;
+		return this.edgeLayout !== 'bundled' && this.edgeLayout !== 'orthogonal';
 	});
+
+	// bundled: boolean = $derived.by(() => {
+	// 	for (const edgeStyle of this.edgeStyles) {
+	// 		if (edgeStyle[1].type === 'bundled') {
+	// 			return true;
+	// 		}
+	// 	}
+	// 	return false;
+	// });
 
 	constructor(canvas?: HTMLCanvasElement, width?: number, height?: number, graph?: Graph) {
 		this.getD3Node = this.getD3Node.bind(this);
@@ -125,6 +150,9 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.canvasClicked = this.canvasClicked.bind(this);
 		this.exportSVG = this.exportSVG.bind(this);
 		this.resetTransform = this.resetTransform.bind(this);
+		this.bundleEdgesAsync = this.bundleEdgesAsync.bind(this);
+
+		this.bundleEdgesWorker = new BundleEdgesWorker();
 
 		if (canvas && width && height && graph) {
 			this.initialize(canvas, width, height, graph);
@@ -174,8 +202,19 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		};
 	}
 
-	graphChange(layout: LayoutType, nodeStyles: NodeStyles, edgeStyles: EdgeStyles) {
-		console.log('canvas handler graph change');
+	graphChange(
+		layout: SelectSetting<LayoutType>,
+		edgeLayout: SelectSetting<EdgeLayoutType>,
+		nodeStyles: NodeStyles,
+		edgeStyles: EdgeStyles
+	) {
+		console.log(
+			'canvas handler graph change',
+			layout.value,
+			edgeLayout.value,
+			nodeStyles,
+			edgeStyles
+		);
 		this.nodeStyles = nodeStyles;
 		this.edgeStyles = edgeStyles;
 
@@ -183,16 +222,26 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			this.d3nodes as NodePositionDatum[],
 			this.d3links as EdgeDatum[],
 			nodeStyles,
-			edgeStyles
+			edgeStyles,
+			edgeLayout.value
 		);
 
 		this.changeLayout(layout, true);
 	}
 
-	start(layout: LayoutType, nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void {
+	start(
+		layout: SelectSetting<LayoutType>,
+		edgeLayout: SelectSetting<EdgeLayoutType>,
+		nodeStyles: NodeStyles,
+		edgeStyles: EdgeStyles
+	): void {
 		console.log('staaaaart');
 		this.nodeStyles = nodeStyles;
 		this.edgeStyles = edgeStyles;
+
+		// console.log('edgeLayout', edgeLayout.value);
+		// console.log('edgeStyles', edgeStyles);
+		// console.log('nodeStyles', nodeStyles);
 
 		// renderer
 		if (this.paperRenderer)
@@ -201,6 +250,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 				this.d3links as EdgeDatum[],
 				nodeStyles,
 				edgeStyles,
+				edgeLayout.value,
 				this.canvas
 			);
 		else
@@ -209,7 +259,8 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 				this.d3nodes as NodePositionDatum[],
 				this.d3links as EdgeDatum[],
 				nodeStyles,
-				edgeStyles
+				edgeStyles,
+				edgeLayout.value
 			);
 
 		// drag and zoom
@@ -231,7 +282,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 						this.transform = this.paperRenderer.zoomed(zoomEvent);
 					})
 			);
-		this.changeLayout(layout);
+		this.changeLayout(layout, edgeLayout);
 		this.started = true;
 	}
 
@@ -274,6 +325,13 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.simulationWorker.onmessage = (event) => {
 			const { type, nodes, links, message } = event.data;
 			if (type === 'tick') {
+				// if (this.tickCounter % 100 === 0) {
+				// 	this.bundleEdges(nodes, links);
+				// 	this.tickCounter++;
+				// } else {
+				// 	this.tickCounter++;
+				// }
+
 				// console.log('worker tick');
 				// console.log(nodes);
 				this.paperRenderer.updatePositions(nodes as NodePositionDatum[]);
@@ -289,6 +347,13 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 				}
 			} else if (type === 'log') {
 				console.log('worker log:', message);
+			} else if (type === 'alphaZero') {
+				console.log('alpha Zero');
+				// if (this.bundled) {
+				// 	this.bundleEdges(nodes, links);
+				// 	// todo this doesn't work
+				// 	this.updateEdgeStyles(this.edgeStyles);
+				// }
 			}
 		};
 	}
@@ -298,9 +363,32 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.nodeStyles = nodeStyles;
 	}
 
-	updateEdgeStyles(edgeStyles: EdgeStyles): void {
-		this.paperRenderer.updateEdgeStyles(edgeStyles);
+	async updateEdgeStyles(edgeStyles: EdgeStyles, edgeLayout: SelectSetting<EdgeLayoutType>): void {
+		if (this.edgeLayout != edgeLayout.value && edgeLayout.value === 'bundled') {
+			edgeLayout.loading = true;
+			try {
+				await this.bundleEdgesAsync(edgeStyles);
+				if (this.currentLayout === 'force-graph') {
+					this.pauseSimulation();
+				}
+			} catch (error) {
+				console.error('Error during edge bundling:', error);
+			} finally {
+				edgeLayout.loading = false;
+			}
+		}
+
+		if (
+			this.currentLayout === 'force-graph' &&
+			this.edgeLayout === 'bundled' &&
+			edgeLayout.value !== 'bundled'
+		) {
+			this.resumeSimulation();
+		}
+
+		this.paperRenderer.updateEdgeStyles(edgeStyles, edgeLayout.value);
 		this.edgeStyles = edgeStyles;
+		this.edgeLayout = edgeLayout.value;
 	}
 
 	getD3NodeRegardlessCanvas(mouseEvent: MouseEvent) {
@@ -425,7 +513,6 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	dragEndedWorker(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
 		let draggedNode = dragEvent.subject;
 
-		console.log(this.sticky, this.staticPosition);
 		// clear the fixed position
 		if (!this.sticky && !this.staticPosition) {
 			console.log('drag ended non sticky');
@@ -501,7 +588,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 				node.y += dy;
 			}
 		});
-		this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
+		this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[], { x: dx, y: dy });
 	}
 
 	resize(width: number, height: number): void {
@@ -510,22 +597,29 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.paperRenderer.resize(width, height);
 		if (this.currentLayout != 'force-graph')
 			this.updateNodePositionsOnResize(this.width, this.height, width, height);
-		if (this.currentLayout === 'force-graph')
-			this.simulationWorker.postMessage({ type: 'resize', width, height });
+		if (this.currentLayout === 'force-graph') {
+		}
+		this.simulationWorker.postMessage({ type: 'resize', width, height });
 
 		this.width = width;
 		this.height = height;
 	}
 
-	async changeLayout(layout: LayoutType, forceRestart: boolean = false) {
-		if (!forceRestart && this.currentLayout === layout) {
+	// async changeEdgeLayout(edgeLayout: SelectSetting<EdgeLayoutType>) {
+	// 	if (this.edgeLayout === edgeLayout.value) return;
+
+	// 	this.edgeLayout = edgeLayout;
+	// }
+
+	async changeLayout(layout: SelectSetting<LayoutType>, forceRestart: boolean = false) {
+		if (!forceRestart && this.currentLayout === layout.value) {
 			console.log('changeLayout: same layout');
 			return;
 		}
 
-		if (layout === 'force-graph') {
+		if (layout.value === 'force-graph') {
 			this.startForceSimulation(forceRestart);
-			this.currentLayout = layout;
+			this.currentLayout = layout.value;
 			return;
 		}
 		if (this.currentLayout === 'force-graph') {
@@ -533,11 +627,17 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			this.simulationWorker.postMessage({ type: 'pause' });
 		}
 
+		layout.loading = true;
+		console.log('changeLayout', layout.loading);
+
 		let elkNodes = await this.elkLayoutProvider.layout(
-			{ 'elk.algorithm': layout, 'elk.edgeRouting': 'ORTHOGONAL' },
+			{ 'elk.algorithm': layout.value, 'elk.edgeRouting': 'ORTHOGONAL' },
 			this.width,
 			this.height
 		);
+
+		layout.loading = false;
+		console.log('changeLayout', layout.loading);
 
 		this.staticPosition = true;
 		this.sticky = true;
@@ -593,6 +693,86 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 
 		// Reset the paper renderer's zoom and center
 		this.paperRenderer.resetZoom();
+	}
+
+	pauseSimulation() {
+		this.staticPosition = true;
+		this.simulationWorker.postMessage({ type: 'pause' });
+	}
+
+	resumeSimulation() {
+		this.staticPosition = false;
+		this.simulationWorker.postMessage({
+			type: 'resume',
+			nodes: $state.snapshot(this.d3nodes),
+			links: this.d3links,
+			width: this.width,
+			height: this.height
+		});
+	}
+
+	bundleEdges(nodes, links, edgeStyles: EdgeStyles): void {
+		let linksFormated = links.map((link) => {
+			return {
+				source: link.source.id,
+				target: link.target.id
+			};
+		});
+
+		// Create an instance of the ForceEdgeBundling function
+		const fbundling = forceEdgeBundling();
+
+		// Configure the bundling
+		fbundling
+			.nodes(nodes.reduce((acc, n) => ({ ...acc, [n.id]: n }), {}))
+			.edges(linksFormated)
+			.bundling_stiffness(0.1)
+			.step_size(0.1)
+			.iterations(100)
+			.iterations_rate(0.7)
+			.subdivision_points_seed(1)
+			.subdivision_rate(2);
+
+		// Run the bundling algorithm
+		const results = fbundling();
+
+		// console.log(results);
+
+		links.forEach((link, index) => {
+			edgeBendPoints.set(link.id, results[index]);
+			edgeStyles.get(link.id)!.bendPoints = results[index];
+		});
+
+		// edgeStyles.forEach((edgeStyle) => {
+		// 	edgeStyle.bendPoints = edgeBendPoints.get(edgeStyle.id);
+		// });
+
+		console.log(edgeBendPoints);
+	}
+
+	async bundleEdgesAsync(edgeStyles: EdgeStyles): Promise<void> {
+		return new Promise((resolve, reject) => {
+			this.bundleEdgesWorker.onmessage = (event) => {
+				const results = event.data;
+
+				this.d3links.forEach((link, index) => {
+					edgeBendPoints.set(link.id, results[index]);
+					edgeStyles.get(link.id)!.bendPoints = results[index];
+				});
+
+				resolve();
+			};
+
+			this.bundleEdgesWorker.onerror = (error) => {
+				console.error('Edge bundling worker error:', error);
+				reject(error);
+			};
+
+			this.bundleEdgesWorker.postMessage({
+				nodes: $state.snapshot(this.d3nodes),
+				links: $state.snapshot(this.d3links)
+			});
+		});
 	}
 }
 

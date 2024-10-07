@@ -5,7 +5,8 @@ import type {
 	EdgeStyle,
 	EdgeType,
 	EdgeLabel,
-	Gradient
+	Gradient,
+	EdgeLayoutType
 } from '../utils/graphSettings.svelte';
 import {
 	type Decorator,
@@ -21,7 +22,12 @@ import { toStringGradient } from './Color';
 import { colord } from 'colord';
 
 interface EdgeShape {
-	updatePosition(source: paper.Point, target: paper.Point, bendPoints?: paper.Point[]): void;
+	updatePosition(
+		source: paper.Point,
+		target: paper.Point,
+		bendPoints?: paper.Point[],
+		delta?: { x: number; y: number }
+	): void;
 	updateStyle(style: paper.Style): void;
 	delete(): void;
 }
@@ -35,6 +41,10 @@ class OrthogonalShape implements EdgeShape {
 	}
 
 	updatePosition(source: paper.Point, target: paper.Point, bendPoints: paper.Point[]): void {
+		if (!bendPoints) return;
+
+		console.log('bendPoints happening');
+
 		this.line.removeSegments();
 		bendPoints.forEach((point) => this.line.add(point));
 
@@ -176,7 +186,7 @@ export interface IPEdge {
 	lineShape: EdgeShape;
 
 	updatePosition(): void;
-	updateStyle(style: EdgeStyle): void;
+	updateStyle(style: EdgeStyle, edgeLayout: EdgeLayoutType): void;
 }
 
 export class PEdge {
@@ -188,9 +198,9 @@ export class PEdge {
 	lineShape: EdgeShape;
 	partialStart: number;
 	partialEnd: number;
-	type: EdgeType;
+	type: 'segmented' | 'straight' | 'conical' | 'none';
 	labels: Label[];
-	constructor(source: IPNode, target: IPNode, style: EdgeStyle) {
+	constructor(source: IPNode, target: IPNode, style: EdgeStyle, edgeLayout: EdgeLayoutType) {
 		this.source = source;
 		this.target = target;
 		this.partialStart = style.partialStart;
@@ -199,29 +209,34 @@ export class PEdge {
 		// vvvvv doesn't work but doesn't really matter
 		[this.sourceConnectionPoint, this.targetConnectionPoint] = this.getConnectionPoints();
 
-		this.type = style.type;
-		switch (style.type) {
-			case 'conical':
-				this.lineShape = new TriangleShape(this.sourceConnectionPoint, this.targetConnectionPoint);
-				break;
-			case 'straight':
-				this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
-				break;
-			case 'orthogonal':
-				this.lineShape = new OrthogonalShape(
-					this.sourceConnectionPoint,
-					this.targetConnectionPoint,
-					style.bendPoints.map((point) => new Paper.Point(point.x, point.y))
-				);
-				break;
-			default:
-				throw new Error('Invalid edge type');
-		}
+		this.type = 'none';
+		// switch (style.type) {
+		// 	case 'conical':
+		// 		this.lineShape = new TriangleShape(this.sourceConnectionPoint, this.targetConnectionPoint);
+		// 		break;
+		// 	case 'straight':
+		// 		this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
+		// 		break;
+		// 	case 'orthogonal':
+		// 	case 'bundled':
+		// 		if (!style.bendPoints) {
+		// 			console.log('no bend points yet');
+		// 			this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
+		// 		}
+		// 		this.lineShape = new OrthogonalShape(
+		// 			this.sourceConnectionPoint,
+		// 			this.targetConnectionPoint,
+		// 			style.bendPoints.map((point) => new Paper.Point(point.x, point.y))
+		// 		);
+		// 		break;
+		// 	default:
+		// 		throw new Error('Invalid edge type');
+		// }
 
 		this.decorators = [];
 		this.labels = [];
 
-		this.updateStyle(style);
+		this.updateStyle(style, edgeLayout);
 	}
 
 	addRemoveDecorators(decoratorData: DecoratorData[]) {
@@ -318,7 +333,7 @@ export class PEdge {
 
 	updatePosition() {
 		// orthogonal is static
-		if (this.type === 'orthogonal') return;
+		if (this.type === 'orthogonal' || this.type === 'bundled') return;
 
 		[this.sourceConnectionPoint, this.targetConnectionPoint] = this.getConnectionPoints();
 		this.lineShape.updatePosition(this.sourceConnectionPoint, this.targetConnectionPoint);
@@ -340,13 +355,19 @@ export class PEdge {
 		});
 	}
 
-	updateStyle(style: EdgeStyle) {
-		// edge type change
-		if (style.type != this.type) {
-			this.type = style.type;
-			this.lineShape.delete();
+	updateStyle(style: EdgeStyle, edgeLayout: EdgeLayoutType) {
+		let type: 'segmented' | 'straight' | 'conical' = style.type;
+		// edge layout change
+		if (edgeLayout === 'orthogonal' || edgeLayout === 'bundled') {
+			type = 'segmented';
+		}
 
-			switch (style.type) {
+		// edge type change
+		if (type != this.type) {
+			this.type = type;
+			if (this.lineShape) this.lineShape.delete();
+
+			switch (type) {
 				case 'conical':
 					this.lineShape = new TriangleShape(
 						this.sourceConnectionPoint,
@@ -356,7 +377,13 @@ export class PEdge {
 				case 'straight':
 					this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
 					break;
-				case 'orthogonal':
+				case 'segmented':
+					if (!style.bendPoints || style.bendPoints.length === 0) {
+						console.log('no bend points yet');
+
+						this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
+						break;
+					}
 					this.lineShape = new OrthogonalShape(
 						this.sourceConnectionPoint,
 						this.targetConnectionPoint,

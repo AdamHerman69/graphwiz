@@ -33,13 +33,15 @@
 
 			if (canvasHandler.started) {
 				canvasHandler.graphChange(
-					graphSettings.graphSettings.layout.value,
+					graphSettings.graphSettings.layout,
+					graphSettings.graphSettings.edgeLayout,
 					graphSettings.computeNodeStyles(),
 					graphSettings.computeEdgeStyles()
 				);
 			} else {
 				canvasHandler.start(
-					graphSettings.graphSettings.layout.value,
+					graphSettings.graphSettings.layout,
+					graphSettings.graphSettings.edgeLayout,
 					graphSettings.computeNodeStyles(),
 					graphSettings.computeEdgeStyles()
 				);
@@ -54,7 +56,7 @@
 		// ;
 		untrack(() => {
 			graphSettings.saveState();
-			canvasHandler.changeLayout(graphSettings.graphSettings.layout.value);
+			canvasHandler.changeLayout(graphSettings.graphSettings.layout);
 		});
 	});
 
@@ -91,17 +93,24 @@
 	let edgeDebounceTimer: number;
 	$effect(() => {
 		JSON.stringify(graphSettings.graphSettings.edgeSettings); // just to make the effect run
+		console.log('Edge layout changed', graphSettings.graphSettings.edgeLayout.value);
 
 		if (shouldDebounce) {
 			clearTimeout(edgeDebounceTimer);
 			edgeDebounceTimer = setTimeout(() => {
-				canvasHandler.updateEdgeStyles(graphSettings.computeEdgeStyles());
+				canvasHandler.updateEdgeStyles(
+					graphSettings.computeEdgeStyles(),
+					graphSettings.graphSettings.edgeLayout
+				);
 				computeGuidelineStatuses(guidelines, graphSettings);
 				graphSettings.saveState();
 			}, DEBOUNCE_TIME);
 		} else {
 			untrack(() => {
-				canvasHandler.updateEdgeStyles(graphSettings.computeEdgeStyles());
+				canvasHandler.updateEdgeStyles(
+					graphSettings.computeEdgeStyles(),
+					graphSettings.graphSettings.edgeLayout
+				);
 				computeGuidelineStatuses(guidelines, graphSettings);
 				graphSettings.saveState();
 			});

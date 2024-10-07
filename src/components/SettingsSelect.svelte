@@ -17,6 +17,9 @@
 				<option {value}>{value}</option>
 			{/each}
 		</select> -->
+		{#if selectSetting.loading}
+			<span class="loading material-symbols-outlined"> autorenew </span>
+		{/if}
 		<CustomSelect
 			bind:selected={selectSetting.value}
 			values={selectSetting.values}
@@ -24,3 +27,19 @@
 		/>
 	</div>
 </div>
+
+<style>
+	.loading {
+		animation: spin 1s linear infinite;
+		font-size: 15px;
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
+</style>

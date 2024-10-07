@@ -16,6 +16,7 @@ export type Setting<T> = {
 export type SelectSetting<T> = Setting<T> & {
 	readonly values: T[];
 	condition?: string;
+	loading?: boolean;
 };
 
 export type SelectCondition<T> = {
@@ -116,8 +117,11 @@ type RuleSettings = {
 export type NodeSettings = NodeProperties & RuleSettings;
 export type EdgeSettings = EdgeProperties & RuleSettings;
 
-const edgeTypes = ['straight', 'orthogonal', 'conical'] as const;
+const edgeTypes = ['straight', 'conical'] as const;
 export type EdgeType = (typeof edgeTypes)[number];
+
+const edgeLayoutTypes = ['straight', 'orthogonal', 'bundled'] as const;
+export type EdgeLayoutType = (typeof edgeLayoutTypes)[number];
 
 // todo layout specific settings in a layout object. swich layouts based on this object, not other
 export const layoutTypes = [
@@ -149,7 +153,13 @@ export type EdgeProperties = {
 
 // todo decorator and label source
 export const edgeSettingsDefaults: EdgeProperties = {
-	type: { name: 'type', values: Array.from(edgeTypes), value: 'straight', source: null },
+	type: {
+		name: 'type',
+		values: Array.from(edgeTypes),
+		value: 'straight',
+		source: null,
+		loading: false
+	},
 	width: { name: 'width', value: 1, min: 0, max: 5, increment: 0.5, source: null },
 	color: {
 		name: 'color',
@@ -178,7 +188,16 @@ export const layoutSettingsDefaults: SelectSetting<LayoutType> = {
 	name: 'layout',
 	values: Array.from(layoutTypes),
 	value: 'force-graph',
-	source: null
+	source: null,
+	loading: false
+};
+
+export const edgeLayoutSettingsDefaults: SelectSetting<EdgeLayoutType> = {
+	name: 'edgeLayout',
+	values: Array.from(edgeLayoutTypes),
+	value: 'straight',
+	source: null,
+	loading: false
 };
 
 // let guiID = $state(0);
@@ -186,6 +205,7 @@ export const layoutSettingsDefaults: SelectSetting<LayoutType> = {
 export type GraphSettings = {
 	guiID: number;
 	layout: SelectSetting<LayoutType>;
+	edgeLayout: SelectSetting<EdgeLayoutType>;
 	nodeSettings: NodeSettings[];
 	edgeSettings: EdgeSettings[];
 	nodeStyles: Map<string, NodeStyle>;
@@ -204,6 +224,7 @@ export class GraphSettingsClass {
 	graphSettings: GraphSettings = $state({
 		guiID: 1,
 		layout: structuredClone(layoutSettingsDefaults),
+		edgeLayout: structuredClone(edgeLayoutSettingsDefaults),
 		nodeSettings: [
 			{
 				...structuredClone(nodeSettingsDefaults),
@@ -222,7 +243,7 @@ export class GraphSettingsClass {
 		]
 	});
 
-	draggable = $derived(this.graphSettings.edgeSettings[0].type?.value != 'orthogonal');
+	draggable = $derived(this.graphSettings.edgeLayout.value === 'straight');
 
 	constructor() {
 		this.exportState = this.exportState.bind(this);

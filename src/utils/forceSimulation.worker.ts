@@ -39,6 +39,13 @@ function startSimulation(
 				nodes: d3nodes,
 				links: d3links
 			});
+		})
+		.on('end', () => {
+			postMessage({
+				type: 'alphaZero',
+				nodes: d3nodes,
+				links: d3links
+			});
 		});
 }
 
