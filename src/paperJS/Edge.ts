@@ -20,17 +20,15 @@ import {
 } from './Triangle';
 import { toStringGradient } from './Color';
 import { colord } from 'colord';
+import { edgeBendPoints } from '../utils/graphSettings.svelte';
 
 interface EdgeShape {
-	updatePosition(
-		source: paper.Point,
-		target: paper.Point,
-		bendPoints?: paper.Point[],
-		delta?: { x: number; y: number }
-	): void;
+	updatePosition(source: paper.Point, target: paper.Point, bendPoints?: paper.Point[]): void;
 	updateStyle(style: paper.Style): void;
 	delete(): void;
 }
+
+// TODO solve resize on static view
 
 class OrthogonalShape implements EdgeShape {
 	line: paper.Path;
@@ -40,13 +38,20 @@ class OrthogonalShape implements EdgeShape {
 		bendPoints.forEach((point) => this.line.add(point));
 	}
 
-	updatePosition(source: paper.Point, target: paper.Point, bendPoints: paper.Point[]): void {
-		if (!bendPoints) return;
+	updatePosition(source: paper.Point, target: paper.Point): void {
+		// Calculate the delta between the first point and the new source
+		const deltaX = source.x - this.line.firstSegment.point.x;
+		const deltaY = source.y - this.line.firstSegment.point.y;
 
-		console.log('bendPoints happening');
+		// Apply the delta to all points on the line
+		this.line.segments.forEach((segment) => {
+			segment.point.x += deltaX;
+			segment.point.y += deltaY;
+		});
 
-		this.line.removeSegments();
-		bendPoints.forEach((point) => this.line.add(point));
+		// Ensure the first and last points match the new source and target
+		this.line.firstSegment.point = source;
+		this.line.lastSegment.point = target;
 
 		//update gradient todo?
 		if (this.line.strokeColor?.gradient) {
@@ -185,7 +190,7 @@ export interface IPEdge {
 	target: IPNode;
 	lineShape: EdgeShape;
 
-	updatePosition(): void;
+	updatePosition(bendPoints?: Map<string, { x: number; y: number }[]>): void;
 	updateStyle(style: EdgeStyle, edgeLayout: EdgeLayoutType): void;
 }
 
@@ -332,10 +337,8 @@ export class PEdge {
 	}
 
 	updatePosition() {
-		// orthogonal is static
-		if (this.type === 'orthogonal' || this.type === 'bundled') return;
-
 		[this.sourceConnectionPoint, this.targetConnectionPoint] = this.getConnectionPoints();
+
 		this.lineShape.updatePosition(this.sourceConnectionPoint, this.targetConnectionPoint);
 
 		this.updateDecorators();

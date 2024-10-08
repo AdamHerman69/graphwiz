@@ -20,7 +20,10 @@ export type EdgeDatum = {
 };
 
 export interface Renderer {
-	updatePositions(positions: NodePositionDatum[], delta?: { x: number; y: number }): void;
+	updatePositions(
+		positions: NodePositionDatum[],
+		edgeBendPoints?: Map<string, { x: number; y: number }[]>
+	): void;
 	updateNodeStyles(styles: Map<string, NodeStyle>): void;
 	updateEdgeStyles(styles: Map<string, EdgeStyle>, edgeLayout: EdgeLayoutType): void;
 	updateNodeStyle(id: string, style: NodeStyle): void;
@@ -65,7 +68,10 @@ export class PaperRenderer implements Renderer {
 		this.updateEdgeStyles(edgeStyles, edgeLayout);
 	}
 
-	updatePositions(positions: NodePositionDatum[], delta?: { x: number; y: number }) {
+	updatePositions(
+		positions: NodePositionDatum[],
+		bendPoints?: Map<string, { x: number; y: number }[]>
+	) {
 		this.paperScope.activate();
 		positions.forEach((pos) => {
 			this.nodes.get(pos.id)?.updatePosition(pos.x, pos.y);

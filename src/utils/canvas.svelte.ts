@@ -588,6 +588,14 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 				node.y += dy;
 			}
 		});
+
+		edgeBendPoints.forEach((bendPoints, linkId) => {
+			bendPoints.forEach((point) => {
+				point.x += dx;
+				point.y += dy;
+			});
+		});
+
 		this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[], { x: dx, y: dy });
 	}
 
