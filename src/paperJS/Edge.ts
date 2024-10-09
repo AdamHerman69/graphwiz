@@ -26,6 +26,8 @@ interface EdgeShape {
 	updatePosition(source: paper.Point, target: paper.Point, bendPoints?: paper.Point[]): void;
 	updateStyle(style: paper.Style): void;
 	delete(): void;
+	getPointOnPath(relativePosition: number): paper.Point;
+	getDirectionAtPoint(relativePosition: number): paper.Point;
 }
 
 // TODO solve resize on static view
@@ -35,7 +37,9 @@ class OrthogonalShape implements EdgeShape {
 
 	constructor(source: paper.Point, target: paper.Point, bendPoints: paper.Point[]) {
 		this.line = new Paper.Path();
+		this.line.add(source);
 		bendPoints.forEach((point) => this.line.add(point));
+		this.line.add(target);
 	}
 
 	updatePosition(source: paper.Point, target: paper.Point): void {
@@ -67,6 +71,14 @@ class OrthogonalShape implements EdgeShape {
 	delete(): void {
 		this.line.remove();
 	}
+
+	getPointOnPath(relativePosition: number): paper.Point {
+		return this.line.getPointAt(this.line.length * relativePosition);
+	}
+
+	getDirectionAtPoint(relativePosition: number): paper.Point {
+		return this.line.getTangentAt(this.line.length * relativePosition);
+	}
 }
 
 class LineShape implements EdgeShape {
@@ -93,6 +105,14 @@ class LineShape implements EdgeShape {
 
 	delete(): void {
 		this.line.remove();
+	}
+
+	getPointOnPath(relativePosition: number): paper.Point {
+		return this.line.getPointAt(this.line.length * relativePosition);
+	}
+
+	getDirectionAtPoint(relativePosition: number): paper.Point {
+		return this.line.getTangentAt(this.line.length * relativePosition);
 	}
 }
 
@@ -126,6 +146,18 @@ class TriangleShape implements EdgeShape {
 	delete(): void {
 		this.triangle.remove();
 	}
+
+	getPointOnPath(relativePosition: number): paper.Point {
+		const source = this.triangle.segments[2].point;
+		const target = this.triangle.segments[0].point.add(this.triangle.segments[1].point).divide(2);
+		return source.multiply(1 - relativePosition).add(target.multiply(relativePosition));
+	}
+
+	getDirectionAtPoint(relativePosition: number): paper.Point {
+		const source = this.triangle.segments[2].point;
+		const target = this.triangle.segments[0].point.add(this.triangle.segments[1].point).divide(2);
+		return target.subtract(source).normalize();
+	}
 }
 
 class Label {
@@ -151,14 +183,11 @@ class Label {
 		this.datum = labelDatum;
 	}
 
-	updatePosition(source: paper.Point, target: paper.Point) {
-		this.pointText.position = getRelativeEdgePoint(source, target, this.datum.relativePosition);
-
-		// Calculate the vector from this.source.position to this.target.position
-		let vector = target.subtract(source);
+	updatePosition(point: paper.Point, direction: paper.Point) {
+		this.pointText.position = point;
 
 		// Rotate this vector by 90 degrees to get a vector that is perpendicular to the line
-		let perpendicularVector = vector.rotate(90);
+		let perpendicularVector = direction.rotate(90, new Paper.Point(0, 0));
 
 		// Normalize this vector and multiply it by 3 to get a vector that is perpendicular to the line and has a length of 3
 		let offsetVector = perpendicularVector.normalize().multiply(3);
@@ -170,8 +199,8 @@ class Label {
 
 		// rotation
 		if (this.datum.rotate) {
-			// Calculate the angle between this.source.position and this.target.position
-			let angle = source.subtract(target).angle;
+			// Calculate the angle of the direction vector
+			let angle = direction.angle;
 
 			// Rotate the pointText object to this angle
 			this.pointText.rotation = angle;
@@ -215,29 +244,6 @@ export class PEdge {
 		[this.sourceConnectionPoint, this.targetConnectionPoint] = this.getConnectionPoints();
 
 		this.type = 'none';
-		// switch (style.type) {
-		// 	case 'conical':
-		// 		this.lineShape = new TriangleShape(this.sourceConnectionPoint, this.targetConnectionPoint);
-		// 		break;
-		// 	case 'straight':
-		// 		this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
-		// 		break;
-		// 	case 'orthogonal':
-		// 	case 'bundled':
-		// 		if (!style.bendPoints) {
-		// 			console.log('no bend points yet');
-		// 			this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
-		// 		}
-		// 		this.lineShape = new OrthogonalShape(
-		// 			this.sourceConnectionPoint,
-		// 			this.targetConnectionPoint,
-		// 			style.bendPoints.map((point) => new Paper.Point(point.x, point.y))
-		// 		);
-		// 		break;
-		// 	default:
-		// 		throw new Error('Invalid edge type');
-		// }
-
 		this.decorators = [];
 		this.labels = [];
 
@@ -290,10 +296,16 @@ export class PEdge {
 			if (this.labels[index]) {
 				// update existing labels
 				this.labels[index].updateStyle(labelDatum);
-				this.labels[index].updatePosition(this.source.position, this.target.position);
+				const point = this.lineShape.getPointOnPath(labelDatum.relativePosition);
+				const direction = this.lineShape.getDirectionAtPoint(labelDatum.relativePosition);
+				this.labels[index].updatePosition(point, direction);
 			} else {
 				// create new labels
-				this.labels.push(new Label(labelDatum));
+				const newLabel = new Label(labelDatum);
+				const point = this.lineShape.getPointOnPath(labelDatum.relativePosition);
+				const direction = this.lineShape.getDirectionAtPoint(labelDatum.relativePosition);
+				newLabel.updatePosition(point, direction);
+				this.labels.push(newLabel);
 			}
 		});
 
@@ -308,7 +320,9 @@ export class PEdge {
 
 	updateLabelPositions() {
 		this.labels.forEach((label) => {
-			label.updatePosition(this.source.position, this.target.position);
+			const point = this.lineShape.getPointOnPath(label.datum.relativePosition);
+			const direction = this.lineShape.getDirectionAtPoint(label.datum.relativePosition);
+			label.updatePosition(point, direction);
 		});
 	}
 
@@ -347,10 +361,9 @@ export class PEdge {
 
 	updateDecorators(decoratorData?: DecoratorData[], edgeColor?: Gradient) {
 		this.decorators?.forEach((decTuple, index) => {
-			decTuple[0].update(
-				getRelativeEdgePoint(this.sourceConnectionPoint, this.targetConnectionPoint, decTuple[1]),
-				this.getDirection()
-			);
+			const point = this.lineShape.getPointOnPath(decTuple[1]);
+			const direction = this.lineShape.getDirectionAtPoint(decTuple[1]);
+			decTuple[0].update(point, direction);
 
 			if (decoratorData && edgeColor) {
 				decTuple[0].updateStyle(decoratorData[index], edgeColor);
