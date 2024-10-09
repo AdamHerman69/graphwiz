@@ -6,6 +6,7 @@ import isBipartiteBy from 'graphology-bipartite/is-bipartite-by';
 //import { unbindAttributes } from './graphSettings.svelte';
 import { sortGuidelines, type Task, tasks } from './guideline.svelte';
 import { bfs } from 'graphology-traversal';
+import { graph } from 'graphology-metrics';
 
 export type Attribute = {
 	name: string;
@@ -97,6 +98,19 @@ let graphObject: Graph = $state(new Graph());
 // export let graph = $state(graphObject);
 export function getGraph(): Graph {
 	return graphObject;
+}
+
+// debounce
+const DEBOUNCE_GRAPH_SIZE = 2500; // nodes + edges
+const ANIMATE_GRAPH_SIZE = 400; // nodes + edges
+
+let performanceOptimizations = $derived({
+	shouldDebouce: graphObject.order + graphObject.size > DEBOUNCE_GRAPH_SIZE,
+	shouldAnimate: graphObject.order + graphObject.size < ANIMATE_GRAPH_SIZE
+});
+
+export function performance() {
+	return performanceOptimizations;
 }
 
 export function loadSampleGraph(): Graph {

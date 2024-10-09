@@ -26,8 +26,7 @@ import { edgeBendPoints } from './graphSettings.svelte';
 import { forceEdgeBundling } from '$lib/d3-force-bundle';
 import { edge } from 'graphology-metrics';
 import type { EdgeLayoutType, EdgeType, SelectSetting } from './graphSettings.svelte';
-
-const ANIMATE_LAYOUT = true;
+import { performance } from './graph.svelte';
 
 export type D3Node = d3.SimulationNodeDatum & {
 	id: string;
@@ -657,7 +656,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 
 			// todo decide animation on size of graph - performance wise - set all performance considerations in graph file
 			if (elkNode) {
-				if (ANIMATE_LAYOUT) {
+				if (performance().shouldAnimate) {
 					console.log($state.snapshot(node));
 					gsap.to(node, {
 						duration: 1,

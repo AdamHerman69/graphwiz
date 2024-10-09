@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getContext, onMount, untrack } from 'svelte';
 	import { type ICanvasHandler, WebWorkerCanvasHandler } from '../utils/canvas.svelte';
-	import { getGraph } from '../utils/graph.svelte';
+	import { getGraph, performance } from '../utils/graph.svelte';
 	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import DynamicIsland from './DynamicIsland.svelte';
 	import ReadabilityMetrics from './ReadabilityMetrics.svelte';
@@ -60,19 +60,13 @@
 		});
 	});
 
-	// todo debounce if graph large
 	let nodeDebounceTimer: number;
 	const DEBOUNCE_TIME = 50;
-	const DEBOUNCE_GRAPH_SIZE = 2500; // nodes + edges
-	let shouldDebounce = $derived(
-		graphCharacteristics['nodeCount'].value + graphCharacteristics['edgeCount'].value >
-			DEBOUNCE_GRAPH_SIZE
-	);
 
 	$effect(() => {
 		JSON.stringify(graphSettings.graphSettings.nodeSettings); // just to make the effect run
 
-		if (shouldDebounce) {
+		if (performance().shouldDebouce) {
 			console.log('Node settings changed, debounced');
 			clearTimeout(nodeDebounceTimer);
 			nodeDebounceTimer = setTimeout(() => {
@@ -95,7 +89,7 @@
 		JSON.stringify(graphSettings.graphSettings.edgeSettings); // just to make the effect run
 		console.log('Edge layout changed', graphSettings.graphSettings.edgeLayout.value);
 
-		if (shouldDebounce) {
+		if (performance().shouldDebouce) {
 			clearTimeout(edgeDebounceTimer);
 			edgeDebounceTimer = setTimeout(() => {
 				canvasHandler.updateEdgeStyles(
