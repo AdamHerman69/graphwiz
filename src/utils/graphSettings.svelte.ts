@@ -120,7 +120,7 @@ export type EdgeSettings = EdgeProperties & RuleSettings;
 const edgeTypes = ['straight', 'conical'] as const;
 export type EdgeType = (typeof edgeTypes)[number];
 
-const edgeLayoutTypes = ['straight', 'orthogonal', 'bundled'] as const;
+export const edgeLayoutTypes = ['straight', 'orthogonal', 'bundled'] as const;
 export type EdgeLayoutType = (typeof edgeLayoutTypes)[number];
 
 // todo layout specific settings in a layout object. swich layouts based on this object, not other

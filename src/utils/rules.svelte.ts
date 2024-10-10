@@ -33,14 +33,13 @@ function evalAtomicRule(rule: AtomicRule, id: string, operator: RuleOperator): b
 		throw new Error('Property not found');
 	}
 
-	if (rule.type === 'string') {
+	if (rule.property.type === 'string') {
 		return rule.value === getAttributeValue(id, rule.property);
 	} else {
 		let propertyValue: number;
 		rule.value = Number(rule.value);
 
 		// get the property from the appropriate target
-		console.log(rule.target);
 		switch (rule.target) {
 			case 'node':
 				propertyValue = Number(getAttributeValue(id, rule.property));

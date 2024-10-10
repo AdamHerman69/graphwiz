@@ -4,7 +4,8 @@ import {
 	type EdgeSettings,
 	type LayoutType,
 	GraphSettingsClass,
-	type Setting
+	type Setting,
+	type EdgeLayoutType
 } from './graphSettings.svelte';
 import guidelinesFile from './guidelines.json';
 import { graphCharacteristics } from './graph.svelte';
@@ -114,6 +115,7 @@ export type StaticGuideline = {
 	rootCondition: WeightedCondition;
 	recommendations: {
 		layout?: LayoutType;
+		edgeLayout?: EdgeLayoutType;
 		edgeSettings?: EdgeSettings[];
 		nodeSettings?: NodeSettings[];
 	};
