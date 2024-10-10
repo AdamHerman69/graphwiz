@@ -1,4 +1,4 @@
-import Graph from 'graphology';
+import Graph, { DirectedGraph } from 'graphology';
 import { parse } from 'graphology-graphml';
 import { density, diameter } from 'graphology-metrics/graph';
 import hasCycle from 'graphology-dag/has-cycle';
@@ -7,6 +7,7 @@ import isBipartiteBy from 'graphology-bipartite/is-bipartite-by';
 import { sortGuidelines, type Task, tasks } from './guideline.svelte';
 import { bfs } from 'graphology-traversal';
 import { graph } from 'graphology-metrics';
+import { clusters } from 'graphology-generators/random';
 
 export type Attribute = {
 	name: string;
@@ -94,7 +95,7 @@ export function computeAttributeRange(graph: Graph, attribute: RangeAttribute): 
 }
 
 // TODO refactor into a file and import
-let graphObject: Graph = $state(new Graph());
+let graphObject: Graph = $state(new DirectedGraph());
 // export let graph = $state(graphObject);
 export function getGraph(): Graph {
 	return graphObject;
@@ -281,6 +282,21 @@ export function importGraphOther(graphString: string): void {
 	// recompute attributes
 	// clear history
 	console.log('imported graph');
+}
+
+export function generateGraph(
+	order: number,
+	size: number,
+	clusterCount: number,
+	clusterDensity = 0.8
+) {
+	graphObject = clusters(Graph, {
+		order: order,
+		size: size,
+		clusters: clusterCount,
+		clusterDensity: clusterDensity
+	});
+	onGraphImportRun(graphObject);
 }
 
 export function exportGraph(): object {

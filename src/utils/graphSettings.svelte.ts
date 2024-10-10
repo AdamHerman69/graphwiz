@@ -293,9 +293,18 @@ export class GraphSettingsClass {
 		return rule;
 	}
 
-	applyGuideline(layout: LayoutType, nodeSettings: NodeSettings[], edgeSettings: EdgeSettings[]) {
+	applyGuideline(
+		layout: LayoutType,
+		edgeLayout: EdgeLayoutType,
+		nodeSettings: NodeSettings[],
+		edgeSettings: EdgeSettings[]
+	) {
 		if (layout) {
-			// todo
+			this.graphSettings.layout.value = layout;
+		}
+
+		if (edgeLayout) {
+			this.graphSettings.edgeLayout.value = edgeLayout;
 		}
 
 		if (nodeSettings) {

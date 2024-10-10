@@ -767,6 +767,8 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 					edgeStyles.get(link.id)!.bendPoints = results[index];
 				});
 
+				this.paperRenderer.updateEdgeStyles(edgeStyles, 'bundled');
+
 				resolve();
 			};
 
