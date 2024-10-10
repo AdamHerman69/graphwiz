@@ -45,7 +45,7 @@
 	</div>
 
 	<div class="flex-grow">
-		{#if rule.type === 'number'}
+		{#if rule.property?.type === 'number'}
 			<OperatorSelect bind:selected={rule.operator} values={['=', '>', '<', '≥', '≤']} {disabled} />
 		{:else}
 			<p>is</p>
@@ -53,7 +53,7 @@
 	</div>
 
 	<!-- Numerical Operator -->
-	{#if rule.type === 'number'}
+	{#if rule.property?.type === 'number'}
 		<input type="number" bind:value={rule.value} />
 	{:else}
 		<input type="string" bind:value={rule.value} />

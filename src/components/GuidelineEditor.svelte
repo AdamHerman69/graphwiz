@@ -13,7 +13,12 @@
 	} from '../utils/graphSettings.svelte';
 	import EdgeRecommendations from './EdgeRecommendations.svelte';
 	import SettingsSelect from './SettingsSelect.svelte';
-	import { layoutTypes, type LayoutType } from '../utils/graphSettings.svelte';
+	import {
+		layoutTypes,
+		type LayoutType,
+		type EdgeLayoutType,
+		edgeLayoutTypes
+	} from '../utils/graphSettings.svelte';
 	import autoAnimate from '@formkit/auto-animate';
 	import Literature from './Literature.svelte';
 	import { setContext, getContext } from 'svelte';
@@ -153,20 +158,28 @@
 				{#if guideline.recommendations.layout}
 					<div class="recommendatioContainer">
 						<h4>Layout</h4>
-						<div use:autoAnimate={{ duration: 300 }} class="flex my-2 justify-between">
-							<div class="flex items-center settingName">ALGORITHM</div>
-							<!-- <select bind:value={graphSettings.layout.value} class="bg-transparent ml-auto">
-								{#each graphSettings.layout.values as val}
-									<option value={val}>{val}</option>
-								{/each}
-							</select> -->
+						<div>
+							<div class="flex my-2 justify-between">
+								<div class="flex items-center settingName">ALGORITHM</div>
 
-							<CustomSelect
-								bind:selected={guideline.recommendations.layout}
-								values={layoutTypes}
-								alignRight={true}
-								width={140}
-							/>
+								<CustomSelect
+									bind:selected={guideline.recommendations.layout}
+									values={layoutTypes}
+									alignRight={true}
+									width={140}
+								/>
+							</div>
+
+							<div class="flex my-2 justify-between">
+								<div class="flex items-center settingName">Edge layout</div>
+
+								<CustomSelect
+									bind:selected={guideline.recommendations.edgeLayout}
+									values={edgeLayoutTypes}
+									alignRight={true}
+									width={140}
+								/>
+							</div>
 						</div>
 					</div>
 				{/if}

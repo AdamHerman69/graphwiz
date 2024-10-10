@@ -71,7 +71,8 @@
 		partialStart: 'step_into',
 		partialEnd: 'step_out',
 		decorators: 'interests',
-		shape: 'shapes'
+		shape: 'shapes',
+		type: 'style'
 	};
 
 	const settingTypes = {
@@ -84,7 +85,8 @@
 		width: 'number',
 		partialStart: 'number',
 		partialEnd: 'number',
-		decorators: 'decorators'
+		decorators: 'decorators',
+		type: 'string'
 	};
 
 	let containerRef: HTMLElement;
@@ -169,16 +171,16 @@
 		<span class="material-symbols-outlined">{settingIcons[setting.name]}</span>
 	</div>
 	<div class="valueDisplay" bind:clientWidth={valueDisplayWidth}>
-		{#if settingTypes[setting.name] === 'number' || settingTypes[setting.name] === 'string'}
+		{#if settingTypes[setting.name] === 'number'}
 			<div>{formatDecimal(setting.value, 2)}</div>
 		{/if}
-		{#if settingTypes[setting.name] === 'label'}
+		{#if settingTypes[setting.name] === 'string'}
 			<div>{setting.value}</div>
 		{/if}
 		{#if settingTypes[setting.name] === 'color'}
 			<div class="colorDisplay" style="background-color: {valueString};"></div>
 		{/if}
-		{#if settingTypes[setting.name] === 'decorators'}
+		{#if settingTypes[setting.name] === 'decorators' || settingTypes[setting.name] === 'label'}
 			<div>{setting.value.length}</div>
 		{/if}
 

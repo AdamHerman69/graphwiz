@@ -7,7 +7,7 @@
 		isComposite,
 		sortGuidelines
 	} from '../utils/guideline.svelte';
-	import { getContext, setContext } from 'svelte';
+	import { getContext, setContext, untrack } from 'svelte';
 	import type { GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import GuidelineCard from './GuidelineCard.svelte';
 	import autoAnimate from '@formkit/auto-animate';
@@ -30,15 +30,19 @@
 
 	$effect(() => {
 		console.log('sorting');
-		guidelines.sort((a, b) => {
-			if (a.status?.applied === b.status?.applied) return b.score! - a.score!;
+		console.log(guidelines);
+		untrack(() => {
+			guidelines.sort((a, b) => {
+				if (a.status?.applied === b.status?.applied) return b.score! - a.score!;
 
-			if (a.status?.applied === 'fully') return -1;
-			if (b.status?.applied === 'fully') return 1;
+				if (a.status?.applied === 'fully') return -1;
+				if (b.status?.applied === 'fully') return 1;
 
-			if (a.status?.applied === 'partially') return -1;
-			if (b.status?.applied === 'partially') return 1;
+				if (a.status?.applied === 'partially') return -1;
+				if (b.status?.applied === 'partially') return 1;
+			});
 		});
+
 		console.log('sorted');
 	});
 

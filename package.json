@@ -45,6 +45,7 @@
 		"graphology": "^0.25.4",
 		"graphology-bipartite": "^0.0.3",
 		"graphology-dag": "^0.4.1",
+		"graphology-generators": "^0.11.2",
 		"graphology-graphml": "^0.5.2",
 		"graphology-metrics": "^2.3.0",
 		"graphology-traversal": "^0.3.1",

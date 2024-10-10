@@ -24,7 +24,11 @@
 		<div>is</div>
 	{/if}
 
-	<input type={rule.property?.type} bind:value={rule.value} {disabled} />
+	<input
+		type={rule.property?.type === 'string' ? 'text' : 'number'}
+		bind:value={rule.value}
+		{disabled}
+	/>
 </div>
 
 <style>

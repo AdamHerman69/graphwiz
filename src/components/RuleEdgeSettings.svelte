@@ -14,6 +14,7 @@
 	import { getContext } from 'svelte';
 	import GraphSettingsPanel from './GraphSettingsPanel.svelte';
 	import DecoratorSettings from './DecoratorSettings.svelte';
+	import SettingsSelect from './SettingsSelect.svelte';
 
 	let { graphSettings }: { graphSettings: GraphSettings } = getContext('graphSettings');
 
@@ -49,6 +50,11 @@
 
 	<div class="reverse">
 		<div use:autoAnimate={{ duration: 300 }} class="settingsContainer">
+			{#if edgeSettings.type}
+				<div>
+					<SettingsSelect selectSetting={edgeSettings.type} />
+				</div>
+			{/if}
 			{#if edgeSettings.width}
 				<div>
 					<SettingsSlider numSettings={edgeSettings.width} />
@@ -80,6 +86,9 @@
 		</div>
 
 		<div class="ruleToggleSettings">
+			<button onclick={() => toggleSetting('type')} class={edgeSettings['type'] ? 'active' : ''}>
+				<span class="material-symbols-outlined"> style </span>
+			</button>
 			<button onclick={() => toggleSetting('width')} class={edgeSettings['width'] ? 'active' : ''}>
 				<span class="material-symbols-outlined"> line_weight </span>
 			</button>

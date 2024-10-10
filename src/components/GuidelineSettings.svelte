@@ -56,7 +56,7 @@
 			<div class="flex flex-wrap">
 				{#each recommendations.nodeSettings as ns, index}
 					{#each Object.keys(ns) as key}
-						{#if settingTypes.includes(key)}
+						{#if settingTypes.includes(key) && ns[key] !== undefined}
 							<SettingValue
 								setting={ns[key]}
 								rule={index > 0 ? ns.rule : null}
@@ -78,7 +78,7 @@
 		<div class="flex flex-wrap">
 			{#each recommendations.edgeSettings as es, index}
 				{#each Object.keys(es) as key}
-					{#if settingTypes.includes(key)}
+					{#if settingTypes.includes(key) && es[key] !== undefined}
 						<SettingValue
 							setting={es[key]}
 							rule={index > 0 ? es.rule : null}

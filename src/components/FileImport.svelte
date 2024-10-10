@@ -5,6 +5,7 @@
 	import { parse } from 'svelte/compiler';
 	import { getContext } from 'svelte';
 	import { type Guideline, importGuidelines } from '../utils/guideline.svelte';
+	import { generateGraph } from '../utils/graph.svelte';
 
 	let {
 		importState,
@@ -12,6 +13,12 @@
 	}: { importState: (graphSettings: GraphSettings) => void; closeMenu: () => void } = $props();
 
 	let newGUIID = getContext('arbitraryGUIDI') as () => number;
+
+	// generate graph options
+	let order = $state(100);
+	let size = $state(300);
+	let clusters = $state(5);
+	let clusterDensity = $state(0.8);
 
 	// TODO: fix flow and error handeling
 	async function handleFile(e: Event) {
@@ -74,4 +81,30 @@
 	}
 </script>
 
-<Dropzone on:drop={handleFile} accept=".graphml, .gexf, .json" multiple={false} />
+<div class="flex flex-col w-full h-full">
+	<div class="flex-grow">
+		<Dropzone on:drop={handleFile} accept=".graphml, .gexf, .json" multiple={false} />
+	</div>
+	<div class="graphGenerator flex">
+		<input type="number" bind:value={order} placeholder="Order" />
+		<input type="number" bind:value={size} placeholder="Size" />
+		<input type="number" bind:value={clusters} placeholder="Clusters" />
+		<input type="number" bind:value={clusterDensity} placeholder="Cluster Density" />
+		<button
+			onclick={() => {
+				generateGraph(order, size, clusters, clusterDensity);
+				closeMenu();
+			}}>generate</button
+		>
+	</div>
+</div>
+
+<style>
+	.graphGenerator {
+		color: white;
+	}
+
+	.graphGenerator input {
+		width: 80px;
+	}
+</style>

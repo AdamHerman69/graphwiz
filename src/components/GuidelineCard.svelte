@@ -69,6 +69,8 @@
 
 	function saveEditedGuideline() {
 		// guideline = $state.snapshot(editedGuideline)!;
+
+		console.log($state.snapshot(guideline.editedGuideline));
 		guideline.name = $state.snapshot(guideline.editedGuideline!.name);
 		guideline.description = $state.snapshot(guideline.editedGuideline!.description);
 		guideline.literature = $state.snapshot(guideline.editedGuideline!.literature);
@@ -76,6 +78,7 @@
 		guideline.rootCondition = $state.snapshot(guideline.editedGuideline!.rootCondition);
 
 		guideline.editedGuideline = null;
+		console.log($state.snapshot(guideline));
 		calculateApplicability(guideline);
 	}
 

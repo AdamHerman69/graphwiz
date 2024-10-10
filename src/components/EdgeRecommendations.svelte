@@ -9,6 +9,7 @@
 	import SettingsSliderMultiple from './SettingsSliderMultiple.svelte';
 	import { edge } from 'graphology-metrics';
 	import DecoratorSettings from './DecoratorSettings.svelte';
+	import SettingsSelect from './SettingsSelect.svelte';
 
 	let { edgeSettings }: { edgeSettings: EdgeSettings[] } = $props();
 
@@ -39,6 +40,12 @@
 		{/if}
 	</div>
 	<div class="ruleToggleSettings">
+		<button
+			onclick={() => toggleSetting(edgeSettings, 'type')}
+			class={edgeSettings['type'] ? 'active' : ''}
+		>
+			<span class="material-symbols-outlined"> style </span>
+		</button>
 		<button
 			onclick={() => toggleSetting(edgeSettings, 'width')}
 			class={edgeSettings['width'] ? 'active' : ''}
@@ -79,6 +86,12 @@
 	</div>
 
 	<div use:autoAnimate={{ duration: 300 }} class="settingsContainer">
+		{#if edgeSettings.type}
+			<div>
+				<SettingsSelect selectSetting={edgeSettings.type} />
+			</div>
+		{/if}
+
 		{#if edgeSettings.width}
 			<div>
 				<SettingsSlider numSettings={edgeSettings.width} />
