@@ -299,6 +299,10 @@ export class GraphSettingsClass {
 		nodeSettings: NodeSettings[],
 		edgeSettings: EdgeSettings[]
 	) {
+		console.log(layout);
+		console.log(edgeLayout);
+		console.log(nodeSettings);
+		console.log(edgeSettings);
 		if (layout) {
 			this.graphSettings.layout.value = layout;
 		}

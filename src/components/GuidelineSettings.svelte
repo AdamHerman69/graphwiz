@@ -48,10 +48,12 @@
 
 <div class="">
 	{#if recommendations.layout}
+		<!-- <div class="settingAreaName">layout</div> -->
 		<div>{recommendations.layout}</div>
 	{/if}
 
 	{#if recommendations.nodeSettings}
+		<!-- <div class="settingAreaName">node</div> -->
 		<div>
 			<div class="flex flex-wrap">
 				{#each recommendations.nodeSettings as ns, index}
@@ -75,6 +77,7 @@
 	{/if}
 
 	{#if recommendations.edgeSettings}
+		<!-- <div class="settingAreaName">edge</div> -->
 		<div class="flex flex-wrap">
 			{#each recommendations.edgeSettings as es, index}
 				{#each Object.keys(es) as key}
@@ -98,5 +101,11 @@
 <style>
 	.collapserDiv {
 		font-size: 4px;
+	}
+
+	.settingAreaName {
+		font-size: 12px;
+		font-weight: bold;
+		margin-bottom: 4px;
 	}
 </style>

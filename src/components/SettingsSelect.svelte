@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { SelectSetting } from '../utils/graphSettings.svelte';
 	import CustomSelect from './GUI/CustomSelect.svelte';
+	import GuidelineSource from './GUI/GuidelineSource.svelte';
 
 	let { selectSetting }: { selectSetting: SelectSetting } = $props();
 </script>
@@ -9,7 +10,9 @@
 	<div class="settingName">
 		{selectSetting.name}
 
-		<!-- {numSettings.source} -->
+		{#if selectSetting.source != null}
+			<GuidelineSource guidelineName={selectSetting.source} />
+		{/if}
 	</div>
 	<div class="flex justify-end items-center">
 		<!-- <select bind:value={selectSetting.value} class="bg-transparent">

@@ -1,176 +1,36 @@
 [
 	{
-		"name": "Sparse undirected graphs",
-		"description": "Visualization guideline for sparse, undirected graphs",
-		"literature": [
-			"10.1109/IV.2006.130",
-			"10.1007/3-540-31190-4",
-			"10.1145/2245276.2245469",
-			"10.1145/142750.143054"
-		],
+		"name": "Arrowhead edges",
+		"description": "Visulizing edge direction in large graphs that are not too dense.",
+		"literature": ["10.1145/1518701.1519054"],
 		"rootCondition": {
 			"weight": 1,
 			"condition": {
 				"type": "composite",
 				"conditions": [
 					{
-						"weight": 7,
+						"weight": 1,
 						"condition": {
 							"type": "numeric",
-							"property": "density",
-							"min": 0,
-							"max": 0.1,
-							"ideal": 0.05
-						}
+							"property": "nodeCount",
+							"min": null,
+							"max": null,
+							"ideal": 200,
+							"tolerance": 500
+						},
+						"weightNormalized": 1,
+						"score": 0,
+						"scoreWeighted": 0
 					},
 					{
-						"weight": 3,
+						"GUIID": 51,
 						"condition": {
 							"type": "string",
 							"property": "type",
-							"value": "undirected"
-						}
-					},
-					{
-						"weight": 2,
-						"condition": {
-							"type": "composite",
-							"conditions": [
-								{
-									"weight": 1,
-									"condition": {
-										"type": "numeric",
-										"property": "nodeCount",
-										"ideal": 12,
-										"tolerance": 5
-									}
-								},
-								{
-									"weight": 1,
-									"condition": {
-										"type": "numeric",
-										"property": "edgeCount",
-										"ideal": 15,
-										"tolerance": 5
-									}
-								}
-							]
-						}
-					}
-				]
-			}
-		},
-		"recommendations": {
-			"nodeSettings": [
-				{
-					"size": { "name": "size", "value": 6, "min": 1, "max": 10 },
-					"color": {
-						"name": "color",
-						"value": [[{ "r": 240, "g": 15, "b": 100, "a": 1 }, 1]]
-					},
-					"strokeWidth": { "name": "strokeWidth", "value": 0, "min": 0, "max": 10 }
-				}
-			]
-		}
-	},
-	{
-		"name": "Large trees",
-		"description": "Visualization guideline for large trees (RULES)",
-		"literature": ["10.1007/3-540-31190-4"],
-		"rootCondition": {
-			"weight": 1,
-			"condition": {
-				"type": "composite",
-				"conditions": [
-					{
-						"weight": 6,
-						"condition": {
-							"type": "boolean",
-							"property": "isDAG",
-							"value": true
-						}
-					},
-					{
-						"weight": 4,
-						"condition": {
-							"type": "numeric",
-							"property": "nodeCount",
-							"ideal": 100,
-							"tolerance": 50
-						}
-					}
-				]
-			}
-		},
-		"recommendations": {
-			"nodeSettings": [
-				{
-					"size": { "name": "size", "value": 6, "min": 1, "max": 10 },
-					"color": {
-						"name": "color",
-						"value": [[{ "r": 240, "g": 15, "b": 100, "a": 1 }, 1]]
-					},
-					"strokeWidth": { "name": "strokeWidth", "value": 0, "min": 0, "max": 10 }
-				},
-				{
-					"rule": {
-						"operator": "AND",
-						"rules": [
-							{
-								"operator": ">",
-								"type": "number",
-								"target": "node",
-								"value": "3",
-								"property": { "name": "degree", "type": "number", "owner": "node", "general": true }
-							},
-							{
-								"operator": "<",
-								"type": "number",
-								"target": "node",
-								"value": 1,
-								"property": {
-									"name": "inDegree",
-									"type": "number",
-									"owner": "node",
-									"general": true
-								}
-							}
-						]
-					},
-					"size": { "name": "size", "value": 2.423652341, "min": 1, "max": 10 },
-					"color": {
-						"name": "color",
-						"value": [[{ "r": 0, "g": 15, "b": 100, "a": 1 }, 1]]
-					}
-				}
-			]
-		}
-	},
-	{
-		"name": "guideline_003",
-		"description": "Visualization guideline for small graphs affects edges. Likely longer descriptions very likely.",
-		"literature": ["10.1038/502295a"],
-		"rootCondition": {
-			"weight": 1,
-			"condition": {
-				"type": "composite",
-				"conditions": [
-					{
-						"weight": 6,
-						"condition": {
-							"type": "boolean",
-							"property": "isDAG",
-							"value": false
-						}
-					},
-					{
-						"weight": 4,
-						"condition": {
-							"type": "numeric",
-							"property": "nodeCount",
-							"ideal": 12,
-							"tolerance": 4
-						}
+							"value": "directed"
+						},
+						"weight": -1,
+						"weightNormalized": 0
 					}
 				]
 			}
@@ -178,13 +38,359 @@
 		"recommendations": {
 			"edgeSettings": [
 				{
+					"type": {
+						"name": "type",
+						"values": ["straight", "conical"],
+						"value": "straight",
+						"source": null,
+						"loading": false
+					},
 					"width": {
 						"name": "width",
-						"value": 4,
+						"value": 0.5,
 						"min": 0,
 						"max": 5,
 						"increment": 0.5,
 						"source": null
+					},
+					"partialStart": {
+						"name": "partialStart",
+						"value": 0,
+						"min": 0,
+						"max": 1,
+						"increment": 0.05,
+						"source": null
+					},
+					"partialEnd": {
+						"name": "partialEnd",
+						"value": 1,
+						"min": 0,
+						"max": 1,
+						"increment": 0.05,
+						"source": null
+					},
+					"decorators": {
+						"types": ["triangle", "circle", "square"],
+						"name": "decorators",
+						"value": [
+							{
+								"id": 52,
+								"type": "triangle",
+								"position": 1
+							}
+						],
+						"source": null
+					},
+					"id": 1,
+					"priority": 0,
+					"source": null
+				}
+			],
+			"nodeSettings": [
+				{
+					"shape": {
+						"name": "shape",
+						"values": ["circle", "square", "triangle"],
+						"value": "circle",
+						"source": null
+					},
+					"id": 1,
+					"priority": 0,
+					"source": null
+				}
+			]
+		}
+	},
+	{
+		"name": "Bipartite layout",
+		"description": "Visualizes the two partitions of the graph.",
+		"literature": [],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"GUIID": 41,
+						"condition": {
+							"type": "boolean",
+							"property": "isBipartite",
+							"value": true
+						},
+						"weight": 1,
+						"weightNormalized": 1,
+						"score": 0,
+						"scoreWeighted": 0
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"layout": "layered",
+			"edgeLayout": "straight"
+		}
+	},
+	{
+		"name": "Edge bundling",
+		"description": "Bundles edges for less visual clutter in large graphs. Best used for graphs with distinct clusters",
+		"literature": [],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"weight": 1,
+						"condition": {
+							"type": "numeric",
+							"property": "nodeCount",
+							"min": 600,
+							"max": 24000
+						},
+						"weightNormalized": 1,
+						"score": 0,
+						"scoreWeighted": 0
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"layout": "force-graph",
+			"edgeLayout": "bundled",
+			"edgeSettings": [
+				{
+					"type": {
+						"name": "type",
+						"values": ["straight", "conical"],
+						"value": "straight",
+						"source": null,
+						"loading": false
+					},
+					"width": {
+						"name": "width",
+						"value": 1,
+						"min": 0,
+						"max": 5,
+						"increment": 0.5,
+						"source": null
+					},
+					"color": {
+						"name": "color",
+						"value": [
+							[
+								{
+									"r": 115,
+									"g": 79,
+									"b": 214,
+									"a": 0.45
+								},
+								0
+							]
+						],
+						"source": null
+					},
+					"partialStart": {
+						"name": "partialStart",
+						"value": 0,
+						"min": 0,
+						"max": 1,
+						"increment": 0.05,
+						"source": null
+					},
+					"partialEnd": {
+						"name": "partialEnd",
+						"value": 1,
+						"min": 0,
+						"max": 1,
+						"increment": 0.05,
+						"source": null
+					},
+					"id": 1,
+					"priority": 0,
+					"source": null
+				}
+			]
+		}
+	},
+	{
+		"name": "Layered layout",
+		"description": "Used to visualize layers for Directed Acyclic Graphs and Trees.",
+		"literature": ["10.1109/TVCG.2011.193", "10.1109/PacificVis.2013.6596142"],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"GUIID": 42,
+						"condition": {
+							"type": "boolean",
+							"property": "isDAG",
+							"value": true
+						},
+						"weight": 1,
+						"weightNormalized": 1,
+						"score": 0,
+						"scoreWeighted": 0
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"layout": "layered",
+			"edgeLayout": "straight"
+		}
+	},
+	{
+		"name": "Orthogonal layout",
+		"description": "Orthogonal edges for smaller Directed Acyclic graphs",
+		"literature": ["10.1109/IISA.2014.6878777"],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"weight": 1,
+						"condition": {
+							"type": "numeric",
+							"property": "nodeCount",
+							"min": null,
+							"max": null,
+							"ideal": 100,
+							"tolerance": 50
+						},
+						"weightNormalized": 0.5,
+						"score": 0,
+						"scoreWeighted": 0
+					},
+					{
+						"GUIID": 46,
+						"condition": {
+							"type": "numeric",
+							"property": "density",
+							"min": 0.8,
+							"max": 0.43
+						},
+						"weight": 1,
+						"weightNormalized": 0.5
+					},
+					{
+						"GUIID": 47,
+						"condition": {
+							"type": "boolean",
+							"property": "isDAG",
+							"value": true
+						},
+						"weight": -1,
+						"weightNormalized": 0
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"layout": "layered",
+			"edgeLayout": "orthogonal",
+			"nodeSettings": [
+				{
+					"shape": {
+						"name": "shape",
+						"values": ["circle", "square", "triangle"],
+						"value": "square",
+						"source": null
+					},
+					"id": 1,
+					"priority": 0,
+					"source": null
+				}
+			]
+		}
+	},
+	{
+		"name": "Partial edges",
+		"description": "Partially drawn edges allow for less visual clutter in dense graphs. Use when the task doesn't call for correctness but rather for speed.",
+		"literature": [
+			"10.1007/978-3-642-25878-7_22",
+			"10.1109/COMSNETS.2017.7945455",
+			"10.1109/iV.2017.43"
+		],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"weight": 1,
+						"condition": {
+							"type": "numeric",
+							"property": "nodeCount",
+							"min": 100,
+							"max": 5000
+						},
+						"weightNormalized": 0.25,
+						"score": 0,
+						"scoreWeighted": 0
+					},
+					{
+						"GUIID": 47,
+						"condition": {
+							"type": "numeric",
+							"property": "density",
+							"min": 0.1,
+							"max": 1,
+							"ideal": 0.5
+						},
+						"weight": 2,
+						"weightNormalized": 0.5,
+						"score": 0.6296296296296295,
+						"scoreWeighted": 0.31481481481481477
+					},
+					{
+						"GUIID": 48,
+						"condition": {
+							"type": "composite",
+							"conditions": [
+								{
+									"GUIID": 49,
+									"condition": {
+										"type": "string",
+										"property": "task",
+										"value": "speed"
+									},
+									"weight": 1,
+									"weightNormalized": 1,
+									"score": 0,
+									"scoreWeighted": 0
+								}
+							]
+						},
+						"weight": 1,
+						"weightNormalized": 0.25,
+						"score": 0,
+						"scoreWeighted": 0
+					},
+					{
+						"GUIID": 50,
+						"condition": {
+							"type": "string",
+							"property": "type",
+							"value": "directed"
+						},
+						"weight": -1,
+						"weightNormalized": 0
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"edgeSettings": [
+				{
+					"type": {
+						"name": "type",
+						"values": ["straight", "conical"],
+						"value": "straight",
+						"source": null,
+						"loading": false
 					},
 					"partialStart": {
 						"name": "partialStart",
@@ -201,126 +407,137 @@
 						"max": 1,
 						"increment": 0.05,
 						"source": null
-					}
+					},
+					"decorators": {
+						"types": ["triangle", "circle", "square"],
+						"name": "decorators",
+						"value": [],
+						"source": null
+					},
+					"id": 1,
+					"priority": 0,
+					"source": null
 				}
 			]
 		}
 	},
 	{
-		"name": "guideline_004",
-		"description": "Visualization guideline dense larger graphs, not really sure if the descriptions will be longer.",
-		"literature": [],
+		"name": "Tapered edges",
+		"description": "For smaller directed graphs of small density, when edge direction is important.",
+		"literature": ["10.1145/1518701.1519054"],
 		"rootCondition": {
 			"weight": 1,
 			"condition": {
 				"type": "composite",
 				"conditions": [
 					{
-						"weight": 4,
+						"weight": 1,
 						"condition": {
 							"type": "numeric",
 							"property": "nodeCount",
-							"ideal": 100,
-							"tolerance": 50
-						}
+							"min": 0,
+							"max": 300
+						},
+						"weightNormalized": 0.3333333333333333,
+						"score": 0.5333333333333333,
+						"scoreWeighted": 0.17777777777777776
 					},
 					{
-						"weight": 4,
+						"GUIID": 41,
+						"condition": {
+							"type": "string",
+							"property": "type",
+							"value": "directed"
+						},
+						"weight": -1,
+						"weightNormalized": 0
+					},
+					{
+						"GUIID": 42,
 						"condition": {
 							"type": "numeric",
-							"property": "density",
-							"ideal": 0.5,
-							"tolerance": 0.3
-						}
-					}
-				]
-			}
-		},
-		"recommendations": {
-			"nodeSettings": [
-				{
-					"size": { "name": "size", "value": 3, "min": 1, "max": 10 },
-					"color": {
-						"name": "color",
-						"value": [[{ "r": 240, "g": 215, "b": 15, "a": 1 }, 1]]
+							"property": "edgeCount",
+							"min": 0,
+							"max": 500,
+							"ideal": null
+						},
+						"weight": 1,
+						"weightNormalized": 0.3333333333333333,
+						"score": 0.97,
+						"scoreWeighted": 0.3233333333333333
 					},
-					"strokeWidth": { "name": "strokeWidth", "value": 0, "min": 0, "max": 10 }
-				}
-			]
-		}
-	},
-	{
-		"name": "guideline_0025",
-		"description": "Visualization guideline for large trees (RULES). This is a longer description because they'll largely be longer.",
-		"literature": [],
-		"rootCondition": {
-			"weight": 1,
-			"condition": {
-				"type": "composite",
-				"conditions": [
 					{
-						"weight": 6,
+						"GUIID": 43,
 						"condition": {
-							"type": "boolean",
-							"property": "isDAG",
-							"value": true
-						}
-					},
-					{
-						"weight": 4,
-						"condition": {
-							"type": "numeric",
-							"property": "nodeCount",
-							"ideal": 100,
-							"tolerance": 50
-						}
-					},
-					{
-						"weight": 2,
-						"condition": { "type": "range", "property": "edgeCount", "min": 5, "max": 15 }
-					}
-				]
-			}
-		},
-		"recommendations": {
-			"nodeSettings": [
-				{
-					"color": {
-						"name": "color",
-						"value": [[{ "r": 240, "g": 15, "b": 100, "a": 1 }, 1]]
-					},
-					"strokeWidth": { "name": "strokeWidth", "value": 0, "min": 0, "max": 10 }
-				},
-				{
-					"rule": {
-						"operator": "AND",
-						"rules": [
-							{
-								"operator": ">",
-								"type": "number",
-								"target": "node",
-								"value": "3",
-								"property": { "name": "degree", "type": "number", "owner": "node", "general": true }
-							},
-							{
-								"operator": "<",
-								"type": "number",
-								"target": "node",
-								"value": 1,
-								"property": {
-									"name": "inDegree",
-									"type": "number",
-									"owner": "node",
-									"general": true
+							"type": "composite",
+							"conditions": [
+								{
+									"GUIID": 44,
+									"condition": {
+										"type": "string",
+										"property": "task",
+										"value": "adjacency"
+									},
+									"weight": 1,
+									"weightNormalized": 0.5,
+									"score": 0,
+									"scoreWeighted": 0
+								},
+								{
+									"GUIID": 45,
+									"condition": {
+										"type": "string",
+										"property": "type",
+										"value": "accesibility"
+									},
+									"weight": 1,
+									"weightNormalized": 0.5,
+									"score": 0,
+									"scoreWeighted": 0
 								}
-							}
-						]
-					},
-					"size": { "name": "size", "value": 2.423652341, "min": 1, "max": 10 },
-					"color": {
-						"name": "color",
-						"value": [[{ "r": 0, "g": 15, "b": 100, "a": 1 }, 1]]
+							]
+						},
+						"weight": 1,
+						"weightNormalized": 0.3333333333333333,
+						"score": 0,
+						"scoreWeighted": 0
 					}
+				]
+			}
+		},
+		"recommendations": {
+			"nodeSettings": [
+				{
+					"size": {
+						"name": "size",
+						"value": 5,
+						"min": 1,
+						"max": 10,
+						"source": null
+					},
+					"id": 1,
+					"priority": 0,
+					"source": null
+				}
+			],
+			"edgeSettings": [
+				{
+					"type": {
+						"name": "type",
+						"values": ["straight", "conical"],
+						"value": "conical",
+						"source": null,
+						"loading": false
+					},
+					"decorators": {
+						"types": ["triangle", "circle", "square"],
+						"name": "decorators",
+						"value": [],
+						"source": null
+					},
+					"id": 1,
+					"priority": 0,
+					"source": null
 				}
 			]
 		}

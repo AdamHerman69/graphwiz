@@ -419,14 +419,20 @@ function countRecommendations(settings: (NodeSettings | EdgeSettings)[]): number
 export function applyGuideline(guideline: Guideline, graphSettings: GraphSettingsClass): void {
 	graphSettings.applyGuideline(
 		guideline.recommendations.layout,
+		guideline.recommendations.edgeLayout,
 		guideline.recommendations.nodeSettings,
 		guideline.recommendations.edgeSettings
 	);
 }
 
 function addSourceToSettings(guidelines: Guideline[]): void {
-	// todo layout
 	guidelines.forEach((guideline) => {
+		// todo layout
+
+		// if (guideline.recommendations.layout) guideline.recommendations.layout.source = guideline.name;
+		// if (guideline.recommendations.edgeLayout)
+		// 	guideline.recommendations.edgeLayout.source = guideline.name;
+
 		guideline.recommendations.nodeSettings?.forEach((nodeSetting: NodeSettings) => {
 			nodeSetting.source = guideline.name;
 			if (nodeSetting.size) nodeSetting.size.source = guideline.name;
