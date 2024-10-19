@@ -435,6 +435,7 @@ function addSourceToSettings(guidelines: Guideline[]): void {
 
 		guideline.recommendations.nodeSettings?.forEach((nodeSetting: NodeSettings) => {
 			nodeSetting.source = guideline.name;
+			if (nodeSetting.shape) nodeSetting.shape.source = guideline.name;
 			if (nodeSetting.size) nodeSetting.size.source = guideline.name;
 			if (nodeSetting.color) nodeSetting.color.source = guideline.name;
 			if (nodeSetting.strokeWidth) nodeSetting.strokeWidth.source = guideline.name;
@@ -447,6 +448,7 @@ function addSourceToSettings(guidelines: Guideline[]): void {
 
 		guideline.recommendations.edgeSettings?.forEach((edgeSetting) => {
 			edgeSetting.source = guideline.name;
+			if (edgeSetting.type) edgeSetting.type.source = guideline.name;
 			if (edgeSetting.color) edgeSetting.color.source = guideline.name;
 			if (edgeSetting.width) edgeSetting.width.source = guideline.name;
 			if (edgeSetting.partialStart) edgeSetting.partialStart.source = guideline.name;

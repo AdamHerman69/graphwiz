@@ -5,7 +5,7 @@
 	import { parse } from 'svelte/compiler';
 	import { getContext } from 'svelte';
 	import { type Guideline, importGuidelines } from '../utils/guideline.svelte';
-	import { generateGraph } from '../utils/graph.svelte';
+	import { generateGraph, generateRandomTree } from '../utils/graph.svelte';
 
 	let {
 		importState,
@@ -96,15 +96,18 @@
 				closeMenu();
 			}}>generate</button
 		>
+		<button onclick={() => generateRandomTree()}>generate random tree</button>
 	</div>
 </div>
 
 <style>
 	.graphGenerator {
 		color: white;
+		font-size: 14px;
+		margin-right: 50;
 	}
 
 	.graphGenerator input {
-		width: 80px;
+		width: 60px;
 	}
 </style>

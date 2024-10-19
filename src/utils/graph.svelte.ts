@@ -1,4 +1,4 @@
-import Graph, { DirectedGraph } from 'graphology';
+import Graph, { DirectedGraph, UndirectedGraph } from 'graphology';
 import { parse } from 'graphology-graphml';
 import { density, diameter } from 'graphology-metrics/graph';
 import hasCycle from 'graphology-dag/has-cycle';
@@ -415,4 +415,31 @@ function isBipartiteCheck(graph: Graph) {
 
 	console.log('returning bipartite: ', isBipartite);
 	return isBipartite;
+}
+
+export function generateRandomTree(order = 100): Graph {
+	if (order < 1) {
+		throw new Error('Order must be at least 1');
+	}
+
+	// Create a new undirected graph
+	const graph = new UndirectedGraph();
+
+	// Add the first node (root)
+	graph.addNode(0);
+
+	// Add the rest of the nodes, ensuring the tree structure
+	for (let i = 1; i < order; i++) {
+		// Add a new node
+		graph.addNode(i);
+
+		// Connect the new node to a random existing node, ensuring it remains a tree
+		const randomParent = Math.floor(Math.random() * i); // Random node from the already added nodes
+		graph.addEdge(i, randomParent);
+	}
+
+	graphObject = graph;
+	onGraphImportRun(graphObject);
+
+	return graph;
 }

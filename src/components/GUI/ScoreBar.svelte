@@ -2,6 +2,7 @@
 	import type { WeightedCondition } from '../../utils/guideline.svelte';
 	import { getGradientColorAsString } from '../../utils/gradient';
 	import type { Gradient } from '../../utils/graphSettings.svelte';
+	import { formatDecimal } from '../../utils/helperFunctions';
 
 	const gradient: Gradient = [
 		[{ r: 133, g: 0, b: 100, a: 1 }, 0],
@@ -27,7 +28,7 @@
 		></div>
 	</div>
 	{#if !hidePercentage}
-		<div class="score">{score * 100}%</div>
+		<div class="score">{formatDecimal(score * 100, 0)}%</div>
 	{/if}
 </div>
 

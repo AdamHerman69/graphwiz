@@ -56,12 +56,12 @@
 <style>
 	.heading {
 		text-transform: uppercase;
-		font-size: 12px;
+		font-size: 10px;
 		max-width: 150px;
 		line-height: 1.3;
 	}
 	.value {
-		font-size: 20px;
+		font-size: 16px;
 		font-weight: bold;
 	}
 </style>

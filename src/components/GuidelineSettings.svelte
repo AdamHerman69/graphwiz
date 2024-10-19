@@ -47,10 +47,13 @@
 </div> -->
 
 <div class="">
-	{#if recommendations.layout}
-		<!-- <div class="settingAreaName">layout</div> -->
+	<!-- {#if recommendations.layout}
 		<div>{recommendations.layout}</div>
 	{/if}
+
+	{#if recommendations.edgeLayout}
+		<div>{recommendations.edgeLayout}</div>
+	{/if} -->
 
 	{#if recommendations.nodeSettings}
 		<!-- <div class="settingAreaName">node</div> -->
