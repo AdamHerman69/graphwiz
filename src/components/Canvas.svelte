@@ -34,14 +34,12 @@
 			if (canvasHandler.started) {
 				canvasHandler.graphChange(
 					graphSettings.graphSettings.layout,
-					graphSettings.graphSettings.edgeLayout,
 					graphSettings.computeNodeStyles(),
 					graphSettings.computeEdgeStyles()
 				);
 			} else {
 				canvasHandler.start(
 					graphSettings.graphSettings.layout,
-					graphSettings.graphSettings.edgeLayout,
 					graphSettings.computeNodeStyles(),
 					graphSettings.computeEdgeStyles()
 				);
@@ -52,12 +50,17 @@
 	// React to graph settings changes
 	// todo layout effect
 	$effect(() => {
-		console.log('Layout changed', graphSettings.graphSettings.layout.value);
+		console.log(
+			'Layout changed',
+			graphSettings.graphSettings.layout.type.value,
+			graphSettings.graphSettings.layout.edgeType.value
+		);
 		// ;
 		untrack(() => {
 			graphSettings.saveState();
 			canvasHandler.changeLayout(graphSettings.graphSettings.layout);
 		});
+		computeGuidelineStatuses(guidelines, graphSettings);
 	});
 
 	let nodeDebounceTimer: number;
@@ -77,37 +80,38 @@
 		} else {
 			untrack(() => {
 				canvasHandler.updateNodeStyles(graphSettings.computeNodeStyles());
-				computeGuidelineStatuses(guidelines, graphSettings);
 				graphSettings.saveState();
 				console.log('Node settings changed, ran');
 			});
+			computeGuidelineStatuses(guidelines, graphSettings);
 		}
 	});
 
 	let edgeDebounceTimer: number;
 	$effect(() => {
 		JSON.stringify(graphSettings.graphSettings.edgeSettings); // just to make the effect run
-		console.log('Edge layout changed', graphSettings.graphSettings.edgeLayout.value);
+		console.log('Edge layout changed', graphSettings.graphSettings.layout.edgeType.value);
 
 		if (performance().shouldDebouce) {
 			clearTimeout(edgeDebounceTimer);
 			edgeDebounceTimer = setTimeout(() => {
 				canvasHandler.updateEdgeStyles(
 					graphSettings.computeEdgeStyles(),
-					graphSettings.graphSettings.edgeLayout
+					graphSettings.graphSettings.layout
 				);
 				computeGuidelineStatuses(guidelines, graphSettings);
 				graphSettings.saveState();
 			}, DEBOUNCE_TIME);
 		} else {
 			untrack(() => {
+				console.log('Edge layout changed more ', graphSettings.graphSettings.layout);
 				canvasHandler.updateEdgeStyles(
 					graphSettings.computeEdgeStyles(),
-					graphSettings.graphSettings.edgeLayout
+					graphSettings.graphSettings.layout
 				);
-				computeGuidelineStatuses(guidelines, graphSettings);
 				graphSettings.saveState();
 			});
+			computeGuidelineStatuses(guidelines, graphSettings);
 		}
 	});
 
@@ -135,7 +139,6 @@
 
 <div class="relative h-full w-full">
 	<canvas
-		resize={true}
 		class="h-full w-full"
 		bind:this={canvas}
 		bind:clientWidth={width}

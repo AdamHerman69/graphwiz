@@ -27,6 +27,9 @@
 			bind:selected={selectSetting.value}
 			values={selectSetting.values}
 			alignRight={true}
+			onChange={() => {
+				selectSetting.source = null;
+			}}
 		/>
 	</div>
 </div>

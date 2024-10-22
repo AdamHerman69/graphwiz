@@ -6,6 +6,7 @@
 	import { getContext } from 'svelte';
 	import type { Guideline } from '../utils/guideline.svelte';
 	import { blur } from 'svelte/transition';
+	import GuidelineSource from './GUI/GuidelineSource.svelte';
 
 	let { name, numSettings }: { name: string; numSettings: NumericalSetting[] } = $props();
 	const owner = getContext('type');
@@ -50,7 +51,9 @@
 		{name}
 		<!-- TODO proper source -->
 
-		<!-- {numSettings.source} -->
+		{#if numSettings[0].source != null}
+			<GuidelineSource guidelineName={numSettings[0].source} />
+		{/if}
 	</div>
 	<!-- Binding partial edges hidden for now -->
 	<!-- <div class="flex justify-end items-center">

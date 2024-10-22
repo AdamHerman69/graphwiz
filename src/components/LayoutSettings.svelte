@@ -24,8 +24,8 @@
 				width={140}
 			/>
 		</div> -->
-		<SettingsSelect selectSetting={graphSettings.layout} />
-		<SettingsSelect selectSetting={graphSettings.edgeLayout} />
+		<SettingsSelect selectSetting={graphSettings.layout.type} />
+		<SettingsSelect selectSetting={graphSettings.layout.edgeType} />
 	{/if}
 </div>
 

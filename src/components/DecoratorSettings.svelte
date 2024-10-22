@@ -11,7 +11,7 @@
 	import ColorPickerWrapper from '$lib/RangeSlider/ColorPickerWrapper.svelte';
 	import { colord } from 'colord';
 	import CustomSelect from './GUI/CustomSelect.svelte';
-
+	import GuidelineSource from './GUI/GuidelineSource.svelte';
 	let { newGUIID } = getContext('graphSettings') as GraphSettingsClass;
 
 	let { decoratorSetting }: { decoratorSetting: DecoratorSetting } = $props();
@@ -57,7 +57,11 @@
 	<div class="settingName">
 		Decorators
 		<!-- {numSettings.source} -->
+		{#if decoratorSetting.source != null}
+			<GuidelineSource guidelineName={decoratorSetting.source} />
+		{/if}
 	</div>
+
 	<button onclick={addDecorator} class="buttonGeneral"
 		><span class="material-symbols-outlined"> add </span></button
 	>

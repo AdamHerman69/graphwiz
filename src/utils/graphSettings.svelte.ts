@@ -37,7 +37,6 @@ export type DecoratorData = {
 	id: number;
 	type: DecoratorType;
 	position: number;
-	source?: null | string;
 	color?: RgbaColor; // if no color is set, the edge color is used
 };
 
@@ -184,28 +183,34 @@ export const nodeSettingsDefaults: NodeProperties = {
 	labels: []
 } as const;
 
-export const layoutSettingsDefaults: SelectSetting<LayoutType> = {
-	name: 'layout',
-	values: Array.from(layoutTypes),
-	value: 'force-graph',
-	source: null,
-	loading: false
+export type LayoutSettings = {
+	type?: SelectSetting<LayoutType>;
+	edgeType?: SelectSetting<EdgeLayoutType>;
+	[key: string]: Setting<any>; // Allow for additional layout-specific settings
 };
 
-export const edgeLayoutSettingsDefaults: SelectSetting<EdgeLayoutType> = {
-	name: 'edgeLayout',
-	values: Array.from(edgeLayoutTypes),
-	value: 'straight',
-	source: null,
-	loading: false
+export const layoutSettingsDefaults: LayoutSettings = {
+	type: {
+		name: 'layout',
+		values: Array.from(layoutTypes),
+		value: 'force-graph',
+		source: null,
+		loading: false
+	},
+	edgeType: {
+		name: 'edgeLayout',
+		values: Array.from(edgeLayoutTypes),
+		value: 'straight',
+		source: null,
+		loading: false
+	}
 };
 
 // let guiID = $state(0);
 
 export type GraphSettings = {
 	guiID: number;
-	layout: SelectSetting<LayoutType>;
-	edgeLayout: SelectSetting<EdgeLayoutType>;
+	layout: LayoutSettings;
 	nodeSettings: NodeSettings[];
 	edgeSettings: EdgeSettings[];
 	nodeStyles: Map<string, NodeStyle>;
@@ -224,7 +229,6 @@ export class GraphSettingsClass {
 	graphSettings: GraphSettings = $state({
 		guiID: 1,
 		layout: structuredClone(layoutSettingsDefaults),
-		edgeLayout: structuredClone(edgeLayoutSettingsDefaults),
 		nodeSettings: [
 			{
 				...structuredClone(nodeSettingsDefaults),
@@ -243,7 +247,7 @@ export class GraphSettingsClass {
 		]
 	});
 
-	draggable = $derived(this.graphSettings.edgeLayout.value === 'straight');
+	draggable = $derived(this.graphSettings.layout.edgeType.value === 'straight');
 
 	constructor() {
 		this.exportState = this.exportState.bind(this);
@@ -294,21 +298,19 @@ export class GraphSettingsClass {
 	}
 
 	applyGuideline(
-		layout: LayoutType,
-		edgeLayout: EdgeLayoutType,
+		layout: LayoutSettings,
 		nodeSettings: NodeSettings[],
 		edgeSettings: EdgeSettings[]
 	) {
 		console.log(layout);
-		console.log(edgeLayout);
 		console.log(nodeSettings);
 		console.log(edgeSettings);
-		if (layout) {
-			this.graphSettings.layout.value = layout;
+		if (layout?.type) {
+			this.graphSettings.layout.type = layout.type;
 		}
 
-		if (edgeLayout) {
-			this.graphSettings.edgeLayout.value = edgeLayout;
+		if (layout?.edgeType) {
+			this.graphSettings.layout.edgeType = layout.edgeType;
 		}
 
 		if (nodeSettings) {
@@ -345,12 +347,13 @@ export class GraphSettingsClass {
 			if (edgeSettings[0].partialEnd)
 				this.graphSettings.edgeSettings[0].partialEnd = edgeSettings[0].partialEnd;
 			if (edgeSettings[0].decorators)
-				edgeSettings[0].decorators.value.forEach((decorator) => {
-					this.graphSettings.edgeSettings[0].decorators!.value.push({
-						...decorator,
-						id: this.newGUIID()
-					});
-				});
+				// edgeSettings[0].decorators.value.forEach((decorator) => {
+				// 	this.graphSettings.edgeSettings[0].decorators!.value.push({
+				// 		...decorator,
+				// 		id: this.newGUIID()
+				// 	});
+				// });
+				this.graphSettings.edgeSettings[0].decorators = edgeSettings[0].decorators;
 			if (edgeSettings[0].labels)
 				edgeSettings[0].labels.forEach((label) => {
 					this.graphSettings.edgeSettings[0].labels!.push({ ...label, id: this.newGUIID() });

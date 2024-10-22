@@ -89,6 +89,7 @@
 							setting={es[key]}
 							rule={index > 0 ? es.rule : null}
 							bind:collapsed={edgeCollapsed}
+							conflict={conflicts?.find((c) => c.property === key)}
 							{index}
 						/>
 					{/if}

@@ -28,23 +28,37 @@
 	let blurActive = $state(false);
 	let overlay = getContext('overlay');
 
-	$effect(() => {
-		console.log('sorting');
-		console.log(guidelines);
-		untrack(() => {
-			guidelines.sort((a, b) => {
-				if (a.status?.applied === b.status?.applied) return b.score! - a.score!;
+	// $effect(() => {
+	// 	console.log('sorting');
+	// 	JSON.stringify(guidelines);
+	// 	untrack(() => {
+	// 		guidelines.sort((a, b) => {
+	// 			if (a.status?.applied === b.status?.applied) return b.score! - a.score!;
 
-				if (a.status?.applied === 'fully') return -1;
-				if (b.status?.applied === 'fully') return 1;
+	// 			if (a.status?.applied === 'fully') return -1;
+	// 			if (b.status?.applied === 'fully') return 1;
 
-				if (a.status?.applied === 'partially') return -1;
-				if (b.status?.applied === 'partially') return 1;
-			});
-		});
+	// 			if (a.status?.applied === 'partially') return -1;
+	// 			if (b.status?.applied === 'partially') return 1;
+	// 		});
+	// 	});
 
-		console.log('sorted');
-	});
+	// 	console.log('sorted');
+	// });
+
+	let sortedGuidelines: Guideline[] = $derived(
+		[...guidelines].sort((a, b) => {
+			if (a.status?.applied === b.status?.applied) return b.score! - a.score!;
+
+			if (a.status?.applied === 'fully') return -1;
+			if (b.status?.applied === 'fully') return 1;
+
+			if (a.status?.applied === 'partially') return -1;
+			if (b.status?.applied === 'partially') return 1;
+
+			return 0;
+		})
+	);
 
 	function expand(guideline: Guideline) {
 		if (guideline.expanded) {
@@ -157,18 +171,18 @@
 			log guidelines
 		</button>
 	</div> -->
-	{#if guidelines[0].status?.applied === 'fully'}
+	{#if sortedGuidelines[0].status?.applied === 'fully'}
 		<div class="sectionHeader">Applied</div>
 	{/if}
 
-	{#each guidelines as guideline, index (guideline.id)}
+	{#each sortedGuidelines as guideline, index (guideline.id)}
 		{#if !guideline.expanded || isClosing}
 			<GuidelineCard
-				bind:guideline={guidelines[index]}
-				first={index === 0 || (index === 1 && guidelines[0].expanded)}
+				bind:guideline={sortedGuidelines[index]}
+				first={index === 0 || (index === 1 && sortedGuidelines[0].expanded)}
 				{expand}
 			/>
-			{#if guideline.status?.applied === 'fully' && (guidelines[index + 1]?.status?.applied == 'partially' || guidelines[index + 1]?.status?.applied == 'notApplied')}
+			{#if guideline.status?.applied === 'fully' && (sortedGuidelines[index + 1]?.status?.applied == 'partially' || sortedGuidelines[index + 1]?.status?.applied == 'notApplied')}
 				<div class="sectionHeader">not applied</div>
 			{/if}
 		{/if}

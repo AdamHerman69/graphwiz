@@ -133,7 +133,6 @@
 	}
 
 	$effect(() => {
-		console.log('updating max expanded width');
 		updateMaxExpandedWidth();
 		// console.log('max expanded width: ', maxExpandedWidth);
 	});

@@ -53,7 +53,9 @@
 		} else {
 			switch (setting) {
 				case 'layout':
-					guideline.recommendations[setting] = 'force-graph';
+					guideline.recommendations.layout = {
+						...structuredClone(layoutSettingsDefaults)
+					};
 					console.log('layout');
 					break;
 				case 'nodeSettings':
@@ -160,25 +162,11 @@
 						<h4>Layout</h4>
 						<div>
 							<div class="flex my-2 justify-between">
-								<div class="flex items-center settingName">ALGORITHM</div>
-
-								<CustomSelect
-									bind:selected={guideline.recommendations.layout}
-									values={layoutTypes}
-									alignRight={true}
-									width={140}
-								/>
+								<SettingsSelect selectSetting={guideline.recommendations.layout.type} />
 							</div>
 
 							<div class="flex my-2 justify-between">
-								<div class="flex items-center settingName">Edge layout</div>
-
-								<CustomSelect
-									bind:selected={guideline.recommendations.edgeLayout}
-									values={edgeLayoutTypes}
-									alignRight={true}
-									width={140}
-								/>
+								<SettingsSelect selectSetting={guideline.recommendations.layout.edgeType} />
 							</div>
 						</div>
 					</div>

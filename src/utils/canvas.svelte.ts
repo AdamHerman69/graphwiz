@@ -5,7 +5,8 @@ import {
 	type NodeStyles,
 	type EdgeStyles,
 	getNodeStyle,
-	type LayoutType
+	type LayoutType,
+	type LayoutSettings
 } from './graphSettings.svelte';
 import {
 	type Renderer,
@@ -25,7 +26,7 @@ import { getEventCoords } from './helperFunctions';
 import { edgeBendPoints } from './graphSettings.svelte';
 import { forceEdgeBundling } from '$lib/d3-force-bundle';
 import { edge } from 'graphology-metrics';
-import type { EdgeLayoutType, EdgeType, SelectSetting } from './graphSettings.svelte';
+import type { EdgeLayoutType, EdgeType } from './graphSettings.svelte';
 import { performance } from './graph.svelte';
 
 export type D3Node = d3.SimulationNodeDatum & {
@@ -42,26 +43,16 @@ export type ReadabilityMetrics = {
 const CLICK_RADIUS = 10;
 
 export interface ICanvasHandler {
-	start(
-		layout: SelectSetting<LayoutType>,
-		edgeLayout: SelectSetting<EdgeLayoutType>,
-		nodeStyles: NodeStyles,
-		edgeStyles: EdgeStyles
-	): void;
+	start(layout: LayoutSettings, nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void;
 	updateNodeStyles(nodeStyles: NodeStyles): void;
-	updateEdgeStyles(edgeStyles: EdgeStyles, edgeLayout: SelectSetting<EdgeLayoutType>): void;
+	updateEdgeStyles(edgeStyles: EdgeStyles, layout: LayoutSettings): void;
 	initialize(canvas: HTMLCanvasElement, width: number, height: number, graph: Graph): void;
-	graphChange(
-		layout: SelectSetting<LayoutType>,
-		edgeLayout: SelectSetting<EdgeLayoutType>,
-		nodeStyles: NodeStyles,
-		edgeStyles: EdgeStyles
-	): void;
+	graphChange(layout: LayoutSettings, nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void;
 
 	detectHover(event: MouseEvent): void;
 	canvasClicked(event: MouseEvent): void;
 	exportSVG(): string;
-	changeLayout(layout: SelectSetting<LayoutType>): Promise<void>;
+	changeLayout(layout: LayoutSettings): Promise<void>;
 	resize(width: number, height: number): void;
 	resetTransform(): void;
 
@@ -201,16 +192,11 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		};
 	}
 
-	graphChange(
-		layout: SelectSetting<LayoutType>,
-		edgeLayout: SelectSetting<EdgeLayoutType>,
-		nodeStyles: NodeStyles,
-		edgeStyles: EdgeStyles
-	) {
+	graphChange(layout: LayoutSettings, nodeStyles: NodeStyles, edgeStyles: EdgeStyles) {
 		console.log(
 			'canvas handler graph change',
-			layout.value,
-			edgeLayout.value,
+			layout.type.value,
+			layout.edgeType.value,
 			nodeStyles,
 			edgeStyles
 		);
@@ -222,18 +208,13 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			this.d3links as EdgeDatum[],
 			nodeStyles,
 			edgeStyles,
-			edgeLayout.value
+			layout.edgeType.value
 		);
 
 		this.changeLayout(layout, true);
 	}
 
-	start(
-		layout: SelectSetting<LayoutType>,
-		edgeLayout: SelectSetting<EdgeLayoutType>,
-		nodeStyles: NodeStyles,
-		edgeStyles: EdgeStyles
-	): void {
+	start(layout: LayoutSettings, nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void {
 		console.log('staaaaart');
 		this.nodeStyles = nodeStyles;
 		this.edgeStyles = edgeStyles;
@@ -249,7 +230,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 				this.d3links as EdgeDatum[],
 				nodeStyles,
 				edgeStyles,
-				edgeLayout.value,
+				layout.edgeType.value,
 				this.canvas
 			);
 		else
@@ -259,7 +240,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 				this.d3links as EdgeDatum[],
 				nodeStyles,
 				edgeStyles,
-				edgeLayout.value
+				layout.edgeType.value
 			);
 
 		// drag and zoom
@@ -281,7 +262,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 						this.transform = this.paperRenderer.zoomed(zoomEvent);
 					})
 			);
-		this.changeLayout(layout, edgeLayout);
+		this.changeLayout(layout);
 		this.started = true;
 	}
 
@@ -362,32 +343,33 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.nodeStyles = nodeStyles;
 	}
 
-	async updateEdgeStyles(edgeStyles: EdgeStyles, edgeLayout: SelectSetting<EdgeLayoutType>): void {
-		if (this.edgeLayout != edgeLayout.value && edgeLayout.value === 'bundled') {
-			edgeLayout.loading = true;
+	async updateEdgeStyles(edgeStyles: EdgeStyles, layout: LayoutSettings): Promise<void> {
+		console.log('updateEdgeStyles hehee', $state.snapshot(layout));
+		if (this.edgeLayout != layout.edgeType.value && layout.edgeType.value === 'bundled') {
+			layout.edgeType.loading = true;
 			try {
-				await this.bundleEdgesAsync(edgeStyles);
 				if (this.currentLayout === 'force-graph') {
 					this.pauseSimulation();
 				}
+				await this.bundleEdgesAsync(edgeStyles);
 			} catch (error) {
 				console.error('Error during edge bundling:', error);
 			} finally {
-				edgeLayout.loading = false;
+				layout.edgeType.loading = false;
 			}
 		}
 
 		if (
 			this.currentLayout === 'force-graph' &&
 			this.edgeLayout === 'bundled' &&
-			edgeLayout.value !== 'bundled'
+			layout.edgeType.value !== 'bundled'
 		) {
 			this.resumeSimulation();
 		}
 
-		this.paperRenderer.updateEdgeStyles(edgeStyles, edgeLayout.value);
+		this.paperRenderer.updateEdgeStyles(edgeStyles, layout.edgeType.value);
 		this.edgeStyles = edgeStyles;
-		this.edgeLayout = edgeLayout.value;
+		this.edgeLayout = layout.edgeType.value;
 	}
 
 	getD3NodeRegardlessCanvas(mouseEvent: MouseEvent) {
@@ -612,21 +594,16 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.height = height;
 	}
 
-	// async changeEdgeLayout(edgeLayout: SelectSetting<EdgeLayoutType>) {
-	// 	if (this.edgeLayout === edgeLayout.value) return;
-
-	// 	this.edgeLayout = edgeLayout;
-	// }
-
-	async changeLayout(layout: SelectSetting<LayoutType>, forceRestart: boolean = false) {
-		if (!forceRestart && this.currentLayout === layout.value) {
+	async changeLayout(layout: LayoutSettings, forceRestart: boolean = false) {
+		if (!forceRestart && this.currentLayout === layout.type.value) {
 			console.log('changeLayout: same layout');
 			return;
 		}
 
-		if (layout.value === 'force-graph') {
+		if (layout.type.value === 'force-graph') {
 			this.startForceSimulation(forceRestart);
-			this.currentLayout = layout.value;
+			this.currentLayout = layout.type.value;
+			this.edgeLayout = layout.edgeType.value;
 			return;
 		}
 		if (this.currentLayout === 'force-graph') {
@@ -634,17 +611,17 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			this.simulationWorker.postMessage({ type: 'pause' });
 		}
 
-		layout.loading = true;
-		console.log('changeLayout', layout.loading);
+		layout.type.loading = true;
+		console.log('changeLayout', layout.type.loading);
 
 		let elkNodes = await this.elkLayoutProvider.layout(
-			{ 'elk.algorithm': layout.value, 'elk.edgeRouting': 'ORTHOGONAL' },
+			{ 'elk.algorithm': layout.type.value, 'elk.edgeRouting': 'ORTHOGONAL' },
 			this.width,
 			this.height
 		);
 
-		layout.loading = false;
-		console.log('changeLayout', layout.loading);
+		layout.type.loading = false;
+		console.log('changeLayout', layout.type.loading);
 
 		this.staticPosition = true;
 		this.sticky = true;
@@ -678,17 +655,8 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		});
 		this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
 
-		// update the worker with the new graph positions - waiting for the animation to be over
-		// we don't do this anymore since we're not using the worker for layout
-		// setTimeout(
-		// 	() =>
-		// 		this.simulationWorker.postMessage({
-		// 			type: 'changePositions',
-		// 			nodes: $state.snapshot(this.d3nodes)
-		// 		}),
-		// 	1100
-		// );
-		this.currentLayout = layout;
+		this.currentLayout = layout.type.value;
+		this.edgeLayout = layout.edgeType.value;
 	}
 
 	resetTransform(): void {

@@ -102,8 +102,8 @@
 		}
 	},
 	{
-		"name": "Bipartite layout",
-		"description": "Visualizes the two partitions of the graph.",
+		"name": "BP",
+		"description": "Guideline description",
 		"literature": [],
 		"rootCondition": {
 			"weight": 1,
@@ -111,7 +111,7 @@
 				"type": "composite",
 				"conditions": [
 					{
-						"GUIID": 41,
+						"GUIID": 21,
 						"condition": {
 							"type": "boolean",
 							"property": "isBipartite",
@@ -126,8 +126,35 @@
 			}
 		},
 		"recommendations": {
-			"layout": "layered",
-			"edgeLayout": "straight"
+			"layout": {
+				"type": {
+					"name": "layout",
+					"values": [
+						"force-graph",
+						"layered",
+						"stress",
+						"disco",
+						"force",
+						"radial",
+						"mrtree",
+						"sporeCompaction",
+						"random",
+						"sporeOverlap",
+						"box",
+						"rectpacking"
+					],
+					"value": "layered",
+					"source": null,
+					"loading": false
+				},
+				"edgeType": {
+					"name": "edgeLayout",
+					"values": ["straight", "orthogonal", "bundled"],
+					"value": "straight",
+					"source": null,
+					"loading": false
+				}
+			}
 		}
 	},
 	{
@@ -215,14 +242,14 @@
 	{
 		"name": "Layered layout",
 		"description": "Used to visualize layers for Directed Acyclic Graphs and Trees.",
-		"literature": ["10.1109/TVCG.2011.193", "10.1109/PacificVis.2013.6596142"],
+		"literature": [],
 		"rootCondition": {
 			"weight": 1,
 			"condition": {
 				"type": "composite",
 				"conditions": [
 					{
-						"GUIID": 42,
+						"GUIID": 21,
 						"condition": {
 							"type": "boolean",
 							"property": "isDAG",
@@ -237,8 +264,35 @@
 			}
 		},
 		"recommendations": {
-			"layout": "layered",
-			"edgeLayout": "straight"
+			"layout": {
+				"type": {
+					"name": "layout",
+					"values": [
+						"force-graph",
+						"layered",
+						"stress",
+						"disco",
+						"force",
+						"radial",
+						"mrtree",
+						"sporeCompaction",
+						"random",
+						"sporeOverlap",
+						"box",
+						"rectpacking"
+					],
+					"value": "layered",
+					"source": null,
+					"loading": false
+				},
+				"edgeType": {
+					"name": "edgeLayout",
+					"values": ["straight", "orthogonal", "bundled"],
+					"value": "straight",
+					"source": null,
+					"loading": false
+				}
+			}
 		}
 	},
 	{

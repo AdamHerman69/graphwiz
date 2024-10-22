@@ -4,8 +4,7 @@ import {
 	type EdgeSettings,
 	type LayoutType,
 	GraphSettingsClass,
-	type Setting,
-	type EdgeLayoutType
+	type LayoutSettings
 } from './graphSettings.svelte';
 import guidelinesFile from './guidelines.json';
 import { graphCharacteristics } from './graph.svelte';
@@ -114,8 +113,7 @@ export type StaticGuideline = {
 	literature: string[]; // DOI
 	rootCondition: WeightedCondition;
 	recommendations: {
-		layout?: LayoutType;
-		edgeLayout?: EdgeLayoutType;
+		layout?: LayoutSettings;
 		edgeSettings?: EdgeSettings[];
 		nodeSettings?: NodeSettings[];
 	};
@@ -269,21 +267,42 @@ function getGuidelineStatus(
 	let appliedCount = 0;
 	let totalRecommendations = 0;
 
-	// Check layout
-	if (guideline.recommendations.layout) {
+	// Check layout type
+	if (guideline.recommendations.layout?.type) {
 		totalRecommendations++;
 		if (
-			graphSettings.graphSettings.layout.value === guideline.recommendations.layout &&
-			graphSettings.graphSettings.layout.source === guideline.name
+			graphSettings.graphSettings.layout.type.value ===
+				guideline.recommendations.layout?.type.value &&
+			graphSettings.graphSettings.layout.type.source === guideline.name
 		) {
 			appliedCount++;
 		} else if (
-			graphSettings.graphSettings.layout.source &&
-			graphSettings.graphSettings.layout.source !== guideline.name
+			graphSettings.graphSettings.layout.type.source &&
+			graphSettings.graphSettings.layout.type.source !== guideline.name
 		) {
 			status.conflicts.push({
 				type: 'layout',
-				conflictingGuidelineName: graphSettings.graphSettings.layout.source
+				conflictingGuidelineName: graphSettings.graphSettings.layout.type.source
+			});
+		}
+	}
+
+	// Check edge layout
+	if (guideline.recommendations.layout?.edgeType) {
+		totalRecommendations++;
+		if (
+			graphSettings.graphSettings.layout.edgeType.value ===
+				guideline.recommendations.layout?.edgeType.value &&
+			graphSettings.graphSettings.layout.edgeType.source === guideline.name
+		) {
+			appliedCount++;
+		} else if (
+			graphSettings.graphSettings.layout.edgeType.source &&
+			graphSettings.graphSettings.layout.edgeType.source !== guideline.name
+		) {
+			status.conflicts.push({
+				type: 'layout',
+				conflictingGuidelineName: graphSettings.graphSettings.layout.edgeType.source
 			});
 		}
 	}
@@ -318,6 +337,8 @@ function getGuidelineStatus(
 	} else if (appliedCount > 0) {
 		status.applied = 'partially';
 	}
+
+	//console.log(guideline.name, appliedCount, totalRecommendations, status);
 
 	return status;
 }
@@ -417,51 +438,55 @@ function countRecommendations(settings: (NodeSettings | EdgeSettings)[]): number
 }
 
 export function applyGuideline(guideline: Guideline, graphSettings: GraphSettingsClass): void {
+	addSource(guideline);
 	graphSettings.applyGuideline(
 		guideline.recommendations.layout,
-		guideline.recommendations.edgeLayout,
 		guideline.recommendations.nodeSettings,
 		guideline.recommendations.edgeSettings
 	);
 }
 
+function addSource(guideline: Guideline) {
+	if (guideline.recommendations.layout?.type)
+		guideline.recommendations.layout.type.source = guideline.name;
+	if (guideline.recommendations.layout?.edgeType)
+		guideline.recommendations.layout.edgeType.source = guideline.name;
+
+	guideline.recommendations.nodeSettings?.forEach((nodeSetting: NodeSettings) => {
+		nodeSetting.source = guideline.name;
+		if (nodeSetting.shape) nodeSetting.shape.source = guideline.name;
+		if (nodeSetting.size) nodeSetting.size.source = guideline.name;
+		if (nodeSetting.color) nodeSetting.color.source = guideline.name;
+		if (nodeSetting.strokeWidth) nodeSetting.strokeWidth.source = guideline.name;
+		if (nodeSetting.strokeColor) nodeSetting.strokeColor.source = guideline.name;
+		if (nodeSetting.labels)
+			nodeSetting.labels.forEach((label) => {
+				label.source = guideline.name;
+			});
+	});
+
+	guideline.recommendations.edgeSettings?.forEach((edgeSetting) => {
+		edgeSetting.source = guideline.name;
+		if (edgeSetting.type) edgeSetting.type.source = guideline.name;
+		if (edgeSetting.color) edgeSetting.color.source = guideline.name;
+		if (edgeSetting.width) edgeSetting.width.source = guideline.name;
+		if (edgeSetting.partialStart) edgeSetting.partialStart.source = guideline.name;
+		if (edgeSetting.partialEnd) edgeSetting.partialEnd.source = guideline.name;
+		if (edgeSetting.decorators)
+			edgeSetting.decorators.value.forEach((decorator) => {
+				decorator.source = guideline.name;
+			});
+		if (edgeSetting.decorators) edgeSetting.decorators.source = guideline.name;
+		if (edgeSetting.labels)
+			edgeSetting.labels.forEach((label) => {
+				label.source = guideline.name;
+			});
+	});
+}
+
 function addSourceToSettings(guidelines: Guideline[]): void {
 	guidelines.forEach((guideline) => {
-		// todo layout
-
-		// if (guideline.recommendations.layout) guideline.recommendations.layout.source = guideline.name;
-		// if (guideline.recommendations.edgeLayout)
-		// 	guideline.recommendations.edgeLayout.source = guideline.name;
-
-		guideline.recommendations.nodeSettings?.forEach((nodeSetting: NodeSettings) => {
-			nodeSetting.source = guideline.name;
-			if (nodeSetting.shape) nodeSetting.shape.source = guideline.name;
-			if (nodeSetting.size) nodeSetting.size.source = guideline.name;
-			if (nodeSetting.color) nodeSetting.color.source = guideline.name;
-			if (nodeSetting.strokeWidth) nodeSetting.strokeWidth.source = guideline.name;
-			if (nodeSetting.strokeColor) nodeSetting.strokeColor.source = guideline.name;
-			if (nodeSetting.labels)
-				nodeSetting.labels.forEach((label) => {
-					label.source = guideline.name;
-				});
-		});
-
-		guideline.recommendations.edgeSettings?.forEach((edgeSetting) => {
-			edgeSetting.source = guideline.name;
-			if (edgeSetting.type) edgeSetting.type.source = guideline.name;
-			if (edgeSetting.color) edgeSetting.color.source = guideline.name;
-			if (edgeSetting.width) edgeSetting.width.source = guideline.name;
-			if (edgeSetting.partialStart) edgeSetting.partialStart.source = guideline.name;
-			if (edgeSetting.partialEnd) edgeSetting.partialEnd.source = guideline.name;
-			if (edgeSetting.decorators)
-				edgeSetting.decorators.value.forEach((decorator) => {
-					decorator.source = guideline.name;
-				});
-			if (edgeSetting.labels)
-				edgeSetting.labels.forEach((label) => {
-					label.source = guideline.name;
-				});
-		});
+		addSource(guideline);
 	});
 
 	// guideline.recommendations.edgeSettings?.forEach((edgeSetting) => {
