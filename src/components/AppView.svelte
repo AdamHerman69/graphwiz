@@ -177,15 +177,17 @@
 							<Guidelines bind:this={leftGuidelinesExports} side="left" />
 						</div>
 					{:else if !hidden.left && panelState.left === 'settings'}
-						<div class="cardStack" use:autoAnimate>
-							{#if settingsState.left.layout}
-								<LayoutSettings />
+						<div class="cardStack reverse" use:autoAnimate>
+							{#if settingsState.left.edge}
+								<EdgeSettings side="left" />
 							{/if}
+
 							{#if settingsState.left.node}
 								<NodeSettings side="left" />
 							{/if}
-							{#if settingsState.left.edge}
-								<EdgeSettings side="left" />
+
+							{#if settingsState.left.layout}
+								<LayoutSettings />
 							{/if}
 						</div>
 					{/if}

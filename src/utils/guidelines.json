@@ -182,8 +182,35 @@
 			}
 		},
 		"recommendations": {
-			"layout": "force-graph",
-			"edgeLayout": "bundled",
+			"layout": {
+				"type": {
+					"name": "layout",
+					"values": [
+						"force-graph",
+						"layered",
+						"stress",
+						"disco",
+						"force",
+						"radial",
+						"mrtree",
+						"sporeCompaction",
+						"random",
+						"sporeOverlap",
+						"box",
+						"rectpacking"
+					],
+					"value": "force-graph",
+					"source": null,
+					"loading": false
+				},
+				"edgeType": {
+					"name": "edgeLayout",
+					"values": ["straight", "orthogonal", "bundled"],
+					"value": "bundled",
+					"source": null,
+					"loading": false
+				}
+			},
 			"edgeSettings": [
 				{
 					"type": {
@@ -343,8 +370,35 @@
 			}
 		},
 		"recommendations": {
-			"layout": "layered",
-			"edgeLayout": "orthogonal",
+			"layout": {
+				"type": {
+					"name": "layout",
+					"values": [
+						"force-graph",
+						"layered",
+						"stress",
+						"disco",
+						"force",
+						"radial",
+						"mrtree",
+						"sporeCompaction",
+						"random",
+						"sporeOverlap",
+						"box",
+						"rectpacking"
+					],
+					"value": "layered",
+					"source": null,
+					"loading": false
+				},
+				"edgeType": {
+					"name": "edgeLayout",
+					"values": ["straight", "orthogonal", "bundled"],
+					"value": "orthogonal",
+					"source": null,
+					"loading": false
+				}
+			},
 			"nodeSettings": [
 				{
 					"shape": {

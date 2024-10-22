@@ -72,7 +72,10 @@
 		partialEnd: 'step_out',
 		decorators: 'interests',
 		shape: 'shapes',
-		type: 'style'
+		type: 'style',
+		edgeType: 'automation',
+		edgeLayout: 'automation',
+		layout: 'linked_services'
 	};
 
 	const settingTypes = {
@@ -86,7 +89,10 @@
 		partialStart: 'number',
 		partialEnd: 'number',
 		decorators: 'decorators',
-		type: 'string'
+		type: 'string',
+		edgeType: 'string',
+		edgeLayout: 'string',
+		layout: 'string'
 	};
 
 	let containerRef: HTMLElement;

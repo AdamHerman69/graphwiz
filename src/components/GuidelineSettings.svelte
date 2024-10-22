@@ -2,7 +2,7 @@
 	import type {
 		EdgeSettings,
 		NodeSettings,
-		LayoutType,
+		LayoutSettings,
 		nodeSettingsDefaults
 	} from '../utils/graphSettings.svelte';
 	import SettingValue from './SettingValue.svelte';
@@ -14,7 +14,7 @@
 		conflicts
 	}: {
 		recommendations: {
-			layout?: LayoutType;
+			layout?: LayoutSettings;
 			edgeSettings?: EdgeSettings[];
 			nodeSettings?: NodeSettings[];
 		};
@@ -47,13 +47,25 @@
 </div> -->
 
 <div class="">
-	<!-- {#if recommendations.layout}
-		<div>{recommendations.layout}</div>
-	{/if}
+	<div class="flex flex-wrap">
+		{#if recommendations.layout?.type}
+			<!-- todo conflicts -->
+			<SettingValue
+				setting={recommendations.layout.type}
+				rule={null}
+				bind:collapsed={nodeCollapsed}
+			/>
+		{/if}
 
-	{#if recommendations.edgeLayout}
-		<div>{recommendations.edgeLayout}</div>
-	{/if} -->
+		{#if recommendations.layout?.edgeType}
+			<!-- todo conflicts -->
+			<SettingValue
+				setting={recommendations.layout.edgeType}
+				rule={null}
+				bind:collapsed={nodeCollapsed}
+			/>
+		{/if}
+	</div>
 
 	{#if recommendations.nodeSettings}
 		<!-- <div class="settingAreaName">node</div> -->
