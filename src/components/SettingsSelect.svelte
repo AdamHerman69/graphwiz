@@ -3,7 +3,8 @@
 	import CustomSelect from './GUI/CustomSelect.svelte';
 	import GuidelineSource from './GUI/GuidelineSource.svelte';
 
-	let { selectSetting }: { selectSetting: SelectSetting } = $props();
+	let { selectSetting, onChange }: { selectSetting: SelectSetting; onChange?: () => void } =
+		$props();
 </script>
 
 <div class="flex justify-between items-center">
@@ -29,6 +30,7 @@
 			alignRight={true}
 			onChange={() => {
 				selectSetting.source = null;
+				onChange?.();
 			}}
 		/>
 	</div>

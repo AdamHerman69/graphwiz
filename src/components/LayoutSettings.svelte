@@ -24,7 +24,14 @@
 				width={140}
 			/>
 		</div> -->
-		<SettingsSelect selectSetting={graphSettings.layout.type} />
+		<SettingsSelect
+			selectSetting={graphSettings.layout.type}
+			onChange={() => {
+				setTimeout(() => {
+					graphSettings.layout.edgeType.value = 'straight';
+				}, 100);
+			}}
+		/>
 		<SettingsSelect selectSetting={graphSettings.layout.edgeType} />
 	{/if}
 </div>
