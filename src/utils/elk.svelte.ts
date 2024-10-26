@@ -2,7 +2,7 @@ import ElkWorker from 'elkjs/lib/elk-worker.min.js?worker';
 import ELK, { type LayoutOptions, type ElkNode } from 'elkjs/lib/elk.bundled.js';
 import { type LayoutType } from './graphSettings.svelte';
 import Graph from 'graphology';
-import { edgeBendPoints } from './graphSettings.svelte';
+import { orthogonalBendPoints } from './graphSettings.svelte';
 
 export type NodePositions = { id: string; x: number; y: number }[];
 
@@ -42,12 +42,12 @@ export class ElkLayoutProvider implements ILayoutProvieder {
 				if (edge.sections[0].bendPoints) edgePoints.push(...edge.sections[0].bendPoints);
 				edgePoints.push(edge.sections[0].endPoint);
 
-				edgeBendPoints.set(edge.id, edgePoints);
+				orthogonalBendPoints.set(edge.id, edgePoints);
 			}
 		});
 
 		console.log('elkData:', elkData);
-		console.log(edgeBendPoints);
+		console.log(orthogonalBendPoints);
 
 		return centererdElkData.children as NodePositions;
 	}

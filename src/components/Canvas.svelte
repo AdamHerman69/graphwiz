@@ -90,25 +90,17 @@
 	let edgeDebounceTimer: number;
 	$effect(() => {
 		JSON.stringify(graphSettings.graphSettings.edgeSettings); // just to make the effect run
-		console.log('Edge layout changed', graphSettings.graphSettings.layout.edgeType.value);
 
 		if (performance().shouldDebouce) {
 			clearTimeout(edgeDebounceTimer);
 			edgeDebounceTimer = setTimeout(() => {
-				canvasHandler.updateEdgeStyles(
-					graphSettings.computeEdgeStyles(),
-					graphSettings.graphSettings.layout
-				);
+				canvasHandler.updateEdgeStyles(graphSettings.computeEdgeStyles());
 				computeGuidelineStatuses(guidelines, graphSettings);
 				graphSettings.saveState();
 			}, DEBOUNCE_TIME);
 		} else {
 			untrack(() => {
-				console.log('Edge layout changed more ', graphSettings.graphSettings.layout);
-				canvasHandler.updateEdgeStyles(
-					graphSettings.computeEdgeStyles(),
-					graphSettings.graphSettings.layout
-				);
+				canvasHandler.updateEdgeStyles(graphSettings.computeEdgeStyles());
 				graphSettings.saveState();
 			});
 			computeGuidelineStatuses(guidelines, graphSettings);

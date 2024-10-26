@@ -25,9 +25,13 @@ export interface Renderer {
 		edgeBendPoints?: Map<string, { x: number; y: number }[]>
 	): void;
 	updateNodeStyles(styles: Map<string, NodeStyle>): void;
-	updateEdgeStyles(styles: Map<string, EdgeStyle>, edgeLayout: EdgeLayoutType): void;
+	updateEdgeStyles(styles: Map<string, EdgeStyle>): void;
 	updateNodeStyle(id: string, style: NodeStyle): void;
-	updateEdgeStyle(id: string, style: EdgeStyle, edgeLayout: EdgeLayoutType): void;
+	updateEdgeStyle(id: string, style: EdgeStyle): void;
+	updateEdgeLayout(
+		edgeLayout: EdgeLayoutType,
+		bendPoints?: Map<string, { x: number; y: number }[]>
+	): void;
 	restart(
 		inputNodes: NodePositionDatum[],
 		inputEdges: EdgeDatum[],
@@ -95,15 +99,23 @@ export class PaperRenderer implements Renderer {
 		this.nodes.get(id)?.updateStyle(style);
 	}
 
-	updateEdgeStyles(styles: Map<string, EdgeStyle>, edgeLayout: EdgeLayoutType) {
-		console.log('updateEdgeStyles', edgeLayout);
+	updateEdgeStyles(styles: Map<string, EdgeStyle>) {
+		console.log('updateEdgeStyles');
 		this.paperScope.activate();
-		this.edges.forEach((edge, key) => edge.updateStyle(styles.get(key)!, edgeLayout));
+		this.edges.forEach((edge, key) => edge.updateStyle(styles.get(key)!));
 	}
 
-	updateEdgeStyle(id: string, style: EdgeStyle, edgeLayout: EdgeLayoutType) {
+	updateEdgeStyle(id: string, style: EdgeStyle) {
 		this.paperScope.activate();
-		this.edges.get(id)?.updateStyle(style, edgeLayout);
+		this.edges.get(id)?.updateStyle(style);
+	}
+
+	updateEdgeLayout(
+		edgeLayout: EdgeLayoutType,
+		bendPoints?: Map<string, { x: number; y: number }[]>
+	) {
+		this.paperScope.activate();
+		this.edges.forEach((edge) => edge.updateLayout(edgeLayout, bendPoints?.get(edge.id)));
 	}
 
 	restart(
@@ -150,7 +162,7 @@ export class PaperRenderer implements Renderer {
 			const target = this.nodes.get(edge.target);
 
 			if (source && target) {
-				const paperEdge = new PEdge(source, target, edgeStyles.get(edge.id)!, edgeLayout);
+				const paperEdge = new PEdge(edge.id, source, target, edgeStyles.get(edge.id)!, edgeLayout);
 				this.edges.set(edge.id, paperEdge);
 			}
 		});

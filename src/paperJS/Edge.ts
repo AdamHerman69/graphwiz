@@ -20,10 +20,9 @@ import {
 } from './Triangle';
 import { toStringGradient } from './Color';
 import { colord } from 'colord';
-import { edgeBendPoints } from '../utils/graphSettings.svelte';
 
 interface EdgeShape {
-	updatePosition(source: paper.Point, target: paper.Point, bendPoints?: paper.Point[]): void;
+	updatePosition(source: paper.Point, target: paper.Point): void;
 	updateStyle(style: paper.Style): void;
 	delete(): void;
 	getPointOnPath(relativePosition: number): paper.Point;
@@ -218,12 +217,15 @@ export interface IPEdge {
 	source: IPNode;
 	target: IPNode;
 	lineShape: EdgeShape;
+	id: string;
 
 	updatePosition(bendPoints?: Map<string, { x: number; y: number }[]>): void;
-	updateStyle(style: EdgeStyle, edgeLayout: EdgeLayoutType): void;
+	updateStyle(style: EdgeStyle): void;
+	updateLayout(edgeLayout: EdgeLayoutType, bendPoints?: { x: number; y: number }[]): void;
 }
 
 export class PEdge {
+	id: string;
 	source: IPNode;
 	target: IPNode;
 	sourceConnectionPoint: paper.Point;
@@ -232,9 +234,17 @@ export class PEdge {
 	lineShape: EdgeShape;
 	partialStart: number;
 	partialEnd: number;
-	type: 'segmented' | 'straight' | 'conical' | 'none';
+	type: 'bundled' | 'orthogonal' | 'straight' | 'conical' | 'none';
 	labels: Label[];
-	constructor(source: IPNode, target: IPNode, style: EdgeStyle, edgeLayout: EdgeLayoutType) {
+	style: EdgeStyle;
+	constructor(
+		id: string,
+		source: IPNode,
+		target: IPNode,
+		style: EdgeStyle,
+		edgeLayout: EdgeLayoutType
+	) {
+		this.id = id;
 		this.source = source;
 		this.target = target;
 		this.partialStart = style.partialStart;
@@ -247,7 +257,7 @@ export class PEdge {
 		this.decorators = [];
 		this.labels = [];
 
-		this.updateStyle(style, edgeLayout);
+		this.updateStyle(style);
 	}
 
 	addRemoveDecorators(decoratorData: DecoratorData[]) {
@@ -371,64 +381,74 @@ export class PEdge {
 		});
 	}
 
-	updateStyle(style: EdgeStyle, edgeLayout: EdgeLayoutType) {
-		let type: 'segmented' | 'straight' | 'conical' = style.type;
-		// edge layout change
-		if (edgeLayout === 'orthogonal' || edgeLayout === 'bundled') {
-			type = 'segmented';
+	updateLayout(edgeLayout: EdgeLayoutType, bendPoints?: { x: number; y: number }[]) {
+		if (edgeLayout === 'straight') {
+			this.changeType('straight', [], true);
+		} else {
+			if (!bendPoints || bendPoints.length === 0) throw new Error('No bendpoints passed');
+			this.changeType(edgeLayout, bendPoints, true);
 		}
+	}
 
-		// edge type change
-		if (type != this.type) {
-			this.type = type;
-			if (this.lineShape) this.lineShape.delete();
+	changeType(
+		type: 'bundled' | 'orthogonal' | 'straight' | 'conical',
+		bendPoints?: { x: number; y: number }[],
+		forced?: boolean
+	) {
+		if (type === this.type) return;
+		if (!forced && type === 'straight' && (this.type === 'bundled' || this.type === 'orthogonal')) {
+			//console.log('skiiiiiiped');
+			return;
+		} // don't do anything on regular edge style update with a segmented edge
 
-			switch (type) {
-				case 'conical':
-					this.lineShape = new TriangleShape(
-						this.sourceConnectionPoint,
-						this.targetConnectionPoint
-					);
-					break;
-				case 'straight':
+		if (this.lineShape) this.lineShape.delete();
+		switch (type) {
+			case 'conical':
+				this.lineShape = new TriangleShape(this.sourceConnectionPoint, this.targetConnectionPoint);
+				break;
+			case 'straight':
+				this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
+				break;
+			case 'bundled':
+			case 'orthogonal':
+				if (!bendPoints || bendPoints.length === 0) {
+					console.log('no bend points yet');
+
 					this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
 					break;
-				case 'segmented':
-					if (!style.bendPoints || style.bendPoints.length === 0) {
-						console.log('no bend points yet');
-
-						this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
-						break;
-					}
-					this.lineShape = new OrthogonalShape(
+				}
+				this.lineShape = new OrthogonalShape(
+					this.sourceConnectionPoint,
+					this.targetConnectionPoint,
+					bendPoints.map((point) => new Paper.Point(point.x, point.y))
+				);
+				this.lineShape.updateStyle({
+					strokeWidth: this.style.width,
+					strokeColor: toPaperColor(
+						this.style.color,
 						this.sourceConnectionPoint,
-						this.targetConnectionPoint,
-						style.bendPoints.map((point) => new Paper.Point(point.x, point.y))
-					);
-					break;
-				default:
-					throw new Error('Invalid edge type');
-			}
+						this.targetConnectionPoint
+					)
+				});
+				break;
+			default:
+				throw new Error('Invalid edge type');
 		}
+		this.type = type;
+	}
 
-		let color: paper.Color;
-		let stringGradient = toStringGradient(style.color);
-		if (stringGradient.length === 1) color = new Paper.Color(stringGradient[0][0]);
-		else {
-			// gradient
-			color = new Paper.Color({
-				gradient: {
-					stops: toStringGradient(style.color)
-				},
-				origin: this.sourceConnectionPoint,
-				destination: this.targetConnectionPoint
-			});
-		}
+	updateStyle(style: EdgeStyle) {
+		this.changeType(style.type);
+
+		let color: paper.Color = toPaperColor(
+			style.color,
+			this.sourceConnectionPoint,
+			this.targetConnectionPoint
+		);
 
 		// decorators
 		this.addRemoveDecorators(style.decorators);
 		this.updateDecorators(style.decorators, style.color);
-		//this.addRemoveLabels(style.labels);
 		this.updateLabels(style.labels);
 
 		// style update
@@ -445,6 +465,8 @@ export class PEdge {
 
 			this.updatePosition();
 		}
+
+		this.style = style;
 	}
 
 	getDirection() {
@@ -454,4 +476,25 @@ export class PEdge {
 
 function getRelativeEdgePoint(start: paper.Point, end: paper.Point, relativePosition: number) {
 	return start.multiply(1 - relativePosition).add(end.multiply(relativePosition));
+}
+
+function toPaperColor(
+	colorGradient: Gradient,
+	source: paper.Point,
+	target: paper.Point
+): paper.Color {
+	let color: paper.Color;
+	let stringGradient = toStringGradient(colorGradient);
+	if (stringGradient.length === 1) color = new Paper.Color(stringGradient[0][0]);
+	else {
+		// gradient
+		color = new Paper.Color({
+			gradient: {
+				stops: toStringGradient(colorGradient)
+			},
+			origin: source,
+			destination: target
+		});
+	}
+	return color;
 }

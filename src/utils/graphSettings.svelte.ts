@@ -138,7 +138,8 @@ export const layoutTypes = [
 	'rectpacking'
 ] as const;
 export type LayoutType = (typeof layoutTypes)[number];
-export let edgeBendPoints: Map<string, { x: number; y: number }[]> = new Map();
+export let orthogonalBendPoints: Map<string, { x: number; y: number }[]> = new Map();
+export let bundledBendPoints: Map<string, { x: number; y: number }[]> = new Map();
 
 export type EdgeProperties = {
 	type?: SelectSetting<EdgeType>;
@@ -649,9 +650,9 @@ export function getEdgeStyle(id: string, edgeSettings: EdgeSettings[]): EdgeStyl
 		}
 	});
 
-	if (edgeBendPoints) {
-		edgeStyle.bendPoints = edgeBendPoints.get(id) || [];
-	}
+	// if (edgeBendPoints) {
+	// 	edgeStyle.bendPoints = edgeBendPoints.get(id) || [];
+	// }
 	return edgeStyle;
 }
 

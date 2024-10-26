@@ -23,7 +23,7 @@ import { spring } from 'svelte/motion';
 import gsap from 'gsap';
 import { get } from 'svelte/store';
 import { getEventCoords } from './helperFunctions';
-import { edgeBendPoints } from './graphSettings.svelte';
+import { orthogonalBendPoints, bundledBendPoints } from './graphSettings.svelte';
 import { forceEdgeBundling } from '$lib/d3-force-bundle';
 import { edge } from 'graphology-metrics';
 import type { EdgeLayoutType, EdgeType } from './graphSettings.svelte';
@@ -45,7 +45,7 @@ const CLICK_RADIUS = 10;
 export interface ICanvasHandler {
 	start(layout: LayoutSettings, nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void;
 	updateNodeStyles(nodeStyles: NodeStyles): void;
-	updateEdgeStyles(edgeStyles: EdgeStyles, layout: LayoutSettings): void;
+	updateEdgeStyles(edgeStyles: EdgeStyles): void;
 	initialize(canvas: HTMLCanvasElement, width: number, height: number, graph: Graph): void;
 	graphChange(layout: LayoutSettings, nodeStyles: NodeStyles, edgeStyles: EdgeStyles): void;
 
@@ -343,33 +343,9 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.nodeStyles = nodeStyles;
 	}
 
-	async updateEdgeStyles(edgeStyles: EdgeStyles, layout: LayoutSettings): Promise<void> {
-		console.log('updateEdgeStyles hehee', $state.snapshot(layout));
-		if (this.edgeLayout != layout.edgeType.value && layout.edgeType.value === 'bundled') {
-			layout.edgeType.loading = true;
-			try {
-				if (this.currentLayout === 'force-graph') {
-					this.pauseSimulation();
-				}
-				await this.bundleEdgesAsync(edgeStyles);
-			} catch (error) {
-				console.error('Error during edge bundling:', error);
-			} finally {
-				layout.edgeType.loading = false;
-			}
-		}
-
-		if (
-			this.currentLayout === 'force-graph' &&
-			this.edgeLayout === 'bundled' &&
-			layout.edgeType.value !== 'bundled'
-		) {
-			this.resumeSimulation();
-		}
-
-		this.paperRenderer.updateEdgeStyles(edgeStyles, layout.edgeType.value);
+	updateEdgeStyles(edgeStyles: EdgeStyles): void {
+		this.paperRenderer.updateEdgeStyles(edgeStyles);
 		this.edgeStyles = edgeStyles;
-		this.edgeLayout = layout.edgeType.value;
 	}
 
 	getD3NodeRegardlessCanvas(mouseEvent: MouseEvent) {
@@ -570,7 +546,14 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			}
 		});
 
-		edgeBendPoints.forEach((bendPoints, linkId) => {
+		orthogonalBendPoints.forEach((bendPoints, linkId) => {
+			bendPoints.forEach((point) => {
+				point.x += dx;
+				point.y += dy;
+			});
+		});
+
+		bundledBendPoints.forEach((bendPoints, linkId) => {
 			bendPoints.forEach((point) => {
 				point.x += dx;
 				point.y += dy;
@@ -594,69 +577,147 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.height = height;
 	}
 
+	// async updateEdgeStyles(edgeStyles: EdgeStyles, layout: LayoutSettings): Promise<void> {
+	// 	console.log('updateEdgeStyles hehee', $state.snapshot(layout));
+	// 	if (this.edgeLayout != layout.edgeType.value && layout.edgeType.value === 'bundled') {
+	// 		layout.edgeType.loading = true;
+	// 		try {
+	// 			if (this.currentLayout === 'force-graph') {
+	// 				this.pauseSimulation();
+	// 			}
+	// 			await this.bundleEdgesAsync(edgeStyles);
+	// 		} catch (error) {
+	// 			console.error('Error during edge bundling:', error);
+	// 		} finally {
+	// 			layout.edgeType.loading = false;
+	// 		}
+	// 	}
+
+	// 	if (
+	// 		this.currentLayout === 'force-graph' &&
+	// 		this.edgeLayout === 'bundled' &&
+	// 		layout.edgeType.value !== 'bundled'
+	// 	) {
+	// 		this.resumeSimulation();
+	// 	}
+
+	// 	this.paperRenderer.updateEdgeStyles(edgeStyles, layout.edgeType.value);
+	// 	this.edgeStyles = edgeStyles;
+	// 	this.edgeLayout = layout.edgeType.value;
+	// }
+
 	async changeLayout(layout: LayoutSettings, forceRestart: boolean = false) {
-		if (!forceRestart && this.currentLayout === layout.type.value) {
-			console.log('changeLayout: same layout');
-			return;
-		}
+		console.log('changeLayout', layout.type.value, layout.edgeType.value);
+		let layoutChanged = forceRestart || this.currentLayout !== layout.type.value;
+		let edgeLayoutChanged = this.edgeLayout !== layout.edgeType.value;
 
-		if (layout.type.value === 'force-graph') {
-			this.startForceSimulation(forceRestart);
-			this.currentLayout = layout.type.value;
-			this.edgeLayout = layout.edgeType.value;
-			return;
-		}
-		if (this.currentLayout === 'force-graph') {
-			if (forceRestart) this.simulationWorker.postMessage({ type: 'pause' });
-			this.simulationWorker.postMessage({ type: 'pause' });
-		}
-
-		layout.type.loading = true;
-		console.log('changeLayout', layout.type.loading);
-
-		let elkNodes = await this.elkLayoutProvider.layout(
-			{ 'elk.algorithm': layout.type.value, 'elk.edgeRouting': 'ORTHOGONAL' },
-			this.width,
-			this.height
+		console.log(
+			'layoutChanged',
+			layoutChanged,
+			forceRestart,
+			this.currentLayout,
+			layout.type.value
 		);
 
-		layout.type.loading = false;
-		console.log('changeLayout', layout.type.loading);
+		// D3 Force
 
-		this.staticPosition = true;
-		this.sticky = true;
-
-		this.d3nodes.forEach((node, index) => {
-			node.x ??= this.width / 2;
-			node.y ??= this.height / 2;
-			let elkNode = elkNodes.find((n) => n.id === node.id);
-
-			// todo decide animation on size of graph - performance wise - set all performance considerations in graph file
-			if (elkNode) {
-				if (performance().shouldAnimate) {
-					console.log($state.snapshot(node));
-					gsap.to(node, {
-						duration: 1,
-						x: elkNode.x,
-						y: elkNode.y,
-						ease: 'power2.inOut',
-						onUpdate: () => {
-							this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
-						},
-						onComplete: () => {
-							delete node._gsap;
-						}
-					});
-				} else {
-					node.x = elkNode.x;
-					node.y = elkNode.y;
-				}
+		if (layoutChanged) {
+			if (layout.type.value === 'force-graph') {
+				this.startForceSimulation(forceRestart);
+				this.currentLayout = layout.type.value;
+				this.edgeLayout = layout.edgeType.value;
+				return;
 			}
-		});
-		this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
+			if (this.currentLayout === 'force-graph') {
+				if (forceRestart) this.simulationWorker.postMessage({ type: 'pause' });
+				this.simulationWorker.postMessage({ type: 'pause' });
+			}
+		}
 
-		this.currentLayout = layout.type.value;
+		if (edgeLayoutChanged) {
+			layout.edgeType.loading = true;
+		}
+
+		if (edgeLayoutChanged && layout.edgeType.value === 'bundled') {
+			try {
+				if (this.currentLayout === 'force-graph') {
+					this.pauseSimulation();
+				}
+				console.log('bundleEdgesAsync');
+				await this.bundleEdgesAsync();
+			} catch (error) {
+				console.error('Error during edge bundling:', error);
+			}
+		}
+
+		if (
+			this.currentLayout === 'force-graph' &&
+			this.edgeLayout === 'bundled' &&
+			layout.edgeType.value !== 'bundled'
+		) {
+			this.resumeSimulation();
+		}
+
+		// Elk layout
+		let computingElk = layoutChanged && layout.type.value !== 'force-graph';
+		if (computingElk) {
+			layout.type.loading = true;
+
+			let elkNodes = await this.elkLayoutProvider.layout(
+				{ 'elk.algorithm': layout.type.value, 'elk.edgeRouting': 'ORTHOGONAL' },
+				this.width,
+				this.height
+			);
+
+			layout.type.loading = false;
+
+			this.staticPosition = true;
+			this.sticky = true;
+
+			this.d3nodes.forEach((node, index) => {
+				node.x ??= this.width / 2;
+				node.y ??= this.height / 2;
+				let elkNode = elkNodes.find((n) => n.id === node.id);
+
+				// todo decide animation on size of graph - performance wise - set all performance considerations in graph file
+				if (elkNode) {
+					if (performance().shouldAnimate) {
+						gsap.to(node, {
+							duration: 1,
+							x: elkNode.x,
+							y: elkNode.y,
+							ease: 'power2.inOut',
+							onUpdate: () => {
+								this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
+							},
+							onComplete: () => {
+								delete node._gsap;
+								if (layout.edgeType?.loading && layout.edgeType.value === 'orthogonal')
+									this.paperRenderer.updateEdgeLayout(layout.edgeType.value, orthogonalBendPoints);
+							}
+						});
+					} else {
+						node.x = elkNode.x;
+						node.y = elkNode.y;
+						if (layout.edgeType.value === 'orthogonal') {
+							this.paperRenderer.updateEdgeLayout(layout.edgeType.value, orthogonalBendPoints);
+							layout.edgeType.loading = false;
+						}
+					}
+				}
+			});
+			this.paperRenderer.updatePositions(this.d3nodes as NodePositionDatum[]);
+		}
+
+		if (edgeLayoutChanged && !computingElk) {
+			console.log('updateEdgeLayout');
+			let bendPoints =
+				layout.edgeType.value === 'bundled' ? bundledBendPoints : orthogonalBendPoints;
+			this.paperRenderer.updateEdgeLayout(layout.edgeType.value, bendPoints);
+			layout.edgeType.loading = false;
+		}
 		this.edgeLayout = layout.edgeType.value;
+		this.currentLayout = layout.type.value;
 	}
 
 	resetTransform(): void {
@@ -686,7 +747,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		});
 	}
 
-	bundleEdges(nodes, links, edgeStyles: EdgeStyles): void {
+	bundleEdges(nodes, links): void {
 		let linksFormated = links.map((link) => {
 			return {
 				source: link.source.id,
@@ -714,28 +775,24 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		// console.log(results);
 
 		links.forEach((link, index) => {
-			edgeBendPoints.set(link.id, results[index]);
-			edgeStyles.get(link.id)!.bendPoints = results[index];
+			bundledBendPoints.set(link.id, results[index]);
 		});
 
 		// edgeStyles.forEach((edgeStyle) => {
 		// 	edgeStyle.bendPoints = edgeBendPoints.get(edgeStyle.id);
 		// });
-
-		console.log(edgeBendPoints);
 	}
 
-	async bundleEdgesAsync(edgeStyles: EdgeStyles): Promise<void> {
+	async bundleEdgesAsync(): Promise<void> {
 		return new Promise((resolve, reject) => {
 			this.bundleEdgesWorker.onmessage = (event) => {
 				const results = event.data;
 
 				this.d3links.forEach((link, index) => {
-					edgeBendPoints.set(link.id, results[index]);
-					edgeStyles.get(link.id)!.bendPoints = results[index];
+					bundledBendPoints.set(link.id, results[index]);
 				});
 
-				this.paperRenderer.updateEdgeStyles(edgeStyles, 'bundled');
+				// todo call updateEdgeStyles?
 
 				resolve();
 			};
