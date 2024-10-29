@@ -34,14 +34,15 @@ interface EdgeShape {
 class OrthogonalShape implements EdgeShape {
 	line: paper.Path;
 
-	constructor(source: paper.Point, target: paper.Point, bendPoints: paper.Point[]) {
+	constructor(bendPoints: paper.Point[], source?: paper.Point, target?: paper.Point) {
 		this.line = new Paper.Path();
-		this.line.add(source);
+		if (source) this.line.add(source);
 		bendPoints.forEach((point) => this.line.add(point));
-		this.line.add(target);
+		if (target) this.line.add(target);
 	}
 
 	updatePosition(source: paper.Point, target: paper.Point): void {
+		console.log('update position orthogonalaaaaaaaaaaaaaal');
 		// Calculate the delta between the first point and the new source
 		const deltaX = source.x - this.line.firstSegment.point.x;
 		const deltaY = source.y - this.line.firstSegment.point.y;
@@ -53,8 +54,8 @@ class OrthogonalShape implements EdgeShape {
 		});
 
 		// Ensure the first and last points match the new source and target
-		this.line.firstSegment.point = source;
-		this.line.lastSegment.point = target;
+		// this.line.firstSegment.point = source;
+		// this.line.lastSegment.point = target;
 
 		//update gradient todo?
 		if (this.line.strokeColor?.gradient) {
@@ -418,10 +419,15 @@ export class PEdge {
 					break;
 				}
 				this.lineShape = new OrthogonalShape(
-					this.sourceConnectionPoint,
-					this.targetConnectionPoint,
 					bendPoints.map((point) => new Paper.Point(point.x, point.y))
 				);
+				// else
+				// 	this.lineShape = new OrthogonalShape(
+				// 		bendPoints.map((point) => new Paper.Point(point.x, point.y)),
+				// 		this.sourceConnectionPoint,
+				// 		this.targetConnectionPoint
+				// 	);
+
 				this.lineShape.updateStyle({
 					strokeWidth: this.style.width,
 					strokeColor: toPaperColor(

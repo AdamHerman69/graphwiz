@@ -1,4 +1,12 @@
-import { type Attribute, type RangeAttribute, getAttributeValue, getGraph } from './graph.svelte';
+import {
+	type Attribute,
+	type RangeAttribute,
+	getAttributeValue,
+	getGraph,
+	findDescreteAttributes,
+	availableAttributes,
+	type StringAttribute
+} from './graph.svelte';
 import type { Guideline } from './guideline.svelte';
 import { type Rule, stripAttributeBasedRules, evalRule, type AtomicRule } from './rules.svelte';
 import type { RgbaColor } from 'colord';
@@ -298,14 +306,104 @@ export class GraphSettingsClass {
 		return rule;
 	}
 
+	selectDiscreteAttribute(): StringAttribute {
+		let discreteAttributes = findDescreteAttributes(getGraph());
+		if (discreteAttributes.length === 0) throw new Error('No discrete attributes found');
+
+		// todo let user choose if theres more than one
+
+		return discreteAttributes[0];
+	}
+
+	makeRulesForDiscreteAttribute(attribute: StringAttribute | RangeAttribute) {
+		let nodeSettings: NodeSettings[] = [];
+
+		// Generate a random color for each distinct value
+		const getRandomColor = (): RgbaColor => ({
+			r: Math.floor(Math.random() * 256),
+			g: Math.floor(Math.random() * 256),
+			b: Math.floor(Math.random() * 256),
+			a: 1
+		});
+
+		// Create a rule for each distinct value
+		attribute.values.forEach((value) => {
+			const rule: Rule = {
+				id: this.newGUIID(),
+				operator: 'AND',
+				rules: [
+					{
+						id: this.newGUIID(),
+						type: 'string',
+						target: 'node',
+						property: attribute,
+						operator: '=',
+						value: value
+					}
+				]
+			};
+
+			const color: ColorSetting = {
+				name: 'color',
+				value: [[getRandomColor(), 1]],
+				source: null
+			};
+
+			const nodeSetting: NodeSettings = {
+				id: this.newGUIID(),
+				priority: 1, // todo not using priority yet
+				rule: rule,
+				color: color,
+				source: null
+			};
+
+			nodeSettings.push(nodeSetting);
+		});
+
+		// Add the new rules to the existing node settings
+		this.graphSettings.nodeSettings.push(...nodeSettings);
+	}
+
+	bindAttributes(attributes: { target: string; setting: string; name?: string }[]) {
+		attributes.forEach((attribute) => this.bindAttribute(attribute));
+	}
+
+	bindAttribute(attribute: { target: string; setting: string; name?: string }) {
+		let settingObject =
+			attribute.target === 'node'
+				? this.graphSettings.nodeSettings[0][attribute.setting]
+				: this.graphSettings.edgeSettings[0][attribute.setting];
+
+		if (!settingObject) throw new Error('Setting object not found');
+
+		if (attribute.name) {
+			settingObject.attribute = availableAttributes.find((attr) => attr.name === attribute.name);
+		} else {
+			// select attribute
+			// let attr = this.selectAttribute(attribute.target);
+			console.log('not implemented unselected attribute');
+		}
+	}
+
 	applyGuideline(
 		layout: LayoutSettings,
 		nodeSettings: NodeSettings[],
-		edgeSettings: EdgeSettings[]
+		edgeSettings: EdgeSettings[],
+		attributes: { discrete: boolean; bind: { target: string; setting: string; name?: string }[] }
 	) {
 		console.log(layout);
 		console.log(nodeSettings);
 		console.log(edgeSettings);
+
+		if (attributes?.discrete) {
+			let attribute = this.selectDiscreteAttribute();
+			this.makeRulesForDiscreteAttribute(attribute);
+		}
+
+		if (attributes?.bind) {
+			this.bindAttributes(attributes.bind);
+		}
+
 		if (layout?.type) {
 			this.graphSettings.layout.type = layout.type;
 		}

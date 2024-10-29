@@ -614,6 +614,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		console.log(
 			'layoutChanged',
 			layoutChanged,
+			edgeLayoutChanged,
 			forceRestart,
 			this.currentLayout,
 			layout.type.value
@@ -626,6 +627,22 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 				this.startForceSimulation(forceRestart);
 				this.currentLayout = layout.type.value;
 				this.edgeLayout = layout.edgeType.value;
+
+				if (layout.edgeType.value === 'bundled')
+					setTimeout(async () => {
+						try {
+							layout.edgeType.loading = true;
+							if (this.currentLayout === 'force-graph') {
+								this.pauseSimulation();
+							}
+							console.log('bundleEdgesAsync');
+							await this.bundleEdgesAsync();
+							this.paperRenderer.updateEdgeLayout(layout.edgeType.value, bundledBendPoints);
+							layout.edgeType.loading = false;
+						} catch (error) {
+							console.error('Error during edge bundling:', error);
+						}
+					}, 2000);
 				return;
 			}
 			if (this.currentLayout === 'force-graph') {
@@ -634,6 +651,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			}
 		}
 
+		console.log('edgeLayoutChanged:', edgeLayoutChanged);
 		if (edgeLayoutChanged) {
 			layout.edgeType.loading = true;
 		}

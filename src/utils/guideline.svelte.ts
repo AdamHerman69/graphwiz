@@ -116,6 +116,7 @@ export type StaticGuideline = {
 		layout?: LayoutSettings;
 		edgeSettings?: EdgeSettings[];
 		nodeSettings?: NodeSettings[];
+		attributes?: { discrete: boolean; bind: { target: string; setting: string; name?: string }[] };
 	};
 };
 
@@ -332,7 +333,7 @@ function getGuidelineStatus(
 	}
 
 	// Determine application status
-	if (appliedCount === totalRecommendations) {
+	if (appliedCount === totalRecommendations && totalRecommendations > 0) {
 		status.applied = 'fully';
 	} else if (appliedCount > 0) {
 		status.applied = 'partially';
@@ -442,7 +443,8 @@ export function applyGuideline(guideline: Guideline, graphSettings: GraphSetting
 	graphSettings.applyGuideline(
 		guideline.recommendations.layout,
 		guideline.recommendations.nodeSettings,
-		guideline.recommendations.edgeSettings
+		guideline.recommendations.edgeSettings,
+		guideline.recommendations.attributes
 	);
 }
 

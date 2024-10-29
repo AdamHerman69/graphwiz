@@ -14,10 +14,12 @@ export type Attribute = {
 	type: 'number' | 'string';
 	owner: 'edge' | 'node';
 	general: boolean; // degree, inDegree, outDegree, id are general attributes
+	values?: number[] | string[];
 };
 
 export type RangeAttribute = Attribute & {
 	range: [number, number];
+	values: number[];
 };
 
 export type StringAttribute = Attribute & {
@@ -208,6 +210,9 @@ function classifyAttribute(
 	owner: 'node' | 'edge',
 	general = false
 ): RangeAttribute | StringAttribute {
+	// Remove duplicates
+	values = [...new Set(values)];
+
 	const minValue = Math.min(...values);
 
 	if (isNaN(minValue)) {
@@ -226,7 +231,8 @@ function classifyAttribute(
 			range: [minValue, maxValue],
 			type: 'number',
 			owner: owner,
-			general: general
+			general: general,
+			values: values
 		} as RangeAttribute;
 	}
 }
@@ -376,6 +382,12 @@ export const graphCharacteristics: { [key: string]: Characteristic<Characteristi
 		getter: (graph: Graph) => {
 			return isBipartiteCheck(graph);
 		}
+	},
+	discreteAttributes: {
+		type: 'number',
+		getter: (graph: Graph) => {
+			return findDescreteAttributes(graph).length ?? 0;
+		}
 	}
 });
 
@@ -415,6 +427,12 @@ function isBipartiteCheck(graph: Graph) {
 
 	console.log('returning bipartite: ', isBipartite);
 	return isBipartite;
+}
+
+export function findDescreteAttributes(graph: Graph, maxDistinctValues = 10): Attribute[] {
+	return availableAttributes.filter(
+		(attr) => attr.values?.length <= maxDistinctValues
+	) as Attribute[];
 }
 
 export function generateRandomTree(order = 100): Graph {
