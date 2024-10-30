@@ -28,6 +28,8 @@
 	import GraphCharacteristics from '../components/GraphCharacteristics.svelte';
 	import { getEventCoords } from '../utils/helperFunctions';
 	import { hoverPopup } from '../components/GUI/hoverPopup.svelte';
+	import Modal from '../components/GUI/Modal.svelte';
+	import { getModalContent } from '../components/GUI/modalState.svelte';
 
 	let graphSettingsLeft = new GraphSettingsClass();
 	let graphSettingsRight: GraphSettingsClass = new GraphSettingsClass();
@@ -278,6 +280,12 @@
 				{/each}
 			</select>
 		</div>
+	{/if}
+</div>
+
+<div>
+	{#if getModalContent()}
+		<Modal modalProps={getModalContent()} />
 	{/if}
 </div>
 

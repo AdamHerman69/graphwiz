@@ -386,7 +386,7 @@ export const graphCharacteristics: { [key: string]: Characteristic<Characteristi
 	discreteAttributes: {
 		type: 'number',
 		getter: (graph: Graph) => {
-			return findDescreteAttributes(graph).length ?? 0;
+			return findDiscreteAttributes(graph).length ?? 0;
 		}
 	}
 });
@@ -429,10 +429,13 @@ function isBipartiteCheck(graph: Graph) {
 	return isBipartite;
 }
 
-export function findDescreteAttributes(graph: Graph, maxDistinctValues = 10): Attribute[] {
-	return availableAttributes.filter(
-		(attr) => attr.values?.length <= maxDistinctValues
-	) as Attribute[];
+export function findDiscreteAttributes(graph: Graph, maxDistinctValues = 10): Attribute[] {
+	return availableAttributes.filter(discreteAttributeFilter) as Attribute[];
+}
+
+const maxDistinctValues = 10;
+export function discreteAttributeFilter(attribute: Attribute): boolean {
+	return attribute.values?.length <= maxDistinctValues;
 }
 
 export function generateRandomTree(order = 100): Graph {

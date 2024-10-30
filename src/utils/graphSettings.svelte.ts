@@ -3,7 +3,7 @@ import {
 	type RangeAttribute,
 	getAttributeValue,
 	getGraph,
-	findDescreteAttributes,
+	discreteAttributeFilter,
 	availableAttributes,
 	type StringAttribute
 } from './graph.svelte';
@@ -14,6 +14,8 @@ import { scaleLinear } from './helperFunctions';
 import { getGradientColor } from './gradient';
 import { edge } from 'graphology-metrics';
 import { Map } from 'svelte/reactivity';
+import { openModal } from '../components/GUI/modalState.svelte.js';
+
 export type Setting<T> = {
 	name: string;
 	value: T;
@@ -306,13 +308,23 @@ export class GraphSettingsClass {
 		return rule;
 	}
 
-	selectDiscreteAttribute(): StringAttribute {
-		let discreteAttributes = findDescreteAttributes(getGraph());
-		if (discreteAttributes.length === 0) throw new Error('No discrete attributes found');
+	async selectAttribute(filter: (attribute: Attribute) => boolean): Promise<Attribute> {
+		let filteredAttributes = availableAttributes.filter(filter);
+		if (filteredAttributes.length === 0) throw new Error('No discrete attributes found');
 
-		// todo let user choose if theres more than one
+		if (filteredAttributes.length === 1) return filteredAttributes[0];
 
-		return discreteAttributes[0];
+		const selectedName = await openModal({
+			text: 'Select discrete attribute',
+			values: filteredAttributes.map((attr) => attr.name)
+		});
+
+		const selectedAttribute = filteredAttributes.find((attr) => attr.name === selectedName);
+		if (!selectedAttribute) throw new Error('Selected attribute not found');
+
+		console.log('selected attribute:', selectedAttribute);
+
+		return selectedAttribute;
 	}
 
 	makeRulesForDiscreteAttribute(attribute: StringAttribute | RangeAttribute) {
@@ -364,11 +376,11 @@ export class GraphSettingsClass {
 		this.graphSettings.nodeSettings.push(...nodeSettings);
 	}
 
-	bindAttributes(attributes: { target: string; setting: string; name?: string }[]) {
+	async bindAttributes(attributes: { target: string; setting: string; name?: string }[]) {
 		attributes.forEach((attribute) => this.bindAttribute(attribute));
 	}
 
-	bindAttribute(attribute: { target: string; setting: string; name?: string }) {
+	async bindAttribute(attribute: { target: string; setting: string; name?: string }) {
 		let settingObject =
 			attribute.target === 'node'
 				? this.graphSettings.nodeSettings[0][attribute.setting]
@@ -376,16 +388,20 @@ export class GraphSettingsClass {
 
 		if (!settingObject) throw new Error('Setting object not found');
 
-		if (attribute.name) {
-			settingObject.attribute = availableAttributes.find((attr) => attr.name === attribute.name);
-		} else {
-			// select attribute
-			// let attr = this.selectAttribute(attribute.target);
-			console.log('not implemented unselected attribute');
+		let attributeToBind = attribute.name
+			? availableAttributes.find((attr) => attr.name === attribute.name)
+			: await this.selectAttribute(
+					(attr) => attr.type === 'number' && attr.owner === attribute.target
+				);
+
+		settingObject.attribute = attributeToBind;
+		settingObject.domainRange = settingObject.attribute?.range;
+		if (!settingObject.selectedRange) {
+			settingObject.selectedRange = [settingObject.min, settingObject.max];
 		}
 	}
 
-	applyGuideline(
+	async applyGuideline(
 		layout: LayoutSettings,
 		nodeSettings: NodeSettings[],
 		edgeSettings: EdgeSettings[],
@@ -396,7 +412,7 @@ export class GraphSettingsClass {
 		console.log(edgeSettings);
 
 		if (attributes?.discrete) {
-			let attribute = this.selectDiscreteAttribute();
+			let attribute = await this.selectAttribute(discreteAttributeFilter);
 			this.makeRulesForDiscreteAttribute(attribute);
 		}
 

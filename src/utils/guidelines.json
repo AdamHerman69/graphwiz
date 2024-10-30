@@ -817,5 +817,92 @@
 				]
 			}
 		}
+	},
+	{
+		"name": "Bind attribute not specified",
+		"description": "Partially drawn edges allow for less visual clutter in dense graphs. Use when the task doesn't call for correctness but rather for speed.",
+		"literature": [
+			"10.1007/978-3-642-25878-7_22",
+			"10.1109/COMSNETS.2017.7945455",
+			"10.1109/iV.2017.43"
+		],
+		"rootCondition": {
+			"weight": 1,
+			"condition": {
+				"type": "composite",
+				"conditions": [
+					{
+						"weight": 1,
+						"condition": {
+							"type": "numeric",
+							"property": "nodeCount",
+							"min": 100,
+							"max": 5000
+						},
+						"weightNormalized": 0.25,
+						"score": 0,
+						"scoreWeighted": 0
+					},
+					{
+						"GUIID": 47,
+						"condition": {
+							"type": "numeric",
+							"property": "density",
+							"min": 0.1,
+							"max": 1,
+							"ideal": 0.5
+						},
+						"weight": 2,
+						"weightNormalized": 0.5,
+						"score": 0.6296296296296295,
+						"scoreWeighted": 0.31481481481481477
+					},
+					{
+						"GUIID": 48,
+						"condition": {
+							"type": "composite",
+							"conditions": [
+								{
+									"GUIID": 49,
+									"condition": {
+										"type": "string",
+										"property": "task",
+										"value": "speed"
+									},
+									"weight": 1,
+									"weightNormalized": 1,
+									"score": 0,
+									"scoreWeighted": 0
+								}
+							]
+						},
+						"weight": 1,
+						"weightNormalized": 0.25,
+						"score": 0,
+						"scoreWeighted": 0
+					},
+					{
+						"GUIID": 50,
+						"condition": {
+							"type": "string",
+							"property": "type",
+							"value": "directed"
+						},
+						"weight": -1,
+						"weightNormalized": 0
+					}
+				]
+			}
+		},
+		"recommendations": {
+			"attributes": {
+				"bind": [
+					{
+						"target": "node",
+						"setting": "size"
+					}
+				]
+			}
+		}
 	}
 ]
