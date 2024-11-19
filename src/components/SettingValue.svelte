@@ -75,7 +75,8 @@
 		type: 'style',
 		edgeType: 'automation',
 		edgeLayout: 'automation',
-		layout: 'linked_services'
+		layout: 'linked_services',
+		bind: 'link'
 	};
 
 	const settingTypes = {
@@ -92,7 +93,8 @@
 		type: 'string',
 		edgeType: 'string',
 		edgeLayout: 'string',
-		layout: 'string'
+		layout: 'string',
+		bind: 'string'
 	};
 
 	let containerRef: HTMLElement;

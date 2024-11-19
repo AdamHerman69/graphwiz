@@ -8,11 +8,12 @@
 </script>
 
 <div class="card cardSpacing modal">
-	<div>{modalProps.text}</div>
+	<div class="modalText">{modalProps.text}</div>
 	{#if modalProps.values}
-		<CustomSelect bind:selected={selectedValue} values={modalProps.values} />
-
-		<button onclick={() => closeModal(selectedValue)}>OK</button>
+		<div class="flex justify-between items-center">
+			<CustomSelect bind:selected={selectedValue} values={modalProps.values} />
+			<button class="applyButton" onclick={() => closeModal(selectedValue)}>apply</button>
+		</div>
 	{/if}
 </div>
 
@@ -23,5 +24,22 @@
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
+		font-size: 13px;
+	}
+
+	.modalText {
+		margin-bottom: 10px;
+		text-transform: uppercase;
+		font-weight: 500;
+	}
+
+	.applyButton {
+		padding: 5px 20px;
+		background-color: black;
+		color: white;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		border-radius: 10px;
+		text-transform: uppercase;
+		font-weight: bold;
 	}
 </style>

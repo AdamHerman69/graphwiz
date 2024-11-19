@@ -93,6 +93,10 @@
 							</button>
 						</div>
 
+						<button class="buttonGeneral" onclick={() => console.log(label)}>
+							<span class="material-symbols-outlined"> info </span>
+						</button>
+
 						<!-- TODO shadow refactor -->
 						<button
 							onclick={() => (colorPickers[index] = !colorPickers[index])}

@@ -126,15 +126,14 @@
 	// todo throttle?
 	$effect(() => {
 		canvasHandler.resize(width, height);
+		console.log('canvas resized', width, height);
 	});
 </script>
 
-<div class="relative h-full w-full">
+<div class="relative h-full w-full" bind:clientWidth={width} bind:clientHeight={height}>
 	<canvas
 		class="h-full w-full"
 		bind:this={canvas}
-		bind:clientWidth={width}
-		bind:clientHeight={height}
 		onmousemove={canvasHandler.detectHover}
 		onclick={canvasHandler.canvasClicked}
 	></canvas>

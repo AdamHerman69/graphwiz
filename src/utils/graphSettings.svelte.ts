@@ -315,7 +315,7 @@ export class GraphSettingsClass {
 		if (filteredAttributes.length === 1) return filteredAttributes[0];
 
 		const selectedName = await openModal({
-			text: 'Select discrete attribute',
+			text: 'Select attribute to visualize',
 			values: filteredAttributes.map((attr) => attr.name)
 		});
 
@@ -330,16 +330,63 @@ export class GraphSettingsClass {
 	makeRulesForDiscreteAttribute(attribute: StringAttribute | RangeAttribute) {
 		let nodeSettings: NodeSettings[] = [];
 
-		// Generate a random color for each distinct value
-		const getRandomColor = (): RgbaColor => ({
-			r: Math.floor(Math.random() * 256),
-			g: Math.floor(Math.random() * 256),
-			b: Math.floor(Math.random() * 256),
-			a: 1
-		});
+		// Generate evenly distributed colors around the color wheel
+		const generateDistinctColors = (count: number): RgbaColor[] => {
+			const colors: RgbaColor[] = [];
+			const hueStep = 360 / count;
+			// Use HSL with fixed saturation and lightness for consistent colors
+			const s = 70; // saturation percentage
+			const l = 50; // lightness percentage
+
+			for (let i = 0; i < count; i++) {
+				const h = i * hueStep;
+				// Convert HSL to RGB
+				const c = ((1 - Math.abs((2 * l) / 100 - 1)) * s) / 100;
+				const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+				const m = l / 100 - c / 2;
+
+				let r = 0,
+					g = 0,
+					b = 0;
+				if (h < 60) {
+					r = c;
+					g = x;
+					b = 0;
+				} else if (h < 120) {
+					r = x;
+					g = c;
+					b = 0;
+				} else if (h < 180) {
+					r = 0;
+					g = c;
+					b = x;
+				} else if (h < 240) {
+					r = 0;
+					g = x;
+					b = c;
+				} else if (h < 300) {
+					r = x;
+					g = 0;
+					b = c;
+				} else {
+					r = c;
+					g = 0;
+					b = x;
+				}
+
+				colors.push({
+					r: Math.round((r + m) * 255),
+					g: Math.round((g + m) * 255),
+					b: Math.round((b + m) * 255),
+					a: 1
+				});
+			}
+			return colors;
+		};
 
 		// Create a rule for each distinct value
-		attribute.values.forEach((value) => {
+		let colors = generateDistinctColors(attribute.values.length);
+		attribute.values.forEach((value, index) => {
 			const rule: Rule = {
 				id: this.newGUIID(),
 				operator: 'AND',
@@ -357,7 +404,7 @@ export class GraphSettingsClass {
 
 			const color: ColorSetting = {
 				name: 'color',
-				value: [[getRandomColor(), 1]],
+				value: [[colors[index], 1]],
 				source: null
 			};
 
@@ -401,12 +448,23 @@ export class GraphSettingsClass {
 		}
 	}
 
+	async addAmbiguousLabels(labels: { target: string }[]) {
+		labels.forEach((label) => {
+			this.graphSettings.nodeSettings[0].labels!.push({ ...label, id: this.newGUIID() });
+		});
+	}
+
 	async applyGuideline(
 		layout: LayoutSettings,
 		nodeSettings: NodeSettings[],
 		edgeSettings: EdgeSettings[],
-		attributes: { discrete: boolean; bind: { target: string; setting: string; name?: string }[] }
+		attributes: {
+			discrete: boolean;
+			bind: { target: string; setting: string; name?: string }[];
+			labels: { target: string }[];
+		}
 	) {
+		console.log('applyGuideline');
 		console.log(layout);
 		console.log(nodeSettings);
 		console.log(edgeSettings);
@@ -418,6 +476,10 @@ export class GraphSettingsClass {
 
 		if (attributes?.bind) {
 			this.bindAttributes(attributes.bind);
+		}
+
+		if (attributes?.labels) {
+			this.addAmbiguousLabels(attributes.labels);
 		}
 
 		if (layout?.type) {
@@ -439,7 +501,17 @@ export class GraphSettingsClass {
 				this.graphSettings.nodeSettings[0].strokeColor = nodeSettings[0].strokeColor;
 			if (nodeSettings[0].labels)
 				nodeSettings[0].labels.forEach((label) => {
-					this.graphSettings.nodeSettings[0].labels!.push({ ...label, id: this.newGUIID() });
+					console.log('label.attribute:', $state.snapshot(label.attribute));
+					if (!label.attribute) {
+						this.selectAttribute((attr) => attr.owner === 'node').then((attr) => {
+							label.attribute = attr;
+							console.log('label:', $state.snapshot(label));
+							this.graphSettings.nodeSettings[0].labels!.push({ ...label, id: this.newGUIID() });
+						});
+						console.log('label:', $state.snapshot(label));
+					} else {
+						this.graphSettings.nodeSettings[0].labels!.push({ ...label, id: this.newGUIID() });
+					}
 				});
 
 			// add new rules
@@ -697,7 +769,7 @@ export function getNodeStyle(id: string, nodeSettings: NodeSettings[]): NodeStyl
 	nodeStyle.labels = $state.snapshot(chosenSettings.labels);
 	nodeStyle.labels.forEach((label) => {
 		if (label.attribute) {
-			label.text = getAttributeValue(id, label.attribute).toString();
+			label.text = getAttributeValue(id, label.attribute)?.toString() ?? '';
 		}
 	});
 

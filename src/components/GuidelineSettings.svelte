@@ -17,6 +17,10 @@
 			layout?: LayoutSettings;
 			edgeSettings?: EdgeSettings[];
 			nodeSettings?: NodeSettings[];
+			attributes?: {
+				discrete: boolean;
+				bind: { target: string; setting: string; name?: string }[];
+			};
 		};
 		conflicts: Conflict[];
 	} = $props();
@@ -110,6 +114,24 @@
 			<div class="flex justify-center align-middle collapserDiv">
 				<Collapser bind:collapsed={edgeCollapsed} horizontal={true} />
 			</div>
+		</div>
+	{/if}
+
+	{#if recommendations.attributes}
+		<div class="flex flex-wrap">
+			{#if recommendations.attributes.discrete}
+				discrete
+			{/if}
+
+			{#each recommendations.attributes.bind as attr, index}
+				<SettingValue
+					setting={{
+						name: 'bind',
+						value: attr.name ? attr.setting + ' - ' + attr.name : attr.setting
+					}}
+					{index}
+				/>
+			{/each}
 		</div>
 	{/if}
 </div>
