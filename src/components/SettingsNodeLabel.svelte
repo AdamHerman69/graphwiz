@@ -93,9 +93,9 @@
 							</button>
 						</div>
 
-						<button class="buttonGeneral" onclick={() => console.log(label)}>
+						<!-- <button class="buttonGeneral" onclick={() => console.log(label)}>
 							<span class="material-symbols-outlined"> info </span>
-						</button>
+						</button> -->
 
 						<!-- TODO shadow refactor -->
 						<button

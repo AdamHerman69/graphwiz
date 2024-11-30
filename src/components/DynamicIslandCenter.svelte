@@ -65,7 +65,7 @@
 			{
 				icon: 'keep',
 				action: () => (stickyLeft = !stickyLeft),
-				label: 'Sticky Right',
+				label: 'Sticky Left',
 				tooltip: 'toggle sticky nodes'
 			},
 			{ icon: 'undo', action: graphSettingsLeft.undo, label: 'Right Undo', tooltip: 'undo' },
@@ -115,7 +115,10 @@
 			{ icon: 'redo', action: graphSettingsLeft.redo, label: 'Right Redo', tooltip: 'redo' },
 			{
 				icon: 'keep',
-				action: () => (stickyLeft = !stickyLeft),
+				action: () => {
+					stickyLeft = !stickyLeft;
+					console.log('stickyyyy');
+				},
 				label: 'Sticky Right',
 				tooltip: 'toggle sticky nodes'
 			}
@@ -544,7 +547,7 @@
 				}}
 				onclick={() => (stickyRight = !stickyRight)}
 				style={`left: ${RIGHT_STICKY_X_MIDDLE - BUTTON_WIDTH / 2}px;`}
-				disabled={graphSettingsRight.graphSettings.layout.value != 'force-graph'}
+				disabled={graphSettingsRight.graphSettings.layout.type?.value != 'force-graph'}
 			>
 				<span class="material-symbols-outlined"> {stickyRight ? 'keep_off' : 'keep'}</span>
 			</button>
@@ -560,7 +563,7 @@
 				transition:blur|global
 				onclick={() => (stickyLeft = !stickyLeft)}
 				style={`left: ${LEFT_STICKY_X_MIDDLE - BUTTON_WIDTH / 2}px;`}
-				disabled={graphSettingsLeft.graphSettings.layout.value != 'force-graph'}
+				disabled={graphSettingsLeft.graphSettings.layout.type?.value != 'force-graph'}
 			>
 				<span class="material-symbols-outlined"> {stickyLeft ? 'keep_off' : 'keep'}</span>
 			</button>
@@ -742,6 +745,9 @@
 	.menuBarButtons button:hover {
 	}
 
+	.menuBarButtons button:disabled {
+		opacity: 0.7;
+	}
 	.importDiv,
 	.exportDiv {
 		position: absolute;

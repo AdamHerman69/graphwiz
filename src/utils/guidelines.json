@@ -651,8 +651,8 @@
 		}
 	},
 	{
-		"name": "Discrete attributes",
-		"description": "Partially drawn edges allow for less visual clutter in dense graphs. Use when the task doesn't call for correctness but rather for speed.",
+		"name": "Differentiate discrete node attributes",
+		"description": "Groups nodes with same attribute values by creating conditional styles for each group and using a distinct color pallete for each one.",
 		"literature": [
 			"10.1007/978-3-642-25878-7_22",
 			"10.1109/COMSNETS.2017.7945455",

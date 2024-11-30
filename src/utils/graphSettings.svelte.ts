@@ -15,6 +15,7 @@ import { getGradientColor } from './gradient';
 import { edge } from 'graphology-metrics';
 import { Map } from 'svelte/reactivity';
 import { openModal } from '../components/GUI/modalState.svelte.js';
+import { getQualitativeColorScheme } from '../paperJS/Color';
 
 export type Setting<T> = {
 	name: string;
@@ -385,7 +386,7 @@ export class GraphSettingsClass {
 		};
 
 		// Create a rule for each distinct value
-		let colors = generateDistinctColors(attribute.values.length);
+		let colors = getQualitativeColorScheme(attribute.values.length);
 		attribute.values.forEach((value, index) => {
 			const rule: Rule = {
 				id: this.newGUIID(),
