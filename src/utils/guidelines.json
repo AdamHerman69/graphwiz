@@ -654,7 +654,7 @@
 		"name": "Differentiate discrete node attributes",
 		"description": "Groups nodes with same attribute values by creating conditional styles for each group and using a distinct color pallete for each one.",
 		"literature": [
-			"10.1007/978-3-642-25878-7_22",
+			"10.1016/j.cag.2010.11.015",
 			"10.1109/COMSNETS.2017.7945455",
 			"10.1109/iV.2017.43"
 		],

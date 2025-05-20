@@ -35,6 +35,9 @@ importers:
       graphology-bipartite:
         specifier: ^0.0.3
         version: 0.0.3(graphology-types@0.24.7)
+      graphology-components:
+        specifier: ^1.5.4
+        version: 1.5.4(graphology-types@0.24.7)
       graphology-dag:
         specifier: ^0.4.1
         version: 0.4.1(graphology-types@0.24.7)
@@ -1176,6 +1179,11 @@ packages:
 
   graphology-bipartite@0.0.3:
     resolution: {integrity: sha512-mLYHs42l5xdEKWzmqQ432kEHwM0klNPZBtuS05X5h5pIYIVp++ChcLtU7Gt8sPaVg72ohOEx2BU7rALM80UJBA==}
+    peerDependencies:
+      graphology-types: '>=0.19.0'
+
+  graphology-components@1.5.4:
+    resolution: {integrity: sha512-O37vC226wgnN0C6FUWHNe4fbTzaF51CcQjwX3naId/QTzH/PkUtXaanCShj9ws5Vju+z4u3zvSeEZE84Bo9jlA==}
     peerDependencies:
       graphology-types: '>=0.19.0'
 
@@ -3027,6 +3035,12 @@ snapshots:
 
   graphology-bipartite@0.0.3(graphology-types@0.24.7):
     dependencies:
+      graphology-types: 0.24.7
+      graphology-utils: 2.5.2(graphology-types@0.24.7)
+
+  graphology-components@1.5.4(graphology-types@0.24.7):
+    dependencies:
+      graphology-indices: 0.17.0(graphology-types@0.24.7)
       graphology-types: 0.24.7
       graphology-utils: 2.5.2(graphology-types@0.24.7)
 

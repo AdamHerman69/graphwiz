@@ -119,9 +119,9 @@
 
 	{#if recommendations.attributes}
 		<div class="flex flex-wrap">
-			{#if recommendations.attributes.discrete}
+			<!-- {#if recommendations.attributes.discrete}
 				discrete
-			{/if}
+			{/if} -->
 
 			{#each recommendations.attributes.bind as attr, index}
 				<SettingValue

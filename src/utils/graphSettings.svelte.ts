@@ -146,7 +146,8 @@ export const layoutTypes = [
 	'random',
 	'sporeOverlap',
 	'box',
-	'rectpacking'
+	'rectpacking',
+	'org.eclipse.elk.graphviz.circo'
 ] as const;
 export type LayoutType = (typeof layoutTypes)[number];
 export let orthogonalBendPoints: Map<string, { x: number; y: number }[]> = new Map();

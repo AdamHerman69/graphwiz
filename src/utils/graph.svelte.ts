@@ -8,6 +8,7 @@ import { sortGuidelines, type Task, tasks } from './guideline.svelte';
 import { bfs } from 'graphology-traversal';
 import { graph } from 'graphology-metrics';
 import { clusters } from 'graphology-generators/random';
+import { countConnectedComponents, stronglyConnectedComponents } from 'graphology-components';
 
 export type Attribute = {
 	name: string;
@@ -388,6 +389,30 @@ export const graphCharacteristics: { [key: string]: Characteristic<Characteristi
 		getter: (graph: Graph) => {
 			return findDiscreteAttributes(graph).length ?? 0;
 		}
+	},
+	edgeNumericAttribute: {
+		type: 'boolean',
+		getter: (graph: Graph) => {
+			return availableAttributes.some((attr) => attr.owner === 'edge' && attr.type === 'number');
+		}
+	},
+	nodeNumericAttribute: {
+		type: 'boolean',
+		getter: (graph: Graph) => {
+			return availableAttributes.some((attr) => attr.owner === 'node' && attr.type === 'number');
+		}
+	},
+	connectedComponents: {
+		type: 'number',
+		getter: (graph: Graph) => {
+			return countConnectedComponents(graph);
+		}
+	},
+	stronglyConnectedComponents: {
+		type: 'number',
+		getter: (graph: Graph) => {
+			return stronglyConnectedComponents(graph).length;
+		}
 	}
 });
 
@@ -433,7 +458,7 @@ export function findDiscreteAttributes(graph: Graph, maxDistinctValues = 10): At
 	return availableAttributes.filter(discreteAttributeFilter) as Attribute[];
 }
 
-const maxDistinctValues = 10;
+const maxDistinctValues = 12;
 export function discreteAttributeFilter(attribute: Attribute): boolean {
 	return attribute.values?.length <= maxDistinctValues;
 }

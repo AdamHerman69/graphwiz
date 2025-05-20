@@ -21,14 +21,21 @@ export type GuidelineStatus = {
 export type Task = {
 	name: string;
 	description: string;
+	category: string;
 	icon?: string;
 };
 
 export let tasks = $state({
 	tasks: [
-		{ name: 'Path Finding', description: 'neco' },
-		{ name: 'Cluster Detection', description: 'neco' },
-		{ name: 'Other task', description: 'neco' }
+		{ name: 'Path Finding', description: 'neco', category: 'topology' },
+		{ name: 'Cluster Detection', description: 'neco', category: 'topology' },
+		{ name: 'Accesibility', description: 'neco', category: 'topology' },
+		{ name: 'Attribute filtering', description: 'neco', category: 'attributes' },
+		{ name: 'Attribute distribution', description: 'neco', category: 'attributes' },
+		{ name: 'Attribute comparison', description: 'neco', category: 'attributes' },
+		{ name: 'Path following', description: 'neco', category: 'browsing' },
+		{ name: 'Neighborhood exploration', description: 'neco', category: 'browsing' },
+		{ name: 'Overview', description: 'neco', category: 'browsing' }
 	],
 	selectedTask: { name: 'Path Finding', description: 'neco' }
 });
