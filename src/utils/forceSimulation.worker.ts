@@ -81,7 +81,9 @@ onmessage = function (event) {
 		nodeId,
 		position,
 		zeroAlphaTarget,
-		resetFixedPosition
+		resetFixedPosition,
+		x,
+		y
 	}: {
 		type: string;
 		nodes: D3Node[];
@@ -92,6 +94,8 @@ onmessage = function (event) {
 		position: { fx: number; fy: number };
 		zeroAlphaTarget: boolean;
 		resetFixedPosition: boolean;
+		x?: number;
+		y?: number;
 	} = event.data;
 	switch (type) {
 		case 'startSimulation':
@@ -176,6 +180,18 @@ onmessage = function (event) {
 				nodes: d3nodes,
 				links: d3links
 			});
+			break;
+		case 'setCursorForce':
+			if (typeof x === 'number' && typeof y === 'number' && simulation) {
+				const repulseForce = d3.forceRadial(200, x, y).strength(0.01);
+				simulation.force('cursor', repulseForce);
+				simulation.alpha(0.3).restart();
+			}
+			break;
+		case 'clearCursorForce':
+			if (simulation) {
+				simulation.force('cursor', null);
+			}
 			break;
 		default:
 			console.error('Unknown message type:', type);

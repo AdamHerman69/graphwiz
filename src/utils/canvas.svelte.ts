@@ -121,14 +121,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		return this.edgeLayout !== 'bundled' && this.edgeLayout !== 'orthogonal';
 	});
 
-	// bundled: boolean = $derived.by(() => {
-	// 	for (const edgeStyle of this.edgeStyles) {
-	// 		if (edgeStyle[1].type === 'bundled') {
-	// 			return true;
-	// 		}
-	// 	}
-	// 	return false;
-	// });
+	disablePanZoom: boolean = false;
 
 	constructor(canvas?: HTMLCanvasElement, width?: number, height?: number, graph?: Graph) {
 		this.getD3Node = this.getD3Node.bind(this);
@@ -219,10 +212,6 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 		this.nodeStyles = nodeStyles;
 		this.edgeStyles = edgeStyles;
 
-		// console.log('edgeLayout', edgeLayout.value);
-		// console.log('edgeStyles', edgeStyles);
-		// console.log('nodeStyles', nodeStyles);
-
 		// renderer
 		if (this.paperRenderer)
 			this.paperRenderer.restart(
@@ -244,8 +233,27 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			);
 
 		// drag and zoom
-		d3.select(this.canvas)
-			.call(
+		if (!this.disablePanZoom) {
+			d3.select(this.canvas)
+				.call(
+					d3
+						.drag<HTMLCanvasElement, unknown>()
+						.container(this.canvas as d3.DragContainerElement)
+						.subject(this.getD3NodeRegardlessCanvas)
+						.on('start', this.dragStarted)
+						.on('drag', this.dragged)
+						.on('end', this.dragEnded)
+				)
+				.call(
+					d3
+						.zoom<HTMLCanvasElement, unknown>()
+						.scaleExtent([1 / 10, 8])
+						.on('zoom', (zoomEvent) => {
+							this.transform = this.paperRenderer.zoomed(zoomEvent);
+						})
+				);
+		} else {
+			d3.select(this.canvas).call(
 				d3
 					.drag<HTMLCanvasElement, unknown>()
 					.container(this.canvas as d3.DragContainerElement)
@@ -253,15 +261,8 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 					.on('start', this.dragStarted)
 					.on('drag', this.dragged)
 					.on('end', this.dragEnded)
-			)
-			.call(
-				d3
-					.zoom<HTMLCanvasElement, unknown>()
-					.scaleExtent([1 / 10, 8])
-					.on('zoom', (zoomEvent) => {
-						this.transform = this.paperRenderer.zoomed(zoomEvent);
-					})
 			);
+		}
 		this.changeLayout(layout);
 		this.started = true;
 	}

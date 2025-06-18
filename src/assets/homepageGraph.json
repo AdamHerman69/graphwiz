@@ -1,0 +1,984 @@
+{
+  "settings": {
+    "guiID": 66,
+    "layout": {
+      "type": {
+        "name": "layout",
+        "values": [
+          "force-graph",
+          "layered",
+          "stress",
+          "disco",
+          "force",
+          "radial",
+          "mrtree",
+          "sporeCompaction",
+          "random",
+          "sporeOverlap",
+          "box",
+          "rectpacking",
+          "org.eclipse.elk.graphviz.circo"
+        ],
+        "value": "force-graph",
+        "source": null,
+        "loading": false
+      },
+      "edgeType": {
+        "name": "edgeLayout",
+        "values": [
+          "straight",
+          "orthogonal",
+          "bundled"
+        ],
+        "value": "straight",
+        "source": null,
+        "loading": false
+      }
+    },
+    "nodeSettings": [
+      {
+        "shape": {
+          "name": "shape",
+          "values": [
+            "circle",
+            "square",
+            "triangle"
+          ],
+          "value": "circle",
+          "source": null
+        },
+        "size": {
+          "name": "size",
+          "value": 8,
+          "min": 1,
+          "max": 10,
+          "source": null
+        },
+        "color": {
+          "name": "color",
+          "value": [
+            [
+              {
+                "r": 80,
+                "g": 220,
+                "b": 180,
+                "a": 1
+              },
+              1
+            ]
+          ],
+          "source": null
+        },
+        "strokeWidth": {
+          "name": "strokeWidth",
+          "value": 1,
+          "min": 0,
+          "max": 10,
+          "source": null
+        },
+        "strokeColor": {
+          "name": "strokeColor",
+          "value": [
+            [
+              {
+                "r": 80,
+                "g": 220,
+                "b": 180,
+                "a": 1
+              },
+              1
+            ]
+          ],
+          "source": null
+        },
+        "labels": [],
+        "id": 1,
+        "priority": 0,
+        "source": null
+      }
+    ],
+    "edgeSettings": [
+      {
+        "type": {
+          "name": "type",
+          "values": [
+            "straight",
+            "conical"
+          ],
+          "value": "straight",
+          "source": null,
+          "loading": false
+        },
+        "width": {
+          "name": "width",
+          "value": 2,
+          "min": 0,
+          "max": 5,
+          "increment": 0.5,
+          "source": null
+        },
+        "color": {
+          "name": "color",
+          "value": [
+            [
+              {
+                "r": 115,
+                "g": 80,
+                "b": 214,
+                "a": 1
+              },
+              0
+            ],
+            [
+              {
+                "r": 80,
+                "g": 220,
+                "b": 180,
+                "a": 1
+              },
+              1
+            ]
+          ],
+          "source": null
+        },
+        "partialStart": {
+          "name": "partialStart",
+          "value": 0,
+          "min": 0,
+          "max": 1,
+          "increment": 0.05,
+          "source": null
+        },
+        "partialEnd": {
+          "name": "partialEnd",
+          "value": 1,
+          "min": 0,
+          "max": 1,
+          "increment": 0.05,
+          "source": null
+        },
+        "decorators": {
+          "types": [
+            "triangle",
+            "circle",
+            "square"
+          ],
+          "name": "decorators",
+          "value": [],
+          "source": null
+        },
+        "labels": [],
+        "id": 2,
+        "priority": 0,
+        "source": null
+      }
+    ]
+  },
+  "graph": {
+    "options": {
+      "type": "undirected",
+      "multi": false,
+      "allowSelfLoops": true
+    },
+    "attributes": {},
+    "nodes": [
+      {
+        "key": "0"
+      },
+      {
+        "key": "1"
+      },
+      {
+        "key": "2"
+      },
+      {
+        "key": "3"
+      },
+      {
+        "key": "4"
+      },
+      {
+        "key": "5"
+      },
+      {
+        "key": "6"
+      },
+      {
+        "key": "7"
+      },
+      {
+        "key": "8"
+      },
+      {
+        "key": "9"
+      },
+      {
+        "key": "10"
+      },
+      {
+        "key": "11"
+      },
+      {
+        "key": "12"
+      },
+      {
+        "key": "13"
+      },
+      {
+        "key": "14"
+      },
+      {
+        "key": "15"
+      },
+      {
+        "key": "16"
+      },
+      {
+        "key": "17"
+      },
+      {
+        "key": "18"
+      },
+      {
+        "key": "19"
+      },
+      {
+        "key": "20"
+      },
+      {
+        "key": "21"
+      },
+      {
+        "key": "22"
+      },
+      {
+        "key": "23"
+      },
+      {
+        "key": "24"
+      },
+      {
+        "key": "25"
+      },
+      {
+        "key": "26"
+      },
+      {
+        "key": "27"
+      },
+      {
+        "key": "28"
+      },
+      {
+        "key": "29"
+      },
+      {
+        "key": "30"
+      },
+      {
+        "key": "31"
+      },
+      {
+        "key": "32"
+      },
+      {
+        "key": "33"
+      },
+      {
+        "key": "34"
+      },
+      {
+        "key": "35"
+      },
+      {
+        "key": "36"
+      },
+      {
+        "key": "37"
+      },
+      {
+        "key": "38"
+      },
+      {
+        "key": "39"
+      },
+      {
+        "key": "40"
+      },
+      {
+        "key": "41"
+      },
+      {
+        "key": "42"
+      },
+      {
+        "key": "43"
+      },
+      {
+        "key": "44"
+      },
+      {
+        "key": "45"
+      },
+      {
+        "key": "46"
+      },
+      {
+        "key": "47"
+      },
+      {
+        "key": "48"
+      },
+      {
+        "key": "49"
+      },
+      {
+        "key": "50"
+      },
+      {
+        "key": "51"
+      },
+      {
+        "key": "52"
+      },
+      {
+        "key": "53"
+      },
+      {
+        "key": "54"
+      },
+      {
+        "key": "55"
+      },
+      {
+        "key": "56"
+      },
+      {
+        "key": "57"
+      },
+      {
+        "key": "58"
+      },
+      {
+        "key": "59"
+      },
+      {
+        "key": "60"
+      },
+      {
+        "key": "61"
+      },
+      {
+        "key": "62"
+      },
+      {
+        "key": "63"
+      },
+      {
+        "key": "64"
+      },
+      {
+        "key": "65"
+      },
+      {
+        "key": "66"
+      },
+      {
+        "key": "67"
+      },
+      {
+        "key": "68"
+      },
+      {
+        "key": "69"
+      },
+      {
+        "key": "70"
+      },
+      {
+        "key": "71"
+      },
+      {
+        "key": "72"
+      },
+      {
+        "key": "73"
+      },
+      {
+        "key": "74"
+      },
+      {
+        "key": "75"
+      },
+      {
+        "key": "76"
+      },
+      {
+        "key": "77"
+      },
+      {
+        "key": "78"
+      },
+      {
+        "key": "79"
+      },
+      {
+        "key": "80"
+      },
+      {
+        "key": "81"
+      },
+      {
+        "key": "82"
+      },
+      {
+        "key": "83"
+      },
+      {
+        "key": "84"
+      },
+      {
+        "key": "85"
+      },
+      {
+        "key": "86"
+      },
+      {
+        "key": "87"
+      },
+      {
+        "key": "88"
+      },
+      {
+        "key": "89"
+      },
+      {
+        "key": "90"
+      },
+      {
+        "key": "91"
+      },
+      {
+        "key": "92"
+      },
+      {
+        "key": "93"
+      },
+      {
+        "key": "94"
+      },
+      {
+        "key": "95"
+      },
+      {
+        "key": "96"
+      },
+      {
+        "key": "97"
+      },
+      {
+        "key": "98"
+      },
+      {
+        "key": "99"
+      }
+    ],
+    "edges": [
+      {
+        "key": "geid_178_0",
+        "source": "1",
+        "target": "0"
+      },
+      {
+        "key": "geid_178_1",
+        "source": "2",
+        "target": "1"
+      },
+      {
+        "key": "geid_178_2",
+        "source": "3",
+        "target": "2"
+      },
+      {
+        "key": "geid_178_3",
+        "source": "4",
+        "target": "2"
+      },
+      {
+        "key": "geid_178_4",
+        "source": "5",
+        "target": "2"
+      },
+      {
+        "key": "geid_178_5",
+        "source": "6",
+        "target": "4"
+      },
+      {
+        "key": "geid_178_6",
+        "source": "7",
+        "target": "6"
+      },
+      {
+        "key": "geid_178_7",
+        "source": "8",
+        "target": "5"
+      },
+      {
+        "key": "geid_178_8",
+        "source": "9",
+        "target": "6"
+      },
+      {
+        "key": "geid_178_9",
+        "source": "10",
+        "target": "0"
+      },
+      {
+        "key": "geid_178_10",
+        "source": "11",
+        "target": "0"
+      },
+      {
+        "key": "geid_178_11",
+        "source": "12",
+        "target": "2"
+      },
+      {
+        "key": "geid_178_12",
+        "source": "13",
+        "target": "11"
+      },
+      {
+        "key": "geid_178_13",
+        "source": "14",
+        "target": "8"
+      },
+      {
+        "key": "geid_178_14",
+        "source": "15",
+        "target": "4"
+      },
+      {
+        "key": "geid_178_15",
+        "source": "16",
+        "target": "5"
+      },
+      {
+        "key": "geid_178_16",
+        "source": "17",
+        "target": "16"
+      },
+      {
+        "key": "geid_178_17",
+        "source": "18",
+        "target": "1"
+      },
+      {
+        "key": "geid_178_18",
+        "source": "19",
+        "target": "14"
+      },
+      {
+        "key": "geid_178_19",
+        "source": "20",
+        "target": "11"
+      },
+      {
+        "key": "geid_178_20",
+        "source": "21",
+        "target": "11"
+      },
+      {
+        "key": "geid_178_21",
+        "source": "22",
+        "target": "1"
+      },
+      {
+        "key": "geid_178_22",
+        "source": "23",
+        "target": "2"
+      },
+      {
+        "key": "geid_178_23",
+        "source": "24",
+        "target": "10"
+      },
+      {
+        "key": "geid_178_24",
+        "source": "25",
+        "target": "4"
+      },
+      {
+        "key": "geid_178_25",
+        "source": "26",
+        "target": "21"
+      },
+      {
+        "key": "geid_178_26",
+        "source": "27",
+        "target": "13"
+      },
+      {
+        "key": "geid_178_27",
+        "source": "28",
+        "target": "10"
+      },
+      {
+        "key": "geid_178_28",
+        "source": "29",
+        "target": "1"
+      },
+      {
+        "key": "geid_178_29",
+        "source": "30",
+        "target": "0"
+      },
+      {
+        "key": "geid_178_30",
+        "source": "31",
+        "target": "17"
+      },
+      {
+        "key": "geid_178_31",
+        "source": "32",
+        "target": "3"
+      },
+      {
+        "key": "geid_178_32",
+        "source": "33",
+        "target": "9"
+      },
+      {
+        "key": "geid_178_33",
+        "source": "34",
+        "target": "1"
+      },
+      {
+        "key": "geid_178_34",
+        "source": "35",
+        "target": "15"
+      },
+      {
+        "key": "geid_178_35",
+        "source": "36",
+        "target": "22"
+      },
+      {
+        "key": "geid_178_36",
+        "source": "37",
+        "target": "20"
+      },
+      {
+        "key": "geid_178_37",
+        "source": "38",
+        "target": "29"
+      },
+      {
+        "key": "geid_178_38",
+        "source": "39",
+        "target": "25"
+      },
+      {
+        "key": "geid_178_39",
+        "source": "40",
+        "target": "37"
+      },
+      {
+        "key": "geid_178_40",
+        "source": "41",
+        "target": "11"
+      },
+      {
+        "key": "geid_178_41",
+        "source": "42",
+        "target": "9"
+      },
+      {
+        "key": "geid_178_42",
+        "source": "43",
+        "target": "16"
+      },
+      {
+        "key": "geid_178_43",
+        "source": "44",
+        "target": "40"
+      },
+      {
+        "key": "geid_178_44",
+        "source": "45",
+        "target": "40"
+      },
+      {
+        "key": "geid_178_45",
+        "source": "46",
+        "target": "12"
+      },
+      {
+        "key": "geid_178_46",
+        "source": "47",
+        "target": "37"
+      },
+      {
+        "key": "geid_178_47",
+        "source": "48",
+        "target": "0"
+      },
+      {
+        "key": "geid_178_48",
+        "source": "49",
+        "target": "40"
+      },
+      {
+        "key": "geid_178_49",
+        "source": "50",
+        "target": "25"
+      },
+      {
+        "key": "geid_178_50",
+        "source": "51",
+        "target": "4"
+      },
+      {
+        "key": "geid_178_51",
+        "source": "52",
+        "target": "40"
+      },
+      {
+        "key": "geid_178_52",
+        "source": "53",
+        "target": "19"
+      },
+      {
+        "key": "geid_178_53",
+        "source": "54",
+        "target": "34"
+      },
+      {
+        "key": "geid_178_54",
+        "source": "55",
+        "target": "11"
+      },
+      {
+        "key": "geid_178_55",
+        "source": "56",
+        "target": "28"
+      },
+      {
+        "key": "geid_178_56",
+        "source": "57",
+        "target": "36"
+      },
+      {
+        "key": "geid_178_57",
+        "source": "58",
+        "target": "2"
+      },
+      {
+        "key": "geid_178_58",
+        "source": "59",
+        "target": "8"
+      },
+      {
+        "key": "geid_178_59",
+        "source": "60",
+        "target": "29"
+      },
+      {
+        "key": "geid_178_60",
+        "source": "61",
+        "target": "16"
+      },
+      {
+        "key": "geid_178_61",
+        "source": "62",
+        "target": "29"
+      },
+      {
+        "key": "geid_178_62",
+        "source": "63",
+        "target": "21"
+      },
+      {
+        "key": "geid_178_63",
+        "source": "64",
+        "target": "16"
+      },
+      {
+        "key": "geid_178_64",
+        "source": "65",
+        "target": "40"
+      },
+      {
+        "key": "geid_178_65",
+        "source": "66",
+        "target": "30"
+      },
+      {
+        "key": "geid_178_66",
+        "source": "67",
+        "target": "21"
+      },
+      {
+        "key": "geid_178_67",
+        "source": "68",
+        "target": "7"
+      },
+      {
+        "key": "geid_178_68",
+        "source": "69",
+        "target": "32"
+      },
+      {
+        "key": "geid_178_69",
+        "source": "70",
+        "target": "8"
+      },
+      {
+        "key": "geid_178_70",
+        "source": "71",
+        "target": "20"
+      },
+      {
+        "key": "geid_178_71",
+        "source": "72",
+        "target": "25"
+      },
+      {
+        "key": "geid_178_72",
+        "source": "73",
+        "target": "70"
+      },
+      {
+        "key": "geid_178_73",
+        "source": "74",
+        "target": "58"
+      },
+      {
+        "key": "geid_178_74",
+        "source": "75",
+        "target": "31"
+      },
+      {
+        "key": "geid_178_75",
+        "source": "76",
+        "target": "39"
+      },
+      {
+        "key": "geid_178_76",
+        "source": "77",
+        "target": "69"
+      },
+      {
+        "key": "geid_178_77",
+        "source": "78",
+        "target": "19"
+      },
+      {
+        "key": "geid_178_78",
+        "source": "79",
+        "target": "21"
+      },
+      {
+        "key": "geid_178_79",
+        "source": "80",
+        "target": "50"
+      },
+      {
+        "key": "geid_178_80",
+        "source": "81",
+        "target": "76"
+      },
+      {
+        "key": "geid_178_81",
+        "source": "82",
+        "target": "8"
+      },
+      {
+        "key": "geid_178_82",
+        "source": "83",
+        "target": "67"
+      },
+      {
+        "key": "geid_178_83",
+        "source": "84",
+        "target": "4"
+      },
+      {
+        "key": "geid_178_84",
+        "source": "85",
+        "target": "26"
+      },
+      {
+        "key": "geid_178_85",
+        "source": "86",
+        "target": "36"
+      },
+      {
+        "key": "geid_178_86",
+        "source": "87",
+        "target": "50"
+      },
+      {
+        "key": "geid_178_87",
+        "source": "88",
+        "target": "69"
+      },
+      {
+        "key": "geid_178_88",
+        "source": "89",
+        "target": "26"
+      },
+      {
+        "key": "geid_178_89",
+        "source": "90",
+        "target": "78"
+      },
+      {
+        "key": "geid_178_90",
+        "source": "91",
+        "target": "16"
+      },
+      {
+        "key": "geid_178_91",
+        "source": "92",
+        "target": "25"
+      },
+      {
+        "key": "geid_178_92",
+        "source": "93",
+        "target": "91"
+      },
+      {
+        "key": "geid_178_93",
+        "source": "94",
+        "target": "28"
+      },
+      {
+        "key": "geid_178_94",
+        "source": "95",
+        "target": "5"
+      },
+      {
+        "key": "geid_178_95",
+        "source": "96",
+        "target": "72"
+      },
+      {
+        "key": "geid_178_96",
+        "source": "97",
+        "target": "95"
+      },
+      {
+        "key": "geid_178_97",
+        "source": "98",
+        "target": "53"
+      },
+      {
+        "key": "geid_178_98",
+        "source": "99",
+        "target": "76"
+      }
+    ]
+  }
+}
