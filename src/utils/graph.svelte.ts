@@ -489,3 +489,360 @@ export function generateRandomTree(order = 100): Graph {
 
 	return graph;
 }
+
+export function loadCitationNetwork(): Graph {
+	// Create a realistic academic citation network
+	const papers = [
+		// Core papers in graph visualization
+		{
+			id: 'p1',
+			title: 'Force-Directed Graph Drawing Algorithms',
+			authors: ['Eades P'],
+			year: 1984,
+			citations: 1200,
+			area: 'graph-algorithms'
+		},
+		{
+			id: 'p2',
+			title: 'A Multi-Level Algorithm for Force-Directed Graph Drawing',
+			authors: ['Walshaw C'],
+			year: 2000,
+			citations: 800,
+			area: 'graph-algorithms'
+		},
+		{
+			id: 'p3',
+			title: 'Graph Drawing by Force-Directed Placement',
+			authors: ['Fruchterman TMJ', 'Reingold EM'],
+			year: 1991,
+			citations: 1500,
+			area: 'graph-algorithms'
+		},
+		{
+			id: 'p4',
+			title: 'Efficient and High Quality Force-Directed Graph Drawing',
+			authors: ['Hachul S', 'Jünger M'],
+			year: 2004,
+			citations: 600,
+			area: 'graph-algorithms'
+		},
+
+		// Network analysis papers
+		{
+			id: 'p5',
+			title: 'The Structure and Function of Complex Networks',
+			authors: ['Newman MEJ'],
+			year: 2003,
+			citations: 2000,
+			area: 'network-analysis'
+		},
+		{
+			id: 'p6',
+			title: 'Finding and Evaluating Community Structure in Networks',
+			authors: ['Newman MEJ', 'Girvan M'],
+			year: 2004,
+			citations: 1800,
+			area: 'network-analysis'
+		},
+		{
+			id: 'p7',
+			title: 'Community Detection in Networks',
+			authors: ['Fortunato S'],
+			year: 2010,
+			citations: 1200,
+			area: 'network-analysis'
+		},
+		{
+			id: 'p8',
+			title: 'Modularity and Community Structure in Networks',
+			authors: ['Newman MEJ'],
+			year: 2006,
+			citations: 1600,
+			area: 'network-analysis'
+		},
+
+		// Social network papers
+		{
+			id: 'p9',
+			title: 'The Strength of Weak Ties',
+			authors: ['Granovetter MS'],
+			year: 1973,
+			citations: 2500,
+			area: 'social-networks'
+		},
+		{
+			id: 'p10',
+			title: 'Social Network Analysis: Methods and Applications',
+			authors: ['Wasserman S', 'Faust K'],
+			year: 1994,
+			citations: 1400,
+			area: 'social-networks'
+		},
+		{
+			id: 'p11',
+			title: 'The Small World Problem',
+			authors: ['Milgram S'],
+			year: 1967,
+			citations: 3000,
+			area: 'social-networks'
+		},
+		{
+			id: 'p12',
+			title: 'Six Degrees of Separation',
+			authors: ['Watts DJ', 'Strogatz SH'],
+			year: 1998,
+			citations: 2200,
+			area: 'social-networks'
+		},
+
+		// Information visualization papers
+		{
+			id: 'p13',
+			title: 'The Visual Display of Quantitative Information',
+			authors: ['Tufte ER'],
+			year: 1983,
+			citations: 1800,
+			area: 'visualization'
+		},
+		{
+			id: 'p14',
+			title: 'Envisioning Information',
+			authors: ['Tufte ER'],
+			year: 1990,
+			citations: 1200,
+			area: 'visualization'
+		},
+		{
+			id: 'p15',
+			title: 'Interactive Data Visualization',
+			authors: ['Heer J', 'Bostock M', 'Ogievetsky V'],
+			year: 2010,
+			citations: 900,
+			area: 'visualization'
+		},
+		{
+			id: 'p16',
+			title: 'D3: Data-Driven Documents',
+			authors: ['Bostock M', 'Ogievetsky V', 'Heer J'],
+			year: 2011,
+			citations: 1100,
+			area: 'visualization'
+		},
+
+		// Machine learning and networks
+		{
+			id: 'p17',
+			title: 'Deep Learning on Graphs',
+			authors: ['Hamilton WL'],
+			year: 2020,
+			citations: 800,
+			area: 'ml-networks'
+		},
+		{
+			id: 'p18',
+			title: 'Graph Neural Networks',
+			authors: ['Wu Z', 'Pan S', 'Chen F'],
+			year: 2020,
+			citations: 700,
+			area: 'ml-networks'
+		},
+		{
+			id: 'p19',
+			title: 'Semi-Supervised Classification with Graph Convolutional Networks',
+			authors: ['Kipf TN', 'Welling M'],
+			year: 2017,
+			citations: 1000,
+			area: 'ml-networks'
+		},
+		{
+			id: 'p20',
+			title: 'Graph Attention Networks',
+			authors: ['Veličković P', 'Cucurull G', 'Casanova A'],
+			year: 2018,
+			citations: 900,
+			area: 'ml-networks'
+		},
+
+		// Biological networks
+		{
+			id: 'p21',
+			title: "Network Biology: Understanding the Cell's Functional Organization",
+			authors: ['Barabási AL', 'Oltvai ZN'],
+			year: 2004,
+			citations: 1100,
+			area: 'biological'
+		},
+		{
+			id: 'p22',
+			title: 'Protein Interaction Networks',
+			authors: ['Ito T', 'Chiba T', 'Ozawa R'],
+			year: 2001,
+			citations: 800,
+			area: 'biological'
+		},
+		{
+			id: 'p23',
+			title: 'Metabolic Networks',
+			authors: ['Jeong H', 'Tombor B', 'Albert R'],
+			year: 2000,
+			citations: 700,
+			area: 'biological'
+		},
+		{
+			id: 'p24',
+			title: 'Gene Regulatory Networks',
+			authors: ['Shen-Orr SS', 'Milo R', 'Mangan S'],
+			year: 2002,
+			citations: 600,
+			area: 'biological'
+		},
+
+		// Internet and web networks
+		{
+			id: 'p25',
+			title: "The Internet's Small World",
+			authors: ['Adamic LA'],
+			year: 1999,
+			citations: 500,
+			area: 'internet'
+		},
+		{
+			id: 'p26',
+			title: 'Web Graph Structure',
+			authors: ['Broder A', 'Kumar R', 'Maghoul F'],
+			year: 2000,
+			citations: 600,
+			area: 'internet'
+		},
+		{
+			id: 'p27',
+			title: 'Power-Law Distribution of the World Wide Web',
+			authors: ['Barabási AL', 'Albert R', 'Jeong H'],
+			year: 1999,
+			citations: 800,
+			area: 'internet'
+		},
+		{
+			id: 'p28',
+			title: 'The Web as a Graph',
+			authors: ['Kleinberg JM', 'Kumar R', 'Raghavan P'],
+			year: 1999,
+			citations: 400,
+			area: 'internet'
+		},
+
+		// Recent influential papers
+		{
+			id: 'p29',
+			title: 'Attention Is All You Need',
+			authors: ['Vaswani A', 'Shazeer N', 'Parmar N'],
+			year: 2017,
+			citations: 1500,
+			area: 'ml-networks'
+		},
+		{
+			id: 'p30',
+			title: 'BERT: Pre-training of Deep Bidirectional Transformers',
+			authors: ['Devlin J', 'Chang MW', 'Lee K'],
+			year: 2019,
+			citations: 1200,
+			area: 'ml-networks'
+		},
+		{
+			id: 'p31',
+			title: 'GraphSAGE: Inductive Representation Learning on Large Graphs',
+			authors: ['Hamilton WL', 'Ying R', 'Leskovec J'],
+			year: 2017,
+			citations: 800,
+			area: 'ml-networks'
+		},
+		{
+			id: 'p32',
+			title: 'Node2Vec: Scalable Feature Learning for Networks',
+			authors: ['Grover A', 'Leskovec J'],
+			year: 2016,
+			citations: 900,
+			area: 'ml-networks'
+		}
+	];
+
+	// Create citation relationships (realistic citation patterns)
+	const citations = [
+		// Graph algorithms citing each other
+		['p2', 'p1'],
+		['p3', 'p1'],
+		['p4', 'p1'],
+		['p4', 'p2'],
+		['p4', 'p3'],
+
+		// Network analysis papers citing graph algorithms
+		['p5', 'p3'],
+		['p6', 'p5'],
+		['p7', 'p6'],
+		['p8', 'p6'],
+		['p8', 'p5'],
+
+		// Social networks citing network analysis
+		['p10', 'p5'],
+		['p12', 'p11'],
+		['p12', 'p5'],
+
+		// Visualization papers citing graph algorithms
+		['p15', 'p3'],
+		['p16', 'p15'],
+		['p16', 'p3'],
+
+		// ML papers citing network analysis and graph algorithms
+		['p17', 'p5'],
+		['p17', 'p7'],
+		['p18', 'p17'],
+		['p19', 'p17'],
+		['p20', 'p19'],
+		['p31', 'p17'],
+		['p32', 'p17'],
+		['p31', 'p32'],
+
+		// Biological networks citing network analysis
+		['p21', 'p5'],
+		['p22', 'p21'],
+		['p23', 'p21'],
+		['p24', 'p21'],
+
+		// Internet papers citing network analysis
+		['p25', 'p5'],
+		['p26', 'p25'],
+		['p27', 'p5'],
+		['p28', 'p26'],
+
+		// Recent papers citing foundational work
+		['p29', 'p17'],
+		['p30', 'p29'],
+		['p31', 'p18'],
+		['p32', 'p18']
+	];
+
+	// Create the graph
+	const graph = new Graph();
+
+	// Add nodes (papers)
+	papers.forEach((paper) => {
+		graph.addNode(paper.id, {
+			title: paper.title,
+			authors: paper.authors,
+			year: paper.year,
+			citations: paper.citations,
+			area: paper.area,
+			label: paper.title.substring(0, 30) + (paper.title.length > 30 ? '...' : '')
+		});
+	});
+
+	// Add edges (citations)
+	citations.forEach(([source, target]) => {
+		graph.addEdge(source, target, {
+			type: 'cites',
+			weight: 1
+		});
+	});
+
+	return graph;
+}

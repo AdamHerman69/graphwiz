@@ -8,11 +8,15 @@
 	import { importGraphJSON } from '../utils/graph.svelte';
 	import type { Guideline } from '../utils/guideline.svelte';
 	import homepageGraph from '../assets/homepageGraph.json';
+	import { loadCitationNetwork } from '../utils/graph.svelte';
+	import { onMount } from 'svelte';
+	import * as d3 from 'd3';
 
 	// Minimal context for Canvas
 	const graphSettings = new GraphSettingsClass();
 	const canvasHandler = new WebWorkerCanvasHandler();
 	canvasHandler.disablePanZoom = true;
+
 	const guidelines: Guideline[] = [];
 
 	setContext('graphSettings', graphSettings);
@@ -22,6 +26,19 @@
 	// load homepage graph
 	importGraphJSON(homepageGraph.graph);
 	graphSettings.importState(homepageGraph.settings);
+
+	// Pixelation effect state
+	let currentLetter = $state(0);
+	let animationInterval: number;
+
+	onMount(() => {
+		canvasHandler.changeTransform(d3.zoomIdentity.translate(500, 50).scale(0.5));
+
+		// Start the pixelation animation
+		animationInterval = setInterval(() => {
+			currentLetter = (currentLetter + 1) % 9; // "graphWHIZ" has 9 letters
+		}, 500);
+	});
 
 	function handleRepulse(event: MouseEvent) {
 		// Only repulse if using force-graph layout
@@ -37,16 +54,16 @@
 		}
 	}
 
-	function handleMouseLeave() {
-		if (graphSettings.graphSettings.layout?.type?.value === 'force-graph') {
-			canvasHandler.simulationWorker?.postMessage({
-				type: 'clearCursorForce'
-			});
-		}
+	function getPixelationLevel(letterIndex: number): string {
+		if (letterIndex >= currentLetter) return 'regular';
+
+		const pixelationLevels = ['regular', '10', '20', '35', '50', '70', '100'];
+		const levelIndex = Math.min(currentLetter - letterIndex, pixelationLevels.length - 1);
+		return pixelationLevels[levelIndex];
 	}
 </script>
 
-<div class="canvas-bg" on:mousemove={handleRepulse} on:mouseleave={handleMouseLeave}>
+<div class="canvas-bg" on:mousemove={handleRepulse}>
 	<Canvas homepage={true} />
 </div>
 
@@ -56,7 +73,15 @@
 		<div class="left-group">
 			<div class="logo-block">
 				<div class="logo">
-					<span class="logo-graph">graph</span><span class="logo-whiz">WHIZ</span>
+					{#each 'graphWHIZ'.split('') as letter, i}
+						<span
+							class="logo-letter"
+							class:pixelated={i < currentLetter}
+							style="--pixelation-level: {getPixelationLevel(i)}"
+						>
+							{letter}
+						</span>
+					{/each}
 				</div>
 			</div>
 			<div class="about">
@@ -74,6 +99,55 @@
 </div>
 
 <style>
+	@font-face {
+		font-family: 'Redaction';
+		src: url('/src/assets/font/Redaction-Regular.woff2') format('woff2');
+		font-weight: normal;
+		font-style: normal;
+	}
+
+	@font-face {
+		font-family: 'Redaction-100';
+		src: url('/src/assets/font/Redaction_100-Regular.woff2') format('woff2');
+		font-weight: normal;
+		font-style: normal;
+	}
+
+	@font-face {
+		font-family: 'Redaction-70';
+		src: url('/src/assets/font/Redaction_70-Regular.woff2') format('woff2');
+		font-weight: normal;
+		font-style: normal;
+	}
+
+	@font-face {
+		font-family: 'Redaction-50';
+		src: url('/src/assets/font/Redaction_50-Regular.woff2') format('woff2');
+		font-weight: normal;
+		font-style: normal;
+	}
+
+	@font-face {
+		font-family: 'Redaction-35';
+		src: url('/src/assets/font/Redaction_35-Regular.woff2') format('woff2');
+		font-weight: normal;
+		font-style: normal;
+	}
+
+	@font-face {
+		font-family: 'Redaction-20';
+		src: url('/src/assets/font/Redaction_20-Regular.woff2') format('woff2');
+		font-weight: normal;
+		font-style: normal;
+	}
+
+	@font-face {
+		font-family: 'Redaction-10';
+		src: url('/src/assets/font/Redaction_10-Regular.woff2') format('woff2');
+		font-weight: normal;
+		font-style: normal;
+	}
+
 	.canvas-bg {
 		position: fixed;
 		top: 0;
@@ -130,6 +204,39 @@
 		font-weight: 400;
 		line-height: 1;
 	}
+
+	.logo-letter {
+		transition: font-family 0.1s ease;
+	}
+
+	.logo-letter.pixelated[style*='--pixelation-level: regular'] {
+		font-family: 'Redaction';
+	}
+
+	.logo-letter.pixelated[style*='--pixelation-level: 100'] {
+		font-family: 'Redaction-100';
+	}
+
+	.logo-letter.pixelated[style*='--pixelation-level: 70'] {
+		font-family: 'Redaction-70';
+	}
+
+	.logo-letter.pixelated[style*='--pixelation-level: 50'] {
+		font-family: 'Redaction-50';
+	}
+
+	.logo-letter.pixelated[style*='--pixelation-level: 35'] {
+		font-family: 'Redaction-35';
+	}
+
+	.logo-letter.pixelated[style*='--pixelation-level: 20'] {
+		font-family: 'Redaction-20';
+	}
+
+	.logo-letter.pixelated[style*='--pixelation-level: 10'] {
+		font-family: 'Redaction-10';
+	}
+
 	.logo-graph {
 		font-style: italic;
 	}
@@ -156,21 +263,15 @@
 	}
 
 	.action-btn {
+		text-transform: uppercase;
 		background: none;
 		border: none;
 		font-size: 1.25rem;
-		color: white;
-		background-color: black;
-		border-radius: 10px;
-		font-family: 'Inter', Arial, sans-serif;
+		font-family: 'sans-serif';
 		font-weight: 500;
 		cursor: pointer;
-		padding: 20px 40px;
+		padding: 0px 40px;
 		transition: color 0.2s;
 		text-align: right;
-	}
-	.action-btn:hover {
-		color: #4caf50;
-		text-decoration: underline;
 	}
 </style>

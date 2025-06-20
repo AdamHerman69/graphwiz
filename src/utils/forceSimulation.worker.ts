@@ -183,7 +183,7 @@ onmessage = function (event) {
 			break;
 		case 'setCursorForce':
 			if (typeof x === 'number' && typeof y === 'number' && simulation) {
-				const repulseForce = d3.forceRadial(200, x, y).strength(0.01);
+				const repulseForce = d3.forceRadial(100, x, y).strength(0.05);
 				simulation.force('cursor', repulseForce);
 				simulation.alpha(0.3).restart();
 			}

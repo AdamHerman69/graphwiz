@@ -3,11 +3,12 @@
 	import Canvas from '../../components/Canvas.svelte';
 	import AppView from '../../components/AppView.svelte';
 	import {
-		loadSampleGraph,
 		computeAttributes,
 		getGraph,
-		recomputeCharacteristics
+		recomputeCharacteristics,
+		importGraphJSON
 	} from '../../utils/graph.svelte';
+	import homepageGraph from '../../assets/homepageGraph.json';
 	import { setContext } from 'svelte';
 	import { gsap } from 'gsap';
 	import {
@@ -48,8 +49,22 @@
 	});
 
 	function initGraph(): Graph {
-		let graph = loadSampleGraph();
-		computeAttributes(getGraph());
+		// If a graph is already loaded (e.g. from the homepage), use it.
+		// Otherwise, load the homepage graph.
+		let graph = getGraph();
+		if (graph.order === 0) {
+			// Check if the graph is empty
+			console.log('No existing graph found, loading homepage graph.');
+			importGraphJSON(homepageGraph.graph);
+			graph = getGraph(); // Re-fetch the graph from the store
+		} else {
+			console.log('Existing graph found, using it.');
+		}
+
+		// Always apply the homepage graph's settings to the left panel
+		graphSettingsLeft.importState(homepageGraph.settings);
+
+		computeAttributes(graph);
 		recomputeCharacteristics(graph);
 		loadGuidelines(graphSettingsLeft.newGUIID);
 		return graph;

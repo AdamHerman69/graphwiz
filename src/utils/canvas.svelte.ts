@@ -55,6 +55,7 @@ export interface ICanvasHandler {
 	changeLayout(layout: LayoutSettings): Promise<void>;
 	resize(width: number, height: number): void;
 	resetTransform(): void;
+	changeTransform(transform: d3.ZoomTransform): void;
 
 	readablity?: ReadabilityMetrics | undefined;
 	selectedNode: D3Node | null;
@@ -233,7 +234,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			);
 
 		// drag and zoom
-		if (!this.disablePanZoom) {
+		if (true) {
 			d3.select(this.canvas)
 				.call(
 					d3
@@ -748,6 +749,19 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 
 		// Reset the paper renderer's zoom and center
 		this.paperRenderer.resetZoom();
+	}
+
+	changeTransform(transform: d3.ZoomTransform) {
+		this.transform = transform;
+		d3.select(this.canvas).call(d3.zoom().transform, transform);
+		// Create a synthetic zoom event object that matches what d3.zoom() would produce
+		const event = {
+			transform: transform,
+			sourceEvent: null,
+			target: this.canvas,
+			type: 'zoom'
+		};
+		this.paperRenderer.zoomed(event as any);
 	}
 
 	pauseSimulation() {

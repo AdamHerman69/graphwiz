@@ -145,7 +145,7 @@
 		<ReadabilityMetrics bind:readability={canvasHandler.readability} />
 	{/if}
 
-	{#if canvasHandler.selectedNode}
+	{#if canvasHandler.selectedNode && !homepage}
 		<div
 			class="nodeInfo"
 			style="left: {$selectedNodeSpring.x}px; top: {$selectedNodeSpring.y}px;"
