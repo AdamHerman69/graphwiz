@@ -7,7 +7,7 @@
 	import { WebWorkerCanvasHandler } from '../utils/canvas.svelte';
 	import { importGraphJSON } from '../utils/graph.svelte';
 	import type { Guideline } from '../utils/guideline.svelte';
-	import homepageGraph from '../assets/homepageGraph.json';
+	import homepageGraph from '../assets/homepageGraph_noAttrs.json';
 	import { loadCitationNetwork } from '../utils/graph.svelte';
 	import { onMount } from 'svelte';
 	import * as d3 from 'd3';
@@ -27,17 +27,82 @@
 	importGraphJSON(homepageGraph.graph);
 	graphSettings.importState(homepageGraph.settings);
 
-	// Pixelation effect state
-	let currentLetter = $state(0);
-	let animationInterval: number;
+	// Pixelation effect state using a "shift register" approach
+	const title = 'graphWHIZ';
+	const pixelationCycle = [
+		'regular',
+		'10',
+		'20',
+		'35',
+		'50',
+		'70',
+		'100',
+		'70',
+		'50',
+		'35',
+		'20',
+		'10'
+	];
+	const cycleLength = pixelationCycle.length;
+
+	// Each letter has an index into the pixelationCycle
+	let letterLevelIndices = $state(Array(title.length).fill(0));
+	let animationInterval: number | undefined = undefined;
+	let pulseTriggerInterval: number;
+	let isAnimating = $state(false);
+
+	function triggerPulse() {
+		if (isAnimating) return;
+		isAnimating = true;
+
+		let step = 0;
+		// Total steps for the wave to be created and fully disappear off the end.
+		const totalSteps = title.length + cycleLength;
+
+		animationInterval = setInterval(() => {
+			if (step >= totalSteps) {
+				clearInterval(animationInterval);
+				animationInterval = undefined;
+				isAnimating = false;
+				letterLevelIndices = Array(title.length).fill(0); // Ensure clean state
+				return;
+			}
+
+			const newIndices = [...letterLevelIndices];
+
+			// A "virtual" letter at index -1 acts as the wave's source.
+			// It pulses once through the cycle, then stays at 0.
+			let sourceLevelIndex;
+			if (step < cycleLength) {
+				sourceLevelIndex = step;
+			} else {
+				sourceLevelIndex = 0; // Source stops emitting the pulse.
+			}
+
+			newIndices[0] = sourceLevelIndex;
+
+			// Each subsequent letter takes the *previous* state of the one before it.
+			for (let i = 1; i < title.length; i++) {
+				newIndices[i] = letterLevelIndices[i - 1];
+			}
+
+			letterLevelIndices = newIndices;
+			step++;
+		}, 50); // A fast interval for the pulse itself.
+	}
 
 	onMount(() => {
 		canvasHandler.changeTransform(d3.zoomIdentity.translate(500, 50).scale(0.5));
 
-		// Start the pixelation animation
-		animationInterval = setInterval(() => {
-			currentLetter = (currentLetter + 1) % 9; // "graphWHIZ" has 9 letters
-		}, 500);
+		// Start the first pulse shortly after load, then repeat every 5 seconds.
+		setTimeout(triggerPulse, 500);
+		pulseTriggerInterval = setInterval(triggerPulse, 5000);
+
+		return () => {
+			// Cleanup intervals when the component is destroyed.
+			if (animationInterval) clearInterval(animationInterval);
+			clearInterval(pulseTriggerInterval);
+		};
 	});
 
 	function handleRepulse(event: MouseEvent) {
@@ -53,14 +118,6 @@
 			});
 		}
 	}
-
-	function getPixelationLevel(letterIndex: number): string {
-		if (letterIndex >= currentLetter) return 'regular';
-
-		const pixelationLevels = ['regular', '10', '20', '35', '50', '70', '100'];
-		const levelIndex = Math.min(currentLetter - letterIndex, pixelationLevels.length - 1);
-		return pixelationLevels[levelIndex];
-	}
 </script>
 
 <div class="canvas-bg" on:mousemove={handleRepulse}>
@@ -73,11 +130,11 @@
 		<div class="left-group">
 			<div class="logo-block">
 				<div class="logo">
-					{#each 'graphWHIZ'.split('') as letter, i}
+					{#each title.split('') as letter, i}
 						<span
 							class="logo-letter"
-							class:pixelated={i < currentLetter}
-							style="--pixelation-level: {getPixelationLevel(i)}"
+							class:pixelated={pixelationCycle[letterLevelIndices[i]] !== 'regular'}
+							style="--pixelation-level: {pixelationCycle[letterLevelIndices[i]]}"
 						>
 							{letter}
 						</span>
@@ -196,6 +253,7 @@
 		justify-content: flex-end;
 		height: 100%;
 		min-height: 200px;
+		min-width: 22rem;
 	}
 
 	.logo {
@@ -209,31 +267,31 @@
 		transition: font-family 0.1s ease;
 	}
 
-	.logo-letter.pixelated[style*='--pixelation-level: regular'] {
+	.logo-letter[style='--pixelation-level: regular'] {
 		font-family: 'Redaction';
 	}
 
-	.logo-letter.pixelated[style*='--pixelation-level: 100'] {
+	.logo-letter[style='--pixelation-level: 100'] {
 		font-family: 'Redaction-100';
 	}
 
-	.logo-letter.pixelated[style*='--pixelation-level: 70'] {
+	.logo-letter[style='--pixelation-level: 70'] {
 		font-family: 'Redaction-70';
 	}
 
-	.logo-letter.pixelated[style*='--pixelation-level: 50'] {
+	.logo-letter[style='--pixelation-level: 50'] {
 		font-family: 'Redaction-50';
 	}
 
-	.logo-letter.pixelated[style*='--pixelation-level: 35'] {
+	.logo-letter[style='--pixelation-level: 35'] {
 		font-family: 'Redaction-35';
 	}
 
-	.logo-letter.pixelated[style*='--pixelation-level: 20'] {
+	.logo-letter[style='--pixelation-level: 20'] {
 		font-family: 'Redaction-20';
 	}
 
-	.logo-letter.pixelated[style*='--pixelation-level: 10'] {
+	.logo-letter[style='--pixelation-level: 10'] {
 		font-family: 'Redaction-10';
 	}
 
@@ -249,7 +307,7 @@
 		font-size: 1rem;
 		max-width: 28vw;
 		color: #222;
-		font-family: serif;
+		font-family: 'serif';
 		font-weight: 500;
 		line-height: 1.4;
 		margin-bottom: 0.5vw;
