@@ -88,7 +88,7 @@
 
 			letterLevelIndices = newIndices;
 			step++;
-		}, 50); // A fast interval for the pulse itself.
+		}, 60); // A fast interval for the pulse itself.
 	}
 
 	onMount(() => {
@@ -150,6 +150,14 @@
 			</div>
 		</div>
 		<div class="right-group">
+			<a
+				href="https://github.com/adam-mcdaniel/graph-red-pill"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="github-link"
+			>
+				<img src="/src/assets/github.svg" alt="GitHub" class="github-logo" />
+			</a>
 			<!-- <button class="action-btn" on:click={() => goto('/app?mode=upload')}>load your data</button> -->
 			<button class="action-btn" on:click={() => goto('/app?mode=sample')}>launch</button>
 		</div>
@@ -206,6 +214,25 @@
 		font-style: normal;
 	}
 
+	/* .canvas-bg {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		z-index: 0;
+	}
+
+	.landing-root {
+		position: relative;
+		width: 100vw;
+		height: 100vh;
+		overflow: hidden;
+		background: transparent;
+		z-index: 1;
+		pointer-events: none;
+	} */
+
 	.canvas-bg {
 		position: fixed;
 		top: 0;
@@ -213,6 +240,11 @@
 		width: 100vw;
 		height: 100vh;
 		z-index: 0;
+		background: radial-gradient(
+			circle at 60% 40%,
+			rgba(86, 0, 129, 0.2) 0%,
+			rgba(232, 232, 232, 0) 70%
+		);
 	}
 
 	.landing-root {
@@ -258,6 +290,7 @@
 	}
 
 	.logo {
+		/* color: var(--default-bg-color); */
 		font-family: serif;
 		font-size: 4rem;
 		font-weight: 400;
@@ -308,29 +341,59 @@
 		font-size: 1rem;
 		max-width: 28vw;
 		color: #222;
-		font-family: 'serif';
-		font-weight: 500;
-		line-height: 1.4;
+		font-family: 'UncutSans';
+		font-weight: 400;
+		line-height: 1.1;
 		margin-bottom: 0.5vw;
+	}
+
+	.github-link {
+		width: 20px;
+		height: 20px;
+		display: block;
+		color: #222;
+		transition: color 0.2s;
+	}
+
+	.github-link:hover {
+		color: #000;
+	}
+
+	.github-logo {
+		width: 100%;
+		height: 100%;
 	}
 
 	.right-group {
 		display: flex;
-		flex-direction: column;
-		align-items: flex-end;
-		gap: 1.2em;
+		flex-direction: row;
+		align-items: center;
+		gap: 1.5em;
 	}
 
 	.action-btn {
 		text-transform: uppercase;
 		background: none;
 		border: none;
-		font-size: 1.25rem;
-		font-family: 'sans-serif';
+		font-size: 14px;
+		font-family: 'UncutSans';
 		font-weight: 500;
 		cursor: pointer;
-		padding: 0px 40px;
-		transition: color 0.2s;
+		padding: 5px 40px;
+		transition: all 0.2s;
 		text-align: right;
+		border-radius: 8px;
+		background-color: #f0f0f0;
+		color: #222;
+		border: 1px solid #222;
+		transition: all 0.2s;
+		box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+		box-sizing: border-box;
+	}
+
+	.action-btn:hover {
+		background-color: #222;
+		color: #f0f0f0;
+		box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
 	}
 </style>

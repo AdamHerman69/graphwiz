@@ -56,6 +56,7 @@ export interface ICanvasHandler {
 	resize(width: number, height: number): void;
 	resetTransform(): void;
 	changeTransform(transform: d3.ZoomTransform): void;
+	tweenTransform(transform: d3.ZoomTransform, duration?: number): void;
 
 	readablity?: ReadabilityMetrics | undefined;
 	selectedNode: D3Node | null;
@@ -741,17 +742,11 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	}
 
 	resetTransform(): void {
-		// Reset the transform to the identity transform
-		this.transform = d3.zoomIdentity;
-
-		// Reset the zoom behavior
-		d3.select(this.canvas).call(d3.zoom().transform, d3.zoomIdentity);
-
-		// Reset the paper renderer's zoom and center
-		this.paperRenderer.resetZoom();
+		// Use the smooth tweenTransform method to reset to identity
+		this.tweenTransform(d3.zoomIdentity, 0.3);
 	}
 
-	changeTransform(transform: d3.ZoomTransform) {
+	changeTransform(transform: d3.ZoomTransform): void {
 		this.transform = transform;
 		d3.select(this.canvas).call(d3.zoom().transform, transform);
 		// Create a synthetic zoom event object that matches what d3.zoom() would produce
@@ -762,6 +757,65 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 			type: 'zoom'
 		};
 		this.paperRenderer.zoomed(event as any);
+	}
+
+	/**
+	 * Smoothly animates the transform to the target transform over the specified duration.
+	 * @param transform - The target transform to animate to
+	 * @param duration - Animation duration in seconds (default: 0.5)
+	 */
+	tweenTransform(transform: d3.ZoomTransform, duration?: number): void {
+		const animDuration = duration ?? 0.5;
+
+		// If duration is 0 or very small, apply immediately (for performance)
+		if (animDuration <= 0.05) {
+			this.changeTransform(transform);
+			return;
+		}
+
+		// Get current transform values
+		const currentTransform = this.transform;
+		const startX = currentTransform.x;
+		const startY = currentTransform.y;
+		const startK = currentTransform.k;
+
+		const endX = transform.x;
+		const endY = transform.y;
+		const endK = transform.k;
+
+		// Store reference to 'this' for use in the callback
+		const self = this;
+
+		// Animate the transform using GSAP
+		gsap.to(
+			{},
+			{
+				duration: animDuration,
+				ease: 'power2.inOut',
+				onUpdate: function () {
+					// Get the progress from the tween
+					const t = this.progress();
+
+					// Interpolate between start and end values
+					const interpolatedTransform = d3.zoomIdentity
+						.translate(startX + (endX - startX) * t, startY + (endY - startY) * t)
+						.scale(startK + (endK - startK) * t);
+
+					// Apply the interpolated transform
+					self.transform = interpolatedTransform;
+					d3.select(self.canvas).call(d3.zoom().transform, interpolatedTransform);
+
+					// Create a synthetic zoom event object
+					const event = {
+						transform: interpolatedTransform,
+						sourceEvent: null,
+						target: self.canvas,
+						type: 'zoom'
+					};
+					self.paperRenderer.zoomed(event as any);
+				}
+			}
+		);
 	}
 
 	pauseSimulation() {
