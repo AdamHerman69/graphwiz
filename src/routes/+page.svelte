@@ -133,6 +133,7 @@
 					{#each title.split('') as letter, i}
 						<span
 							class="logo-letter"
+							class:logo-graph={i < 5}
 							class:pixelated={pixelationCycle[letterLevelIndices[i]] !== 'regular'}
 							style="--pixelation-level: {pixelationCycle[letterLevelIndices[i]]}"
 						>
