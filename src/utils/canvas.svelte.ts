@@ -765,6 +765,7 @@ export class WebWorkerCanvasHandler implements ICanvasHandler {
 	 * @param duration - Animation duration in seconds (default: 0.5)
 	 */
 	tweenTransform(transform: d3.ZoomTransform, duration?: number): void {
+		console.log('tweenTransform');
 		const animDuration = duration ?? 0.5;
 
 		// If duration is 0 or very small, apply immediately (for performance)

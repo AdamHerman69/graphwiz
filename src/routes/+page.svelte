@@ -2,15 +2,28 @@
 	import { goto } from '$app/navigation';
 	import { fade } from 'svelte/transition';
 	import Canvas from '../components/Canvas.svelte';
-	import { setContext } from 'svelte';
+	import { setContext, untrack, onMount } from 'svelte';
 	import { GraphSettingsClass } from '../utils/graphSettings.svelte';
 	import { WebWorkerCanvasHandler } from '../utils/canvas.svelte';
 	import { importGraphJSON } from '../utils/graph.svelte';
 	import type { Guideline } from '../utils/guideline.svelte';
 	import homepageGraph from '../assets/homepageGraph_noAttrs.json';
 	import { loadCitationNetwork } from '../utils/graph.svelte';
-	import { onMount } from 'svelte';
 	import * as d3 from 'd3';
+
+	let additionalContentEl: HTMLDivElement;
+
+	// Transform state for the form
+	// let x = $state(500);
+	// let y = $state(-100);
+	// let scale = $state(0.7);
+
+	// $effect(() => {
+	// 	const transform = d3.zoomIdentity.translate(x, y).scale(scale);
+	// 	untrack(() => {
+	// 		canvasHandler.changeTransform(transform);
+	// 	});
+	// });
 
 	// Minimal context for Canvas
 	const graphSettings = new GraphSettingsClass();
@@ -92,16 +105,44 @@
 	}
 
 	onMount(() => {
-		canvasHandler.changeTransform(d3.zoomIdentity.translate(500, 50).scale(0.5));
-
 		// Start the first pulse shortly after load, then repeat every 5 seconds.
 		setTimeout(triggerPulse, 500);
 		pulseTriggerInterval = setInterval(triggerPulse, 5000);
+
+		// Add the global mousemove listener
+		window.addEventListener('mousemove', handleRepulse);
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						console.log('intersecting');
+						const transform = d3.zoomIdentity.translate(100, 300).scale(0.2);
+						canvasHandler.tweenTransform(transform, 0.4);
+					} else {
+						console.log('not intersecting');
+						const transform = d3.zoomIdentity.translate(500, -240).scale(0.7);
+						canvasHandler.tweenTransform(transform, 0.4);
+					}
+				});
+			},
+			{
+				threshold: 0.5 // When 50% of the element is visible
+			}
+		);
+
+		observer.observe(additionalContentEl);
 
 		return () => {
 			// Cleanup intervals when the component is destroyed.
 			if (animationInterval) clearInterval(animationInterval);
 			clearInterval(pulseTriggerInterval);
+
+			// Remove the global mousemove listener
+			window.removeEventListener('mousemove', handleRepulse);
+
+			// Cleanup the observer
+			observer.unobserve(additionalContentEl);
 		};
 	});
 
@@ -120,46 +161,82 @@
 	}
 </script>
 
-<div class="canvas-bg" on:mousemove={handleRepulse}>
+<div class="canvas-bg">
 	<Canvas homepage={true} />
 </div>
 
-<div class="landing-root" in:fade>
-	<!-- Main content anchored to bottom -->
-	<div class="bottom-row">
-		<div class="left-group">
-			<div class="logo-block">
-				<div class="logo">
-					{#each title.split('') as letter, i}
-						<span
-							class="logo-letter"
-							class:logo-graph={i < 5}
-							class:pixelated={pixelationCycle[letterLevelIndices[i]] !== 'regular'}
-							style="--pixelation-level: {pixelationCycle[letterLevelIndices[i]]}"
-						>
-							{letter}
-						</span>
-					{/each}
-				</div>
-			</div>
-			<div class="about">
-				Visualize graphs with intelligent layout optimization. This tool automatically applies
-				research-backed visualization guidelines to generate clear, readable node-link diagrams.
-				Simply upload your graph data and let the system select optimal layout algorithms and visual
-				settings based on your graph's properties—no manual tweaking required.
-			</div>
+<!-- <div class="transform-form">
+	<label>
+		X:
+		<input type="number" step="10" bind:value={x} />
+	</label>
+	<label>
+		Y:
+		<input type="number" step="10" bind:value={y} />
+	</label>
+	<label>
+		Zoom:
+		<input type="number" step="0.1" min="0.1" max="5" bind:value={scale} />
+	</label>
+</div> -->
+
+<!-- Fixed logo and right group -->
+<div class="fixed-elements">
+	<div class="logo-block">
+		<div class="logo">
+			{#each title.split('') as letter, i}
+				<span
+					class="logo-letter"
+					class:logo-graph={i < 5}
+					class:pixelated={pixelationCycle[letterLevelIndices[i]] !== 'regular'}
+					style="--pixelation-level: {pixelationCycle[letterLevelIndices[i]]}"
+				>
+					{letter}
+				</span>
+			{/each}
 		</div>
-		<div class="right-group">
-			<a
-				href="https://github.com/adam-mcdaniel/graph-red-pill"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="github-link"
-			>
-				<img src="/src/assets/github.svg" alt="GitHub" class="github-logo" />
-			</a>
-			<!-- <button class="action-btn" on:click={() => goto('/app?mode=upload')}>load your data</button> -->
-			<button class="action-btn" on:click={() => goto('/app?mode=sample')}>launch</button>
+	</div>
+
+	<div class="right-group">
+		<a
+			href="https://github.com/adam-mcdaniel/graph-red-pill"
+			target="_blank"
+			rel="noopener noreferrer"
+			class="github-link"
+		>
+			<img src="/src/assets/github.svg" alt="GitHub" class="github-logo" />
+		</a>
+		<button class="action-btn" on:click={() => goto('/app?mode=sample')}>launch</button>
+	</div>
+</div>
+
+<!-- Scrollable content -->
+<div class="content-container" in:fade>
+	<!-- First section (100vh) -->
+	<div class="section first-section">
+		<div class="about">
+			Visualize graphs with intelligent layout optimization. This tool automatically applies
+			research-backed visualization guidelines to generate clear, readable node-link diagrams.
+			Simply upload your graph data and let the system select optimal layout algorithms and visual
+			settings based on your graph's properties—no manual tweaking required.
+		</div>
+	</div>
+
+	<!-- Second section (100vh) -->
+	<div class="section second-section">
+		<div class="additional-content" bind:this={additionalContentEl}>
+			<p class="content-paragraph">
+				Our intelligent system analyzes your graph's structure, density, and node relationships to
+				automatically select the most appropriate layout algorithm. Whether you're working with
+				hierarchical data, social networks, or complex knowledge graphs, the system adapts to
+				provide optimal visual clarity.
+			</p>
+			<p class="content-paragraph">
+				Built on decades of graph visualization research, graphWHIZ incorporates proven design
+				principles and best practices. The result is professional-quality visualizations that
+				effectively communicate your data's structure and relationships without requiring
+				specialized design expertise.
+			</p>
 		</div>
 	</div>
 </div>
@@ -214,24 +291,11 @@
 		font-style: normal;
 	}
 
-	/* .canvas-bg {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		height: 100vh;
-		z-index: 0;
+	/* Global scroll fix */
+	:global(body) {
+		overflow-y: auto;
+		height: 200vh;
 	}
-
-	.landing-root {
-		position: relative;
-		width: 100vw;
-		height: 100vh;
-		overflow: hidden;
-		background: transparent;
-		z-index: 1;
-		pointer-events: none;
-	} */
 
 	.canvas-bg {
 		position: fixed;
@@ -247,50 +311,25 @@
 		);
 	}
 
-	.landing-root {
-		position: relative;
+	/* Fixed elements (logo and right group) */
+	.fixed-elements {
+		position: fixed;
+		top: 0;
+		left: 0;
 		width: 100vw;
 		height: 100vh;
-		overflow: hidden;
-		background: transparent;
-		z-index: 1;
+		z-index: 2;
 		pointer-events: none;
 	}
 
-	.bottom-row {
-		pointer-events: auto;
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		width: 100%;
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		align-items: flex-end;
-		padding: 3vw 3vw 2vw 3vw;
-		box-sizing: border-box;
-	}
-
-	.left-group {
-		display: flex;
-		flex-direction: row;
-		align-items: flex-end;
-		gap: 2vw;
-		max-width: 60vw;
-	}
-
 	.logo-block {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		justify-content: flex-end;
-		height: 100%;
-		min-height: 200px;
-		min-width: 22rem;
+		position: absolute;
+		bottom: 3vw;
+		left: 3vw;
+		pointer-events: auto;
 	}
 
 	.logo {
-		/* color: var(--default-bg-color); */
 		font-family: serif;
 		font-size: 4rem;
 		font-weight: 400;
@@ -332,9 +371,44 @@
 	.logo-graph {
 		font-style: italic;
 	}
-	.logo-whiz {
-		font-weight: bold;
-		margin-left: 0.1em;
+
+	.right-group {
+		position: absolute;
+		bottom: 3vw;
+		right: 3vw;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 1.5em;
+		pointer-events: auto;
+	}
+
+	/* Scrollable content */
+	.content-container {
+		position: relative;
+		width: 100vw;
+		height: 200vh;
+		z-index: 1;
+	}
+
+	.section {
+		width: 100%;
+		height: 100vh;
+		display: flex;
+		align-items: flex-end;
+		padding: 0 3vw 2vw 3vw;
+		box-sizing: border-box;
+	}
+
+	.first-section {
+		justify-content: flex-start;
+	}
+
+	.second-section {
+		justify-content: flex-start;
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 2rem;
 	}
 
 	.about {
@@ -344,7 +418,27 @@
 		font-family: 'UncutSans';
 		font-weight: 400;
 		line-height: 1.1;
-		margin-bottom: 0.5vw;
+		margin-left: 400px; /* Align with logo width + gap */
+	}
+
+	.additional-content {
+		max-width: 60vw;
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+		margin-left: 400px; /* Align with logo width + gap */
+	}
+
+	.content-paragraph {
+		max-width: 28vw;
+
+		font-size: 1rem;
+		color: #222;
+		font-family: 'UncutSans';
+		font-weight: 400;
+		line-height: 1.1;
+		margin: 0;
+		margin-top: 40vh;
 	}
 
 	.github-link {
@@ -362,13 +456,6 @@
 	.github-logo {
 		width: 100%;
 		height: 100%;
-	}
-
-	.right-group {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		gap: 1.5em;
 	}
 
 	.action-btn {
@@ -395,5 +482,35 @@
 		background-color: #222;
 		color: #f0f0f0;
 		box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+	}
+
+	.transform-form {
+		position: fixed;
+		top: 20px;
+		left: 20px;
+		background-color: rgba(255, 255, 255, 0.8);
+		padding: 10px;
+		border-radius: 8px;
+		z-index: 100;
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+		backdrop-filter: blur(5px);
+	}
+
+	.transform-form label {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		font-family: 'UncutSans';
+		font-size: 14px;
+	}
+
+	.transform-form input {
+		width: 80px;
+		margin-left: 10px;
+		border-radius: 4px;
+		border: 1px solid #ccc;
+		padding: 2px 5px;
 	}
 </style>

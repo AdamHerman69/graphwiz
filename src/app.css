@@ -227,11 +227,6 @@ body {
 	animation: popupShowRight 0.1s ease forwards;
 }
 
-html,
-body {
-	overflow: hidden;
-}
-
 .reverse {
 	display: flex;
 	flex-direction: column-reverse;

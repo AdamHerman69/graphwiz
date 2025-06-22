@@ -365,4 +365,8 @@
 		left: 50%;
 		transform: translateX(-50%);
 	}
+
+	:global(html, body) {
+		overflow: hidden;
+	}
 </style>
