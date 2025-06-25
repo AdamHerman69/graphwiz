@@ -270,6 +270,15 @@ body {
 	transform: scale(1.2);
 }
 
+.buttonGeneral:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.buttonGeneral:disabled:hover {
+	animation: shake 0.3s ease-in-out;
+}
+
 .settingContainer {
 	display: flex;
 	flex-direction: column;
@@ -282,4 +291,33 @@ body {
 
 .hoverScale:hover {
 	transform: scale(1.1);
+}
+
+@keyframes shake {
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+	10%,
+	30%,
+	50%,
+	70%,
+	90% {
+		transform: translateX(-2px);
+	}
+	20%,
+	40%,
+	60%,
+	80% {
+		transform: translateX(2px);
+	}
+}
+
+.shake {
+	animation: shake 0.5s ease-in-out;
+}
+
+.buttonGeneral:disabled:hover {
+	transform: none;
+	animation: shake 0.5s ease-in-out;
 }

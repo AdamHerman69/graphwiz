@@ -20,7 +20,8 @@
 	let {
 		guideline = $bindable(),
 		expand,
-		first = false
+		first = false,
+		demo = false
 	}: {
 		guideline: Guideline;
 		expand: (guideline: Guideline, div: HTMLDivElement) => void;
@@ -139,6 +140,7 @@
 			<div class="flex">
 				<button
 					onclick={applyInSplitView}
+					disabled={demo}
 					class="splitButton buttonGeneral"
 					transition:blur={{ duration: 100 }}
 					use:hoverPopup={{
@@ -152,6 +154,7 @@
 
 				<button
 					class="buttonGeneral"
+					disabled={demo}
 					use:hoverPopup={{
 						text: 'expand guideline',
 						delay: 300,
@@ -173,6 +176,7 @@
 
 				<button
 					class="buttonGeneral"
+					disabled={demo}
 					use:hoverPopup={{
 						text: 'edit guideline',
 						delay: 300,
